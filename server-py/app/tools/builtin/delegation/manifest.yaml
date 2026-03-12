@@ -1,0 +1,10 @@
+name: delegation
+version: "1.0.0"
+description: Agent 间任务委托工具（受白名单、深度、环路约束）
+author: PathMind Team
+category: orchestration
+tools:
+  - delegate_to_agent
+  - delegate_batch_agents
+permissions:
+  roles: [student, teacher, admin]

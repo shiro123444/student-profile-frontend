@@ -244,20 +244,20 @@ export default function MBTITestPage() {
         clearProgress(selectedCategory)
       }
 
-      if (result.success && result.data) {
-        localStorage.setItem('studentId', result.data.studentId)
+      if (result.studentId) {
+        localStorage.setItem('studentId', result.studentId)
         localStorage.setItem('studentName', studentName || '匿名学生')
-        localStorage.setItem('mbtiCode', result.data.mbtiCode)
+        localStorage.setItem('mbtiCode', result.mbtiCode)
         const dimensionParams = new URLSearchParams({
-          type: result.data.mbtiCode,
-          E: result.data.dimensions.E.toString(),
-          I: result.data.dimensions.I.toString(),
-          S: result.data.dimensions.S.toString(),
-          N: result.data.dimensions.N.toString(),
-          T: result.data.dimensions.T.toString(),
-          F: result.data.dimensions.F.toString(),
-          J: result.data.dimensions.J.toString(),
-          P: result.data.dimensions.P.toString(),
+          type: result.mbtiCode,
+          E: result.dimensions.E.toString(),
+          I: result.dimensions.I.toString(),
+          S: result.dimensions.S.toString(),
+          N: result.dimensions.N.toString(),
+          T: result.dimensions.T.toString(),
+          F: result.dimensions.F.toString(),
+          J: result.dimensions.J.toString(),
+          P: result.dimensions.P.toString(),
         })
         navigate(`/results?${dimensionParams.toString()}`)
       } else {
@@ -321,10 +321,10 @@ export default function MBTITestPage() {
   const progress = (currentIndex + 1) / questions.length * 100
 
   return (
-    <div 
+    <div
       className="min-h-screen relative"
-      style={{ 
-        background: `linear-gradient(135deg, var(--bg-primary) 0%, #F8FAFC 50%, rgba(241,245,249,0.5) 100%)` 
+      style={{
+        background: 'var(--bg-primary)',
       }}
     >
       {/* 背景呼吸光晕 */}
@@ -377,7 +377,7 @@ export default function MBTITestPage() {
                 transition={{ delay: 0.1 }}
                 className="p-8 rounded-3xl border border-border-primary"
                 style={{
-                  background: 'rgba(255,255,255,0.8)',
+                  background: 'var(--bg-card)',
                   backdropFilter: 'blur(20px)',
                   boxShadow: '0 25px 50px -12px rgba(0,0,0,0.08)',
                 }}
@@ -504,17 +504,17 @@ export default function MBTITestPage() {
                       transition={{ duration: 0.3 }}
                       className="p-8 rounded-3xl border border-border-primary"
                       style={{
-                        background: 'rgba(255,255,255,0.8)',
+                        background: 'var(--bg-card)',
                         backdropFilter: 'blur(20px)',
                       }}
                     >
                       {/* 题目类型标签 */}
                       <div className="flex items-center gap-2 mb-6">
-                        <span 
+                        <span
                           className="text-xs px-2 py-1 rounded-full"
-                          style={{ 
-                            background: `${primary[500]}15`,
-                            color: primary[600],
+                          style={{
+                            background: 'var(--accent-bg)',
+                            color: 'var(--accent-text)',
                           }}
                         >
                           问题 {currentIndex + 1}

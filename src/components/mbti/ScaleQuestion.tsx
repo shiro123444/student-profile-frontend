@@ -37,8 +37,8 @@ export default function ScaleQuestion({ question, answer, onAnswer }: ScaleQuest
       <div className="space-y-4">
         {/* 标签 */}
         <div className="flex justify-between text-sm font-medium px-2">
-          <span style={{ color: primary[600] }}>{question.leftLabel}</span>
-          <span style={{ color: primary[600] }}>{question.rightLabel}</span>
+          <span style={{ color: 'var(--accent-text)' }}>{question.leftLabel}</span>
+          <span style={{ color: 'var(--accent-text)' }}>{question.rightLabel}</span>
         </div>
 
         {/* 刻度点 */}
@@ -63,7 +63,7 @@ export default function ScaleQuestion({ question, answer, onAnswer }: ScaleQuest
                       ? `linear-gradient(135deg, ${primary[500]} 0%, ${primary[700]} 100%)`
                       : isNeutral 
                         ? 'var(--bg-tertiary)'
-                        : 'rgba(255,255,255,0.8)',
+                        : 'var(--bg-card)',
                     boxShadow: isSelected ? `0 4px 12px ${primary[500]}40` : 'none',
                   }}
                 >

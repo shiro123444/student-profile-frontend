@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+*.egg-info/
+
+# Build
+build/
+dist/
+release/
+*.spec
+!KiroProxy.spec
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Service files (generated)
+start_kiro_proxy.vbs
+start_kiro_proxy_debug.vbs
+
+# HAR files (contain sensitive data)
+*.har
+
+# Logs
+*.log
+
+# Test files
+[0-9].txt
+[0-9][0-9].txt
+线索*.txt
+tests/*.pyc
+tests/__pycache__/
+
+# Temp analysis files
+flows
+flows_*
+traffic.mitm
+*.mitm
+analyze_har.py
+parse_*.py
+*_analysis.txt
+*_check.txt
+hex_dump.txt
+parsed_*.txt
+response.txt
+参考.txt
+
+# Other projects
+Antigravity-Manager/
+cc-switch/

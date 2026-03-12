@@ -1,47 +1,64 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import ForceGraph2D from 'react-force-graph-2d';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
+import ForceGraph2D from 'react-force-graph-2d'
+import { graphApi } from '../services/api'
+import type { KnowledgeGraphData as ApiGraphData } from '../services/api'
+import type { GraphCommandEvent } from '../hooks/useAgentStream'
 
-// 定义图谱数据类型
+// Graph data types for ForceGraph2D
 interface GraphNode {
-  id: string;
-  name: string;
-  type: 'student' | 'mbti' | 'career' | 'skill' | 'course' | 'learning_path';
-  color: string;
-  size: number;
-  description?: string;
-  [key: string]: unknown;
+  id: string
+  name: string
+  type: 'student' | 'mbti' | 'career' | 'skill' | 'course' | 'learning_path'
+  color: string
+  size: number
+  description?: string
+  [key: string]: unknown
 }
 
-interface GraphEdge {
-  source: string;
-  target: string;
-  type: string;
-  label: string;
+interface GraphLink {
+  source: string
+  target: string
+  type: string
+  label: string
 }
 
-interface KnowledgeGraphData {
-  nodes: GraphNode[];
-  links: GraphEdge[];
+interface ForceGraphData {
+  nodes: GraphNode[]
+  links: GraphLink[]
 }
 
 interface KnowledgeGraphProps {
-  studentId?: string;
-  careerId?: string;
-  mode?: 'student' | 'career' | 'full';
-  onNodeClick?: (node: GraphNode) => void;
+  studentId?: string
+  careerId?: string
+  mode?: 'student' | 'career' | 'full'
+  onNodeClick?: (node: GraphNode) => void
+  graphCommand?: GraphCommandEvent & { issuedAt?: number }
+  onCommandExecuted?: (result: GraphCommandExecutionResult) => void
 }
 
-// 节点类型颜色映射 - 浅色主题
-const nodeColors: Record<string, string> = {
-  student: '#ec4899', // 粉色
-  mbti: '#8b5cf6', // 紫色
-  career: '#10b981', // 绿色
-  skill: '#f59e0b', // 橙黄色
-  course: '#3b82f6', // 蓝色
-  learning_path: '#ef4444', // 红色
-};
+export interface GraphCommandExecutionResult {
+  command: string
+  target?: string
+  params?: Record<string, unknown>
+  issuedAt?: number
+  executedAt: number
+  status: 'success' | 'ignored' | 'error'
+  success: boolean
+  message: string
+  undoCommand?: GraphCommandEvent
+}
 
-// 节点类型大小映射 - 增大尺寸提高可读性
+// Node type color mapping
+const nodeColors: Record<string, string> = {
+  student: '#ec4899',
+  mbti: '#8b5cf6',
+  career: '#10b981',
+  skill: '#f59e0b',
+  course: '#3b82f6',
+  learning_path: '#ef4444',
+}
+
+// Node type size mapping
 const nodeSizes: Record<string, number> = {
   student: 16,
   mbti: 14,
@@ -49,9 +66,9 @@ const nodeSizes: Record<string, number> = {
   skill: 10,
   course: 12,
   learning_path: 14,
-};
+}
 
-// 节点类型中文名
+// Node type labels
 const nodeTypeLabels: Record<string, string> = {
   student: '学生',
   mbti: 'MBTI类型',
@@ -59,328 +76,700 @@ const nodeTypeLabels: Record<string, string> = {
   skill: '技能',
   course: '课程',
   learning_path: '学习路径',
-};
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+}
 
 export default function KnowledgeGraph({
   studentId,
   careerId,
   mode = 'full',
   onNodeClick,
+  graphCommand,
+  onCommandExecuted,
 }: KnowledgeGraphProps) {
-  const graphRef = useRef<any>(null);
-  const [graphData, setGraphData] = useState<KnowledgeGraphData>({ nodes: [], links: [] });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null);
-  const [dimensions, setDimensions] = useState({ 
-    width: typeof window !== 'undefined' ? window.innerWidth : 800, 
-    height: typeof window !== 'undefined' ? window.innerHeight : 600 
-  });
-  const containerRef = useRef<HTMLDivElement>(null);
+  const graphRef = useRef<any>(null)
+  const [rawGraphData, setRawGraphData] = useState<ForceGraphData>({ nodes: [], links: [] })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [hoveredNode, setHoveredNode] = useState<GraphNode | null>(null)
+  const [activeTypeFilters, setActiveTypeFilters] = useState<string[]>([])
+  const [highlightedNodeIds, setHighlightedNodeIds] = useState<string[]>([])
+  const [dimensions, setDimensions] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 800,
+    height: typeof window !== 'undefined' ? window.innerHeight : 600
+  })
+  const containerRef = useRef<HTMLDivElement>(null)
+  const lastCommandKeyRef = useRef<string>('')
 
-  // 获取图谱数据
+  const graphData = useMemo<ForceGraphData>(() => {
+    if (activeTypeFilters.length === 0) {
+      return rawGraphData
+    }
+    const allow = new Set(activeTypeFilters)
+    const nodes = rawGraphData.nodes.filter((node) => allow.has(node.type))
+    const nodeIds = new Set(nodes.map((node) => node.id))
+    const links = rawGraphData.links.filter((link) => {
+      const source = typeof link.source === 'string' ? link.source : (link.source as GraphNode).id
+      const target = typeof link.target === 'string' ? link.target : (link.target as GraphNode).id
+      return nodeIds.has(source) && nodeIds.has(target)
+    })
+    return { nodes, links }
+  }, [rawGraphData, activeTypeFilters])
+
+  // Fetch graph data via API service
   useEffect(() => {
     const fetchGraphData = async () => {
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
 
       try {
-        let url = `${API_BASE}/graph`;
+        let apiData: ApiGraphData
 
         if (mode === 'student' && studentId) {
-          url = `${API_BASE}/graph/student/${studentId}`;
+          apiData = await graphApi.getStudentGraph(studentId)
         } else if (mode === 'career' && careerId) {
-          url = `${API_BASE}/graph/career/${careerId}`;
+          apiData = await graphApi.getCareerGraph(careerId)
         } else {
-          url = `${API_BASE}/graph/full`;
+          apiData = await graphApi.getFullGraph()
         }
 
-        const response = await fetch(url);
-        const result = await response.json();
-
-        if (result.success) {
-          // 转换数据格式以适配 ForceGraph2D
-          const formattedData = {
-            nodes: result.data.nodes.map((node: GraphNode) => ({
-              ...node,
-              color: node.color || nodeColors[node.type] || '#9ca3af',
-              size: node.size || nodeSizes[node.type] || 8,
-            })),
-            links: result.data.edges.map((edge: GraphEdge) => ({
-              source: edge.source,
-              target: edge.target,
-              label: edge.label,
-              type: edge.type,
-            })),
-          };
-          setGraphData(formattedData);
-        } else {
-          setError(result.error || '获取图谱数据失败');
+        const formattedData: ForceGraphData = {
+          nodes: apiData.nodes.map((node) => ({
+            ...node,
+            color: node.color || nodeColors[node.type] || '#9ca3af',
+            size: node.size || nodeSizes[node.type] || 8,
+          })),
+          links: apiData.edges.map((edge) => ({
+            source: edge.source,
+            target: edge.target,
+            label: edge.label,
+            type: edge.type,
+          })),
         }
+        setRawGraphData(formattedData)
+        setActiveTypeFilters([])
+        setHighlightedNodeIds([])
       } catch (err) {
-        console.error('获取图谱数据失败:', err);
-        setError('无法连接到服务器，请确保后端服务已启动');
-        
-        // 开发模式下使用模拟数据
+        console.error('获取图谱数据失败:', err)
+        setError('无法连接到服务器，请确保后端服务已启动')
+
+        // Dev mode: use mock data
         if (import.meta.env.DEV) {
-          setGraphData(getMockData());
+          setRawGraphData(getMockData())
         }
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchGraphData();
-  }, [mode, studentId, careerId]);
+    fetchGraphData()
+  }, [mode, studentId, careerId])
 
-  // 响应容器大小变化 - 使用 ResizeObserver
+  // Responsive container sizing
   useEffect(() => {
     const updateDimensions = () => {
       if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        // 使用 getBoundingClientRect 获取准确尺寸，如果为 0 则使用 window 尺寸
-        const width = rect.width > 0 ? rect.width : window.innerWidth;
-        const height = rect.height > 0 ? rect.height : window.innerHeight;
-        setDimensions({ width, height });
+        const rect = containerRef.current.getBoundingClientRect()
+        const width = rect.width > 0 ? rect.width : window.innerWidth
+        const height = rect.height > 0 ? rect.height : window.innerHeight
+        setDimensions({ width, height })
       } else {
-        // 容器不存在时使用 window 尺寸
-        setDimensions({ width: window.innerWidth, height: window.innerHeight });
+        setDimensions({ width: window.innerWidth, height: window.innerHeight })
       }
-    };
-
-    // 立即更新一次
-    updateDimensions();
-    
-    // 使用 ResizeObserver 监听容器尺寸变化
-    const resizeObserver = new ResizeObserver(() => {
-      updateDimensions();
-    });
-    
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
     }
-    
-    // 同时监听 window resize 作为备用
-    window.addEventListener('resize', updateDimensions);
-    
-    // 延迟更新以确保 DOM 完全渲染
-    const timer = setTimeout(updateDimensions, 100);
-    
-    return () => {
-      resizeObserver.disconnect();
-      window.removeEventListener('resize', updateDimensions);
-      clearTimeout(timer);
-    };
-  }, []);
 
-  // 配置 D3 力模拟 - 稳定的弹簧物理效果
+    updateDimensions()
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateDimensions()
+    })
+
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current)
+    }
+
+    window.addEventListener('resize', updateDimensions)
+    const timer = setTimeout(updateDimensions, 100)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', updateDimensions)
+      clearTimeout(timer)
+    }
+  }, [])
+
+  // Configure D3 force simulation
   useEffect(() => {
     if (graphRef.current && graphData.nodes.length > 0) {
-      const fg = graphRef.current;
-      
+      const fg = graphRef.current
+
       try {
-        // 节点间斥力 - 让节点保持距离
-        const chargeForce = fg.d3Force('charge');
+        const chargeForce = fg.d3Force('charge')
         if (chargeForce) {
-          chargeForce.strength(-200);    // 适中的斥力
-          chargeForce.distanceMax(200);  // 作用距离
+          chargeForce.strength(-200)
+          chargeForce.distanceMax(200)
         }
-        
-        // 连接线弹簧力
-        const linkForce = fg.d3Force('link');
+
+        const linkForce = fg.d3Force('link')
         if (linkForce) {
-          linkForce.distance(100);       // 弹簧自然长度
-          linkForce.strength(0.5);       // 弹簧强度，0.5 比较柔和
+          linkForce.distance(100)
+          linkForce.strength(0.5)
         }
-        
-        // 启动模拟让初始布局展开
-        fg.d3ReheatSimulation();
+
+        fg.d3ReheatSimulation()
       } catch (e) {
-        console.warn('D3 force configuration failed:', e);
+        console.warn('D3 force configuration failed:', e)
       }
-      
-      // 稍后自动居中
+
       setTimeout(() => {
         if (fg) {
-          fg.zoomToFit(600, 80);
+          fg.zoomToFit(600, 80)
         }
-      }, 2000);
+      }, 2000)
     }
-  }, [graphData]);
+  }, [graphData])
 
-  // 节点绘制函数 - 带动画效果
+  // Node drawing function
   const drawNode = useCallback(
     (node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-      // 确保节点有有效位置
       if (node.x === undefined || node.y === undefined || !isFinite(node.x) || !isFinite(node.y)) {
-        return;
-      }
-      
-      const x = node.x;
-      const y = node.y;
-      const baseSize = node.size || 10;
-      const color = node.color || '#6b7280';
-      const isHovered = hoveredNode?.id === node.id;
-      
-      // 悬浮时放大效果
-      const scale = isHovered ? 1.25 : 1;
-      const size = baseSize * scale;
-
-      // 悬浮时的外发光效果
-      if (isHovered) {
-        // 外层光晕
-        ctx.beginPath();
-        ctx.arc(x, y, size + 15, 0, 2 * Math.PI);
-        ctx.fillStyle = `${color}25`;
-        ctx.fill();
-        
-        // 内层光晕
-        ctx.beginPath();
-        ctx.arc(x, y, size + 8, 0, 2 * Math.PI);
-        ctx.fillStyle = `${color}35`;
-        ctx.fill();
+        return
       }
 
-      // 节点阴影
-      ctx.shadowColor = isHovered ? color : 'rgba(0,0,0,0.15)';
-      ctx.shadowBlur = isHovered ? 12 : 6;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = isHovered ? 3 : 2;
+      const x = node.x
+      const y = node.y
+      const baseSize = node.size || 10
+      const color = node.color || '#6b7280'
+      const isHovered = hoveredNode?.id === node.id
+      const isHighlighted = highlightedNodeIds.includes(node.id)
 
-      // 绘制节点圆形
-      ctx.beginPath();
-      ctx.arc(x, y, size, 0, 2 * Math.PI);
-      ctx.fillStyle = color;
-      ctx.fill();
+      const scale = isHovered ? 1.25 : (isHighlighted ? 1.15 : 1)
+      const size = baseSize * scale
 
-      // 重置阴影
-      ctx.shadowColor = 'transparent';
-      ctx.shadowBlur = 0;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
+      if (isHovered || isHighlighted) {
+        ctx.beginPath()
+        ctx.arc(x, y, size + 15, 0, 2 * Math.PI)
+        ctx.fillStyle = isHighlighted ? `${color}35` : `${color}25`
+        ctx.fill()
 
-      // 绘制边框
-      ctx.strokeStyle = isHovered ? '#1f2937' : 'rgba(255,255,255,0.95)';
-      ctx.lineWidth = isHovered ? 3 : 2;
-      ctx.stroke();
-      
-      // 内部高光
-      ctx.beginPath();
-      ctx.arc(x - size * 0.25, y - size * 0.25, size * 0.3, 0, 2 * Math.PI);
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
-      ctx.fill();
+        ctx.beginPath()
+        ctx.arc(x, y, size + 8, 0, 2 * Math.PI)
+        ctx.fillStyle = isHighlighted ? `${color}45` : `${color}35`
+        ctx.fill()
+      }
 
-      // 绘制标签 - 始终显示
-      const label = node.name || '';
-      const fontSize = Math.max(11, 14 / globalScale);
-      ctx.font = `600 ${fontSize}px system-ui, -apple-system, sans-serif`;
-      const textWidth = ctx.measureText(label).width;
-      const padding = 6;
-      const labelY = y + size + fontSize / 2 + 10;
+      ctx.shadowColor = isHovered || isHighlighted ? color : 'rgba(0,0,0,0.15)'
+      ctx.shadowBlur = isHovered || isHighlighted ? 12 : 6
+      ctx.shadowOffsetX = 0
+      ctx.shadowOffsetY = isHovered || isHighlighted ? 3 : 2
 
-      // 标签背景带阴影
-      ctx.shadowColor = 'rgba(0,0,0,0.1)';
-      ctx.shadowBlur = 4;
-      ctx.shadowOffsetY = 2;
-      
-      ctx.fillStyle = isHovered ? 'rgba(255, 255, 255, 0.98)' : 'rgba(255, 255, 255, 0.92)';
-      ctx.beginPath();
+      ctx.beginPath()
+      ctx.arc(x, y, size, 0, 2 * Math.PI)
+      ctx.fillStyle = color
+      ctx.fill()
+
+      ctx.shadowColor = 'transparent'
+      ctx.shadowBlur = 0
+      ctx.shadowOffsetX = 0
+      ctx.shadowOffsetY = 0
+
+      ctx.strokeStyle = isHovered || isHighlighted ? '#1f2937' : 'rgba(255,255,255,0.95)'
+      ctx.lineWidth = isHovered || isHighlighted ? 3 : 2
+      ctx.stroke()
+
+      ctx.beginPath()
+      ctx.arc(x - size * 0.25, y - size * 0.25, size * 0.3, 0, 2 * Math.PI)
+      ctx.fillStyle = 'rgba(255,255,255,0.4)'
+      ctx.fill()
+
+      const label = node.name || ''
+      const fontSize = Math.max(11, 14 / globalScale)
+      ctx.font = `600 ${fontSize}px system-ui, -apple-system, sans-serif`
+      const textWidth = ctx.measureText(label).width
+      const padding = 6
+      const labelY = y + size + fontSize / 2 + 10
+
+      ctx.shadowColor = 'rgba(0,0,0,0.1)'
+      ctx.shadowBlur = 4
+      ctx.shadowOffsetY = 2
+
+      ctx.fillStyle = isHovered || isHighlighted ? 'rgba(255, 255, 255, 0.98)' : 'rgba(255, 255, 255, 0.92)'
+      ctx.beginPath()
       ctx.roundRect(
         x - textWidth / 2 - padding,
         labelY - fontSize / 2 - padding / 2,
         textWidth + padding * 2,
         fontSize + padding,
         6
-      );
-      ctx.fill();
-      
-      // 悬浮时标签边框高亮
-      if (isHovered) {
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
+      )
+      ctx.fill()
+
+      if (isHovered || isHighlighted) {
+        ctx.strokeStyle = color
+        ctx.lineWidth = 2
       } else {
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)';
-        ctx.lineWidth = 1;
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.08)'
+        ctx.lineWidth = 1
       }
-      ctx.stroke();
+      ctx.stroke()
 
-      // 重置阴影
-      ctx.shadowColor = 'transparent';
-      ctx.shadowBlur = 0;
-      ctx.shadowOffsetY = 0;
+      ctx.shadowColor = 'transparent'
+      ctx.shadowBlur = 0
+      ctx.shadowOffsetY = 0
 
-      // 标签文字
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = isHovered ? '#111827' : '#374151';
-      ctx.fillText(label, x, labelY);
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillStyle = isHovered || isHighlighted ? '#111827' : '#374151'
+      ctx.fillText(label, x, labelY)
     },
-    [hoveredNode]
-  );
+    [hoveredNode, highlightedNodeIds]
+  )
 
-  // 边绘制函数 - 浅色主题优化
+  // Link drawing function
   const drawLink = useCallback(
     (link: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-      const start = link.source;
-      const end = link.target;
+      const start = link.source
+      const end = link.target
 
-      if (typeof start !== 'object' || typeof end !== 'object') return;
-      
-      // 确保有有效位置
+      if (typeof start !== 'object' || typeof end !== 'object') return
       if (!isFinite(start.x) || !isFinite(start.y) || !isFinite(end.x) || !isFinite(end.y)) {
-        return;
+        return
       }
 
-      // 绘制边
-      ctx.beginPath();
-      ctx.moveTo(start.x, start.y);
-      ctx.lineTo(end.x, end.y);
-      ctx.strokeStyle = 'rgba(156, 163, 175, 0.5)';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+      ctx.beginPath()
+      ctx.moveTo(start.x, start.y)
+      ctx.lineTo(end.x, end.y)
+      ctx.strokeStyle = 'rgba(156, 163, 175, 0.5)'
+      ctx.lineWidth = 1.5
+      ctx.stroke()
 
-      // 绘制边标签
       if (globalScale > 1.2 && link.label) {
-        const midX = (start.x + end.x) / 2;
-        const midY = (start.y + end.y) / 2;
-        const fontSize = Math.max(10 / globalScale, 3);
+        const midX = (start.x + end.x) / 2
+        const midY = (start.y + end.y) / 2
+        const fontSize = Math.max(10 / globalScale, 3)
 
-        ctx.font = `${fontSize}px "Noto Sans SC", system-ui, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#6b7280';
-        ctx.fillText(link.label, midX, midY);
+        ctx.font = `${fontSize}px "Noto Sans SC", system-ui, sans-serif`
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillStyle = '#6b7280'
+        ctx.fillText(link.label, midX, midY)
       }
     },
     []
-  );
+  )
 
-  // 处理节点点击
   const handleNodeClick = useCallback(
     (node: any) => {
       if (onNodeClick) {
-        onNodeClick(node as GraphNode);
+        onNodeClick(node as GraphNode)
       }
 
-      // 缩放到点击的节点
       if (graphRef.current) {
-        graphRef.current.centerAt(node.x, node.y, 500);
-        graphRef.current.zoom(2.5, 500);
+        graphRef.current.centerAt(node.x, node.y, 500)
+        graphRef.current.zoom(2.5, 500)
       }
     },
     [onNodeClick]
-  );
+  )
 
-  // 处理节点悬停 - 更改鼠标样式
   const handleNodeHover = useCallback((node: any) => {
-    setHoveredNode(node || null);
-    // 更改鼠标样式
+    setHoveredNode(node || null)
     if (containerRef.current) {
-      containerRef.current.style.cursor = node ? 'pointer' : 'grab';
+      containerRef.current.style.cursor = node ? 'pointer' : 'grab'
     }
-  }, []);
+  }, [])
+
+  const findNodeByTarget = useCallback((target?: string): GraphNode | undefined => {
+    if (!target) return undefined
+    const normalized = target.trim().toLowerCase()
+    if (!normalized) return undefined
+    return rawGraphData.nodes.find((node) => node.id.toLowerCase() === normalized)
+      || rawGraphData.nodes.find((node) => node.name.toLowerCase() === normalized)
+      || rawGraphData.nodes.find((node) => node.name.toLowerCase().includes(normalized))
+  }, [rawGraphData.nodes])
+
+  const resolveNodeId = useCallback((value: unknown): string | undefined => {
+    if (typeof value !== 'string' || value.trim().length === 0) return undefined
+    const normalized = value.trim().toLowerCase()
+    const direct = rawGraphData.nodes.find((node) => node.id.toLowerCase() === normalized)
+    if (direct) return direct.id
+    const byName = rawGraphData.nodes.find((node) => node.name.toLowerCase() === normalized)
+    if (byName) return byName.id
+    const fuzzy = rawGraphData.nodes.find((node) => node.name.toLowerCase().includes(normalized))
+    return fuzzy?.id
+  }, [rawGraphData.nodes])
+
+  const findShortestPath = useCallback((sourceId: string, targetId: string): string[] => {
+    if (sourceId === targetId) return [sourceId]
+
+    const adjacency = new Map<string, string[]>()
+    for (const node of rawGraphData.nodes) {
+      adjacency.set(node.id, [])
+    }
+
+    for (const link of rawGraphData.links) {
+      const source = typeof link.source === 'string' ? link.source : (link.source as GraphNode).id
+      const target = typeof link.target === 'string' ? link.target : (link.target as GraphNode).id
+      if (!adjacency.has(source)) adjacency.set(source, [])
+      if (!adjacency.has(target)) adjacency.set(target, [])
+      adjacency.get(source)?.push(target)
+      adjacency.get(target)?.push(source)
+    }
+
+    const queue: string[] = [sourceId]
+    const visited = new Set<string>([sourceId])
+    const parent = new Map<string, string>()
+
+    while (queue.length > 0) {
+      const current = queue.shift()!
+      if (current === targetId) break
+
+      const neighbors = adjacency.get(current) || []
+      for (const next of neighbors) {
+        if (visited.has(next)) continue
+        visited.add(next)
+        parent.set(next, current)
+        queue.push(next)
+      }
+    }
+
+    if (!visited.has(targetId)) return []
+
+    const path: string[] = [targetId]
+    let cursor = targetId
+    while (cursor !== sourceId) {
+      const prev = parent.get(cursor)
+      if (!prev) return []
+      path.push(prev)
+      cursor = prev
+    }
+    return path.reverse()
+  }, [rawGraphData.links, rawGraphData.nodes])
+
+  const focusNodeById = useCallback((nodeId: string, openPanel = false) => {
+    if (!nodeId) return
+    const sourceNode = rawGraphData.nodes.find((node) => node.id === nodeId)
+    if (!sourceNode) return
+
+    const hasVisibleNode = graphData.nodes.some((node) => node.id === nodeId)
+    if (!hasVisibleNode && activeTypeFilters.length > 0) {
+      setActiveTypeFilters([])
+    }
+
+    setHighlightedNodeIds((prev) => (prev.includes(nodeId) ? prev : [...prev, nodeId]))
+    setHoveredNode(sourceNode)
+    if (openPanel && onNodeClick) {
+      onNodeClick(sourceNode)
+    }
+
+    const performFocus = () => {
+      if (!graphRef.current) return
+      const fgNodes = ((graphRef.current.graphData?.().nodes || []) as Array<GraphNode & { x?: number; y?: number }>)
+      const visibleNode = fgNodes.find((node) => node.id === nodeId)
+      if (!visibleNode || !Number.isFinite(visibleNode.x) || !Number.isFinite(visibleNode.y)) return
+      graphRef.current.centerAt(visibleNode.x, visibleNode.y, 700)
+      graphRef.current.zoom(2.3, 700)
+    }
+
+    window.setTimeout(performFocus, hasVisibleNode ? 0 : 120)
+  }, [activeTypeFilters.length, graphData.nodes, onNodeClick, rawGraphData.nodes])
+
+  const emitCommandResult = useCallback((
+    payload: Omit<GraphCommandExecutionResult, 'executedAt' | 'issuedAt' | 'command' | 'target' | 'params'>
+      & { undoCommand?: GraphCommandEvent },
+    command: string,
+    target?: string,
+    params?: Record<string, unknown>,
+    issuedAt?: number,
+  ) => {
+    onCommandExecuted?.({
+      command,
+      target,
+      params,
+      issuedAt,
+      executedAt: Date.now(),
+      ...payload,
+    })
+  }, [onCommandExecuted])
+
+  useEffect(() => {
+    if (!graphCommand?.command) return
+
+    const command = graphCommand.command
+    const target = graphCommand.target
+    const params = graphCommand.params || {}
+    const commandKey = `${graphCommand.issuedAt || 0}:${command}:${target || ''}:${JSON.stringify(params)}`
+    if (lastCommandKeyRef.current === commandKey) return
+    lastCommandKeyRef.current = commandKey
+
+    if (command === 'focus_node') {
+      const node = findNodeByTarget(target)
+      if (!node) {
+        emitCommandResult(
+          {
+            status: 'ignored',
+            success: false,
+            message: `未找到节点：${target || '空目标'}`,
+          },
+          command,
+          target,
+          params as Record<string, unknown>,
+          graphCommand.issuedAt,
+        )
+        return
+      }
+      focusNodeById(node.id, true)
+      emitCommandResult(
+        {
+          status: 'success',
+          success: true,
+          message: `已聚焦节点：${node.name}`,
+          undoCommand: { command: 'fit_view' },
+        },
+        command,
+        target,
+        params as Record<string, unknown>,
+        graphCommand.issuedAt,
+      )
+      return
+    }
+
+    if (command === 'filter_type') {
+      const previousFilters = [...activeTypeFilters]
+      const fromParams = Array.isArray((params as Record<string, unknown>).types)
+        ? ((params as Record<string, unknown>).types as unknown[])
+            .filter((value): value is string => typeof value === 'string')
+        : []
+      const fromTarget = typeof target === 'string'
+        ? target.split(',').map((value) => value.trim()).filter(Boolean)
+        : []
+      const allTypes = [...new Set([...fromParams, ...fromTarget].map((value) => value.toLowerCase()))]
+      const validTypes = allTypes.filter((value) => rawGraphData.nodes.some((node) => node.type === value))
+      if (validTypes.length > 0) {
+        setActiveTypeFilters(validTypes)
+        setHighlightedNodeIds([])
+        emitCommandResult(
+          {
+            status: 'success',
+            success: true,
+            message: `已过滤类型：${validTypes.join(', ')}`,
+            undoCommand: previousFilters.length > 0
+              ? { command: 'filter_type', params: { types: previousFilters } }
+              : { command: 'clear_filters' },
+          },
+          command,
+          target,
+          params as Record<string, unknown>,
+          graphCommand.issuedAt,
+        )
+      } else {
+        emitCommandResult(
+          {
+            status: 'ignored',
+            success: false,
+            message: '未提供有效的节点类型过滤条件',
+          },
+          command,
+          target,
+          params as Record<string, unknown>,
+          graphCommand.issuedAt,
+        )
+      }
+      return
+    }
+
+    if (command === 'clear_filters') {
+      const previousFilters = [...activeTypeFilters]
+      setActiveTypeFilters([])
+      setHighlightedNodeIds([])
+      emitCommandResult(
+        {
+          status: 'success',
+          success: true,
+          message: '已清除过滤与高亮',
+          undoCommand: previousFilters.length > 0
+            ? { command: 'filter_type', params: { types: previousFilters } }
+            : undefined,
+        },
+        command,
+        target,
+        params as Record<string, unknown>,
+        graphCommand.issuedAt,
+      )
+      return
+    }
+
+    if (command === 'fit_view') {
+      graphRef.current?.zoomToFit?.(600, 100)
+      emitCommandResult(
+        {
+          status: 'success',
+          success: true,
+          message: '已自动适配图谱视图',
+        },
+        command,
+        target,
+        params as Record<string, unknown>,
+        graphCommand.issuedAt,
+      )
+      return
+    }
+
+    if (command === 'highlight_path') {
+      const payload = params as Record<string, unknown>
+      let sourceValue = payload.source
+      let targetValue = payload.target
+
+      if ((!sourceValue || !targetValue) && typeof target === 'string' && target.includes('->')) {
+        const [left, right] = target.split('->').map((value) => value.trim())
+        if (!sourceValue) sourceValue = left
+        if (!targetValue) targetValue = right
+      }
+
+      const sourceId = resolveNodeId(sourceValue)
+      const targetId = resolveNodeId(targetValue)
+      if (!sourceId || !targetId) {
+        emitCommandResult(
+          {
+            status: 'ignored',
+            success: false,
+            message: '路径高亮失败：source/target 节点无法解析',
+          },
+          command,
+          target,
+          payload,
+          graphCommand.issuedAt,
+        )
+        return
+      }
+
+      const path = findShortestPath(sourceId, targetId)
+      if (path.length === 0) {
+        emitCommandResult(
+          {
+            status: 'ignored',
+            success: false,
+            message: '路径高亮失败：未找到连通路径',
+          },
+          command,
+          target,
+          payload,
+          graphCommand.issuedAt,
+        )
+        return
+      }
+
+      setHighlightedNodeIds(path)
+      focusNodeById(path[0], true)
+      emitCommandResult(
+        {
+          status: 'success',
+          success: true,
+          message: `已高亮路径，共 ${path.length} 个节点`,
+          undoCommand: { command: 'fit_view' },
+        },
+        command,
+        target,
+        payload,
+        graphCommand.issuedAt,
+      )
+      return
+    }
+
+    if (command === 'expand_node') {
+      const node = findNodeByTarget(target)
+      if (!node) {
+        emitCommandResult(
+          {
+            status: 'ignored',
+            success: false,
+            message: `展开失败：未找到节点 ${target || ''}`,
+          },
+          command,
+          target,
+          params as Record<string, unknown>,
+          graphCommand.issuedAt,
+        )
+        return
+      }
+
+      const neighborIds = rawGraphData.links.reduce<string[]>((acc, link) => {
+        const source = typeof link.source === 'string' ? link.source : (link.source as GraphNode).id
+        const targetId = typeof link.target === 'string' ? link.target : (link.target as GraphNode).id
+        if (source === node.id) acc.push(targetId)
+        if (targetId === node.id) acc.push(source)
+        return acc
+      }, [])
+      setHighlightedNodeIds([node.id, ...new Set(neighborIds)])
+      focusNodeById(node.id, true)
+      emitCommandResult(
+        {
+          status: 'success',
+          success: true,
+          message: `已展开节点 ${node.name}，关联 ${new Set(neighborIds).size} 个邻居`,
+          undoCommand: { command: 'fit_view' },
+        },
+        command,
+        target,
+        params as Record<string, unknown>,
+        graphCommand.issuedAt,
+      )
+      return
+    }
+
+    if (command === 'open_panel') {
+      const node = findNodeByTarget(target)
+      if (node) {
+        focusNodeById(node.id, true)
+        emitCommandResult(
+          {
+            status: 'success',
+            success: true,
+            message: `已打开节点面板：${node.name}`,
+            undoCommand: { command: 'fit_view' },
+          },
+          command,
+          target,
+          params as Record<string, unknown>,
+          graphCommand.issuedAt,
+        )
+      } else {
+        emitCommandResult(
+          {
+            status: 'ignored',
+            success: false,
+            message: `打开面板失败：未找到节点 ${target || ''}`,
+          },
+          command,
+          target,
+          params as Record<string, unknown>,
+          graphCommand.issuedAt,
+        )
+      }
+      return
+    }
+
+    emitCommandResult(
+      {
+        status: 'error',
+        success: false,
+        message: `未知图谱命令：${command}`,
+      },
+      command,
+      target,
+      params as Record<string, unknown>,
+      graphCommand.issuedAt,
+    )
+  }, [
+    activeTypeFilters,
+    emitCommandResult,
+    findNodeByTarget,
+    findShortestPath,
+    focusNodeById,
+    graphCommand,
+    rawGraphData.links,
+    rawGraphData.nodes,
+    resolveNodeId,
+  ])
 
   if (loading) {
     return (
@@ -390,10 +779,10 @@ export default function KnowledgeGraph({
           <p className="text-text-secondary font-medium">加载知识图谱中...</p>
         </div>
       </div>
-    );
+    )
   }
 
-  if (error && graphData.nodes.length === 0) {
+  if (error && rawGraphData.nodes.length === 0) {
     return (
       <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-100" style={{ minWidth: '100vw', minHeight: '100vh' }}>
         <div className="flex flex-col items-center gap-4 text-center p-8">
@@ -404,16 +793,16 @@ export default function KnowledgeGraph({
           </p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div 
-      ref={containerRef} 
+    <div
+      ref={containerRef}
       className="absolute inset-0 bg-gradient-to-br from-slate-50 via-gray-50 to-zinc-100 overflow-hidden"
       style={{ width: '100%', height: '100%', minWidth: '100vw', minHeight: '100vh' }}
     >
-      {/* 图例 - 左上角浮动 */}
+      {/* Legend */}
       <div className="absolute top-4 left-4 bg-bg-card backdrop-blur-md rounded-xl p-3 z-10 shadow-lg border border-border-primary">
         <h3 className="text-text-secondary font-semibold mb-2 text-xs uppercase tracking-wider">图例</h3>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
@@ -429,10 +818,10 @@ export default function KnowledgeGraph({
         </div>
       </div>
 
-      {/* 节点详情悬浮框 - 带动画效果 */}
+      {/* Hovered node tooltip */}
       {hoveredNode && (
-        <div 
-          className="absolute bottom-4 left-4 bg-bg-card backdrop-blur-md rounded-2xl px-5 py-4 z-10 shadow-xl border-2 transition-all duration-200 animate-in slide-in-from-bottom-2"
+        <div
+          className="absolute bottom-4 left-4 bg-bg-card backdrop-blur-md rounded-2xl px-5 py-4 z-10 shadow-xl border-2 transition-all duration-200"
           style={{ borderColor: `${hoveredNode.color}40` }}
         >
           <div className="flex items-center gap-3">
@@ -463,7 +852,7 @@ export default function KnowledgeGraph({
         </div>
       )}
 
-      {/* 统计信息 - 右上角 */}
+      {/* Stats */}
       <div className="absolute top-4 right-4 bg-bg-card backdrop-blur-md rounded-xl px-4 py-2 z-10 shadow-lg border border-border-primary">
         <div className="flex items-center gap-4 text-sm">
           <span className="text-text-muted">
@@ -476,14 +865,14 @@ export default function KnowledgeGraph({
         </div>
       </div>
 
-      {/* 操作提示 - 右下角 */}
+      {/* Controls hint */}
       <div className="absolute bottom-4 right-4 bg-bg-card backdrop-blur-md rounded-xl px-3 py-2 z-10 shadow-lg border border-border-primary">
         <p className="text-text-muted text-xs">
           拖拽节点移动 · 空白处平移 · 滚轮缩放
         </p>
       </div>
 
-      {/* 力导向图 - 全屏 */}
+      {/* Force Graph */}
       <ForceGraph2D
         ref={graphRef}
         graphData={graphData}
@@ -496,78 +885,58 @@ export default function KnowledgeGraph({
         nodeLabel={() => ''}
         linkLabel={() => ''}
         backgroundColor="transparent"
-        
-        // 箭头设置
         linkDirectionalArrowLength={6}
         linkDirectionalArrowRelPos={0.85}
         linkDirectionalArrowColor={() => 'rgba(156, 163, 175, 0.6)'}
-        
-        // 物理引擎参数 - 稳定但有弹性
-        cooldownTicks={200}        // 初始布局后冷却
-        cooldownTime={3000}        // 3秒后稳定
-        d3VelocityDecay={0.4}      // 阻尼，越大越快停止
-        d3AlphaDecay={0.02}        // alpha 衰减，让模拟逐渐停止
-        d3AlphaMin={0.001}         // 最小alpha
-        warmupTicks={100}          // 预热
-        
-        // 节点拖拽和交互
+        cooldownTicks={200}
+        cooldownTime={3000}
+        d3VelocityDecay={0.4}
+        d3AlphaDecay={0.02}
+        d3AlphaMin={0.001}
+        warmupTicks={100}
         enableNodeDrag={true}
         enableZoomInteraction={true}
         enablePanInteraction={true}
-        
-        // 增大节点点击区域
         nodePointerAreaPaint={(node: any, color: string, ctx: CanvasRenderingContext2D) => {
-          if (!isFinite(node.x) || !isFinite(node.y)) return;
-          const size = (node.size || 10) + 15;
-          ctx.fillStyle = color;
-          ctx.beginPath();
-          ctx.arc(node.x, node.y, size, 0, 2 * Math.PI);
-          ctx.fill();
+          if (!isFinite(node.x) || !isFinite(node.y)) return
+          const size = (node.size || 10) + 15
+          ctx.fillStyle = color
+          ctx.beginPath()
+          ctx.arc(node.x, node.y, size, 0, 2 * Math.PI)
+          ctx.fill()
         }}
-        
-        // 缩放限制
         minZoom={0.2}
         maxZoom={6}
         nodeRelSize={1}
         linkWidth={1.5}
-        
-        // 拖拽过程中固定节点位置，同时激活模拟让其他节点跟随
         onNodeDrag={(node: any) => {
-          node.fx = node.x;
-          node.fy = node.y;
-          // 激活模拟让连接的节点被拉动
+          node.fx = node.x
+          node.fy = node.y
           if (graphRef.current) {
-            graphRef.current.d3ReheatSimulation();
+            graphRef.current.d3ReheatSimulation()
           }
         }}
-        // 拖拽结束后释放节点，让弹簧拉动它
         onNodeDragEnd={(node: any) => {
-          // 释放节点
-          node.fx = undefined;
-          node.fy = undefined;
-          // 重新激活模拟让弹簧效果生效
+          node.fx = undefined
+          node.fy = undefined
           if (graphRef.current) {
-            graphRef.current.d3ReheatSimulation();
+            graphRef.current.d3ReheatSimulation()
           }
         }}
-        
-        // 布局完成后居中
         onEngineStop={() => {
           if (graphRef.current) {
-            graphRef.current.zoomToFit(600, 100);
+            graphRef.current.zoomToFit(600, 100)
           }
         }}
-        
-        // D3 力模拟配置
         dagMode={undefined}
         dagLevelDistance={undefined}
       />
     </div>
-  );
+  )
 }
 
-// 开发模式模拟数据
-function getMockData(): any {
+// Mock data for dev mode
+function getMockData(): ForceGraphData {
   return {
     nodes: [
       { id: 'mbti-intj', name: 'INTJ 建筑师', type: 'mbti', color: nodeColors.mbti, size: nodeSizes.mbti },
@@ -600,5 +969,5 @@ function getMockData(): any {
       { source: 'course-dl-ai', target: 'skill-dl', label: '教授', type: 'TEACHES' },
       { source: 'course-python', target: 'skill-python', label: '教授', type: 'TEACHES' },
     ],
-  };
+  }
 }

@@ -43,7 +43,7 @@ export default function BinaryQuestion({ question, answer, onAnswer }: BinaryQue
               className="w-full p-5 rounded-2xl text-left transition-all duration-200 flex items-center gap-4 border"
               style={{
                 borderColor: isSelected ? '#64748B' : 'var(--border-primary)',
-                background: isSelected ? 'rgba(100,116,139,0.1)' : 'rgba(255,255,255,0.6)',
+                background: isSelected ? 'rgba(100,116,139,0.1)' : 'var(--bg-card)',
               }}
             >
               {/* 选择圆圈 */}

@@ -1,78 +1,107 @@
-import { useState, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
-import type { Course } from '../types/student'
 import { GlassCard } from '../components/ui'
 import { easings, durations } from '../theme/motion'
 import { primary, secondary } from '../theme/colors'
-import { Settings, MessageSquare, Clock, BookOpen, Trophy, Target } from 'lucide-react'
-
-const courses: Course[] = [
-  { id: 'python-basics', name: 'Python 编程基础', description: '学习 Python 基础语法、数据结构和面向对象编程', provider: 'Coursera', duration: '40小时', difficulty: 'beginner', skills: ['python-1'], prerequisites: [], rating: 4.8, tags: ['编程', '初级'], type: 'video' },
-  { id: 'math-linear-algebra', name: '线性代数', description: '深入学习线性代数，为机器学习奠定数学基础', provider: '3Blue1Brown', duration: '50小时', difficulty: 'intermediate', skills: ['math-1'], prerequisites: [], rating: 4.9, tags: ['数学', '中级'], type: 'video' },
-  { id: 'ml-fundamentals', name: '机器学习基础', description: '系统学习机器学习核心概念、算法和应用', provider: 'Stanford', duration: '80小时', difficulty: 'intermediate', skills: ['ml-1'], prerequisites: ['python-basics', 'math-linear-algebra'], rating: 4.7, tags: ['机器学习', '中级'], type: 'video' },
-  { id: 'dl-deeplearning', name: '深度学习专项', description: '掌握神经网络、CNN、RNN 等深度学习技术', provider: 'Andrew Ng', duration: '120小时', difficulty: 'advanced', skills: ['dl-1'], prerequisites: ['ml-fundamentals'], rating: 4.8, tags: ['深度学习', '高级'], type: 'video' },
-  { id: 'nlp-intro', name: 'NLP 自然语言处理入门', description: '学习文本处理、词向量和 NLP 基础模型', provider: 'fast.ai', duration: '60小时', difficulty: 'intermediate', skills: ['nlp-1'], prerequisites: ['ml-fundamentals'], rating: 4.6, tags: ['NLP', '中级'], type: 'video' },
-  { id: 'pytorch-advanced', name: 'PyTorch 深度框架进阶', description: '掌握 PyTorch，构建生产级别的深度学习应用', provider: 'PyTorch Official', duration: '100小时', difficulty: 'advanced', skills: ['dl-1', 'python-1'], prerequisites: ['dl-deeplearning'], rating: 4.8, tags: ['框架', '高级'], type: 'interactive' },
-]
-
-const learningPaths = [
-  {
-    id: 'ml-engineer-path', name: 'AI 算法工程师路径', description: '成为能够开发和优化机器学习模型的工程师', estimatedDuration: '6-8个月', icon: Settings, color: `linear-gradient(135deg, ${primary[600]} 0%, ${primary[800]} 100%)`,
-    courses: [
-      { courseId: 'python-basics', order: 1, isOptional: false, estimatedWeeks: 4 },
-      { courseId: 'math-linear-algebra', order: 2, isOptional: false, estimatedWeeks: 5 },
-      { courseId: 'ml-fundamentals', order: 3, isOptional: false, estimatedWeeks: 8 },
-      { courseId: 'dl-deeplearning', order: 4, isOptional: false, estimatedWeeks: 12 },
-      { courseId: 'pytorch-advanced', order: 5, isOptional: true, estimatedWeeks: 10 },
-    ],
-  },
-  {
-    id: 'nlp-specialist-path', name: 'NLP 工程师路径', description: '专注于自然语言处理领域的专家', estimatedDuration: '7-9个月', icon: MessageSquare, color: `linear-gradient(135deg, ${secondary[500]} 0%, ${secondary[700]} 100%)`,
-    courses: [
-      { courseId: 'python-basics', order: 1, isOptional: false, estimatedWeeks: 4 },
-      { courseId: 'math-linear-algebra', order: 2, isOptional: false, estimatedWeeks: 5 },
-      { courseId: 'ml-fundamentals', order: 3, isOptional: false, estimatedWeeks: 8 },
-      { courseId: 'dl-deeplearning', order: 4, isOptional: false, estimatedWeeks: 12 },
-      { courseId: 'nlp-intro', order: 5, isOptional: false, estimatedWeeks: 6 },
-    ],
-  },
-]
+import { learningPathApi } from '../services/api'
+import type { LearningPath, Course } from '../services/api'
+import { useAuth } from '../contexts/AuthContext'
+import { MessageSquare, Clock, BookOpen, Trophy, Target, Loader2, AlertCircle, Route } from 'lucide-react'
+import AIInsightButton from '../components/ui/AIInsightButton'
 
 export default function LearningPathPage() {
-  const [selectedPathId, setSelectedPathId] = useState(learningPaths[0].id)
+  const { user } = useAuth()
+  const [learningPaths, setLearningPaths] = useState<LearningPath[]>([])
+  const [selectedPathId, setSelectedPathId] = useState<string | null>(null)
   const [completedCourses, setCompletedCourses] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
 
-  const selectedPath = learningPaths.find((p) => p.id === selectedPathId)!
-  const pathCourses = selectedPath.courses
-    .sort((a, b) => a.order - b.order)
-    .map((pc) => courses.find((c) => c.id === pc.courseId)!)
+  useEffect(() => {
+    setLoading(true)
+    setError(null)
+    learningPathApi
+      .getRecommended(user?.id)
+      .then((data) => {
+        const paths = data || []
+        setLearningPaths(paths)
+        if (paths.length > 0) setSelectedPathId(paths[0].id)
+      })
+      .catch((err) => setError(err.message || '获取学习路径失败'))
+      .finally(() => setLoading(false))
+  }, [user?.id])
+
+  const selectedPath = learningPaths.find((p) => p.id === selectedPathId)
+  const pathCourses: Course[] = selectedPath?.courses || []
 
   const extractHours = (duration: string): number => {
     const match = duration.match(/\d+/)
     return match ? parseInt(match[0], 10) : 0
   }
 
-  const totalHours = selectedPath.courses.reduce((sum, pc) => {
-    const course = courses.find((c) => c.id === pc.courseId)
-    return sum + (course ? extractHours(course.duration) : 0)
-  }, 0)
-
-  const completedHours = completedCourses.reduce((sum, cid) => {
-    const course = courses.find((c) => c.id === cid)
-    return sum + (course ? extractHours(course.duration) : 0)
-  }, 0)
-
+  const totalHours = pathCourses.reduce((sum, c) => sum + extractHours(c.duration), 0)
+  const completedHours = pathCourses
+    .filter((c) => completedCourses.includes(c.id) || c.completed)
+    .reduce((sum, c) => sum + extractHours(c.duration), 0)
   const progress = totalHours > 0 ? Math.round((completedHours / totalHours) * 100) : 0
 
-  // 统一的动画配置
   const smoothTransition = { duration: durations.slow, ease: easings.smooth }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-primary">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 animate-spin text-text-muted" strokeWidth={1.5} />
+          <p className="text-text-secondary">加载学习路径中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-primary px-4">
+        <GlassCard variant="standard" color="white" className="max-w-md w-full p-8 text-center">
+          <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-400" strokeWidth={1.5} />
+          <h2 className="text-lg font-bold text-text-primary mb-2">加载失败</h2>
+          <p className="text-text-muted mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 rounded-full text-white font-medium"
+            style={{ background: primary[700] }}
+          >
+            重试
+          </button>
+        </GlassCard>
+      </div>
+    )
+  }
+
+  if (learningPaths.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-primary px-4">
+        <GlassCard variant="standard" color="white" className="max-w-md w-full p-8 text-center">
+          <Route className="w-12 h-12 mx-auto mb-4 text-text-muted" strokeWidth={1.5} />
+          <h2 className="text-lg font-bold text-text-primary mb-2">暂无学习路径</h2>
+          <p className="text-text-muted mb-4">请先完成 MBTI 测试以获取个性化学习路径推荐</p>
+          <Link
+            to="/mbti-test"
+            className="inline-block px-6 py-2 rounded-full text-white font-medium"
+            style={{ background: primary[700] }}
+          >
+            开始测试
+          </Link>
+        </GlassCard>
+      </div>
+    )
+  }
+
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       className="min-h-screen py-8 px-4 md:px-8 overflow-y-auto bg-bg-primary"
     >
       <div className="max-w-7xl mx-auto">
@@ -100,9 +129,9 @@ export default function LearningPathPage() {
               animate={isInView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
               transition={{ delay: 0.1 + index * 0.1, duration: durations.slow, ease: easings.smooth }}
               onClick={() => setSelectedPathId(path.id)}
-              className="text-left p-6 rounded-2xl transition-all duration-300"
+              className="text-left p-6 rounded-2xl transition-all duration-300 cursor-pointer"
               style={selectedPathId === path.id ? {
-                background: path.color,
+                background: `linear-gradient(135deg, ${primary[600]} 0%, ${primary[800]} 100%)`,
                 color: 'white',
                 boxShadow: '0 12px 40px rgba(71, 85, 105, 0.25)',
                 transform: 'scale(1.02)',
@@ -112,21 +141,21 @@ export default function LearningPathPage() {
               }}
             >
               <div className="flex items-start gap-4">
-                <path.icon className="w-8 h-8" strokeWidth={1.5} />
+                <Route className="w-8 h-8 flex-shrink-0" strokeWidth={1.5} />
                 <div className="flex-1">
-                  <h3 
+                  <h3
                     className="font-bold text-lg mb-1"
                     style={{ color: selectedPathId === path.id ? 'white' : 'var(--text-primary)' }}
                   >
                     {path.name}
                   </h3>
-                  <p 
+                  <p
                     className="text-sm mb-2"
                     style={{ color: selectedPathId === path.id ? 'rgba(255,255,255,0.8)' : 'var(--text-secondary)' }}
                   >
                     {path.description}
                   </p>
-                  <span 
+                  <span
                     className="text-xs font-medium"
                     style={{ color: selectedPathId === path.id ? 'rgba(255,255,255,0.7)' : 'var(--text-muted)' }}
                   >
@@ -139,53 +168,54 @@ export default function LearningPathPage() {
         </div>
 
         {/* Progress Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
-          animate={isInView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
-          transition={{ delay: 0.3, duration: durations.slow, ease: easings.smooth }}
-        >
-          <GlassCard variant="standard" color="white" className="p-8 mb-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div>
-                <h3 className="text-lg font-bold mb-2 text-text-primary">学习进度</h3>
-                <p className="text-text-secondary">
-                  已完成 {completedHours} / {totalHours} 小时
-                </p>
-              </div>
-              <div className="flex items-center gap-6">
-                <div className="text-right">
-                  <p className="text-4xl font-black text-text-primary">{progress}%</p>
-                  <p className="text-sm text-text-muted">完成度</p>
+        {selectedPath && (
+          <motion.div
+            initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
+            animate={isInView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+            transition={{ delay: 0.3, duration: durations.slow, ease: easings.smooth }}
+          >
+            <GlassCard variant="standard" color="white" className="p-8 mb-8">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <h3 className="text-lg font-bold mb-2 text-text-primary">学习进度</h3>
+                  <p className="text-text-secondary">
+                    已完成 {completedHours} / {totalHours} 小时
+                  </p>
                 </div>
-                <div className="w-32 h-32 relative">
-                  <svg className="w-full h-full transform -rotate-90">
-                    <circle cx="64" cy="64" r="56" stroke="var(--border-primary)" strokeWidth="8" fill="none" />
-                    <circle
-                      cx="64" cy="64" r="56"
-                      stroke="url(#progressGradient)"
-                      strokeWidth="8"
-                      fill="none"
-                      strokeLinecap="round"
-                      strokeDasharray={`${progress * 3.52} 352`}
-                    />
-                    <defs>
-                      <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor={primary[500]} />
-                        <stop offset="100%" stopColor={primary[700]} />
-                      </linearGradient>
-                    </defs>
-                  </svg>
+                <div className="flex items-center gap-6">
+                  <div className="text-right">
+                    <p className="text-4xl font-black text-text-primary">{progress}%</p>
+                    <p className="text-sm text-text-muted">完成度</p>
+                  </div>
+                  <div className="w-32 h-32 relative">
+                    <svg className="w-full h-full transform -rotate-90">
+                      <circle cx="64" cy="64" r="56" stroke="var(--border-primary)" strokeWidth="8" fill="none" />
+                      <circle
+                        cx="64" cy="64" r="56"
+                        stroke="url(#progressGradient)"
+                        strokeWidth="8"
+                        fill="none"
+                        strokeLinecap="round"
+                        strokeDasharray={`${progress * 3.52} 352`}
+                      />
+                      <defs>
+                        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor={primary[500]} />
+                          <stop offset="100%" stopColor={primary[700]} />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
                 </div>
               </div>
-            </div>
-          </GlassCard>
-        </motion.div>
+            </GlassCard>
+          </motion.div>
+        )}
 
         {/* Course List */}
         <div className="space-y-4">
           {pathCourses.map((course, index) => {
-            const isCompleted = completedCourses.includes(course.id)
-            const pathCourse = selectedPath.courses.find((pc) => pc.courseId === course.id)!
+            const isCompleted = completedCourses.includes(course.id) || course.completed
 
             return (
               <motion.div
@@ -198,16 +228,16 @@ export default function LearningPathPage() {
                   variant={isCompleted ? 'light' : 'standard'}
                   color="white"
                   className="p-6 transition-all duration-300"
-                  style={isCompleted ? { 
-                    borderColor: secondary[200], 
-                    background: `${secondary[50]}80` 
-                  } : { 
-                    borderColor: 'var(--border-primary)' 
+                  style={isCompleted ? {
+                    borderColor: secondary[200],
+                    background: `${secondary[50]}80`
+                  } : {
+                    borderColor: 'var(--border-primary)'
                   }}
                 >
                   <div className="flex items-start gap-6">
                     {/* Order Number */}
-                    <div 
+                    <div
                       className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg flex-shrink-0"
                       style={isCompleted ? {
                         background: secondary[500],
@@ -217,7 +247,7 @@ export default function LearningPathPage() {
                         color: 'var(--text-primary)',
                       }}
                     >
-                      {isCompleted ? '✓' : pathCourse.order}
+                      {isCompleted ? '✓' : index + 1}
                     </div>
 
                     {/* Course Info */}
@@ -230,28 +260,24 @@ export default function LearningPathPage() {
                       </div>
 
                       <div className="flex flex-wrap items-center gap-3 mt-4">
-                        <span 
-                          className="text-sm px-3 py-1 rounded-full bg-bg-tertiary text-text-secondary"
-                        >
+                        <span className="text-sm px-3 py-1 rounded-full bg-bg-tertiary text-text-secondary">
                           <Clock className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} />{course.duration}
                         </span>
-                        <span 
-                          className="text-sm px-3 py-1 rounded-full bg-bg-tertiary text-text-secondary"
-                        >
+                        <span className="text-sm px-3 py-1 rounded-full bg-bg-tertiary text-text-secondary">
                           <BookOpen className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} />{course.provider}
                         </span>
-                        <div className="flex items-center gap-1">
-                          <span style={{ color: '#F59E0B' }}>★</span>
-                          <span className="text-sm font-semibold text-text-secondary">{course.rating}</span>
-                        </div>
-                        {pathCourse.isOptional && (
-                          <span 
-                            className="text-sm px-3 py-1 rounded-full"
-                            style={{ background: primary[100], color: primary[700] }}
-                          >
-                            可选
-                          </span>
+                        {course.rating > 0 && (
+                          <div className="flex items-center gap-1">
+                            <span style={{ color: '#F59E0B' }}>★</span>
+                            <span className="text-sm font-semibold text-text-secondary">{course.rating}</span>
+                          </div>
                         )}
+                        <span
+                          className="text-sm px-3 py-1 rounded-full"
+                          style={{ background: 'var(--tag-bg)', color: 'var(--tag-text)' }}
+                        >
+                          {course.level === 'advanced' ? '高级' : course.level === 'intermediate' ? '中级' : '初级'}
+                        </span>
                       </div>
                     </div>
 
@@ -260,15 +286,15 @@ export default function LearningPathPage() {
                       {!isCompleted ? (
                         <button
                           onClick={() => setCompletedCourses([...completedCourses, course.id])}
-                          className="px-5 py-2.5 text-white text-sm font-semibold rounded-xl transition-colors"
+                          className="px-5 py-2.5 text-white text-sm font-semibold rounded-xl transition-colors cursor-pointer"
                           style={{ background: primary[800] }}
                         >
                           开始学习
                         </button>
                       ) : (
-                        <span 
+                        <span
                           className="px-5 py-2.5 text-sm font-semibold rounded-xl"
-                          style={{ background: secondary[100], color: secondary[700] }}
+                          style={{ background: 'var(--tag-info-bg)', color: 'var(--tag-info-text)' }}
                         >
                           已完成 ✓
                         </span>
@@ -288,22 +314,39 @@ export default function LearningPathPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="mt-8"
           >
-            <GlassCard 
-              variant="strong" 
-              color="white" 
+            <GlassCard
+              variant="strong"
+              color="white"
               className="p-8 text-white text-center"
               style={{ background: `linear-gradient(135deg, ${primary[600]} 0%, ${primary[800]} 100%)` }}
             >
               <span className="mb-4 block flex justify-center"><Trophy className="w-10 h-10" strokeWidth={1.5} /></span>
               <h3 className="text-2xl font-bold mb-4">恭喜完成学习路径！</h3>
               <p className="mb-6" style={{ color: 'rgba(255,255,255,0.8)' }}>你已经掌握了成为 AI 工程师所需的核心技能</p>
-              <button 
+              <button
                 className="px-8 py-3 bg-bg-secondary rounded-full font-semibold transition-colors"
-                style={{ color: primary[600] }}
+                style={{ color: 'var(--accent-text)' }}
               >
                 申请认证证书
               </button>
             </GlassCard>
+          </motion.div>
+        )}
+
+        {/* AI Insight */}
+        {selectedPath && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 1 } : {}}
+            transition={{ delay: 0.45 }}
+            className="mt-6 flex justify-center"
+          >
+            <AIInsightButton
+              agentName="learning-coach"
+              prompt={`基于我当前的学习进度（完成 ${progress}%），分析学习路径「${selectedPath.name}」的下一步建议`}
+              studentId={user?.id}
+              label="AI 学习建议"
+            />
           </motion.div>
         )}
 

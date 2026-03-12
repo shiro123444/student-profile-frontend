@@ -1,0 +1,64 @@
+# External MCP servers for PathMind (P3-4)
+# Copy to `server-py/mcp_servers.yaml` and enable with:
+#   PATHMIND_EXTERNAL_MCP_ENABLED=true
+#   PATHMIND_EXTERNAL_MCP_CONFIG_PATH=./mcp_servers.yaml
+
+# tool risk: low | medium | high (optional)
+# - not set: fallback to coding policy defaults
+# - set under each tool as `risk`
+
+servers:
+  - id: fetch
+    enabled: true
+    type: stdio
+    command: ["npx", "-y", "@modelcontextprotocol/server-fetch"]
+    description: "Web fetch MCP server"
+    category: "external-web"
+    roles: [student, teacher, admin]
+    tools:
+      - name: fetch
+        description: "Fetch public web pages"
+        risk: medium
+        input_schema:
+          type: object
+          properties:
+            url:
+              type: string
+            method:
+              type: string
+          required: [url]
+        annotations:
+          readOnlyHint: true
+          openWorldHint: true
+
+  - id: brave-search
+    enabled: false
+    type: stdio
+    command:
+      - npx
+      - -y
+      - "@modelcontextprotocol/server-brave-search"
+    env:
+      BRAVE_API_KEY: "${BRAVE_API_KEY}"
+    description: "Brave web search MCP server"
+    category: "external-search"
+    tools:
+      - name: brave_web_search
+        alias: web_search
+        description: "Search the web via Brave"
+        risk: medium
+        annotations:
+          readOnlyHint: true
+          openWorldHint: true
+
+  - id: remote-notes
+    enabled: false
+    type: sse
+    url: "http://localhost:9801/sse"
+    headers:
+      Authorization: "Bearer ${REMOTE_NOTES_TOKEN}"
+    description: "Remote notes MCP via SSE"
+    category: "external-notes"
+    tools:
+      - list_notes
+      - get_note

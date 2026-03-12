@@ -1,0 +1,21 @@
+name: coding
+version: "1.0.0"
+description: 代码工作流工具 — 文件系统 / Git / Shell（严格沙箱）
+author: PathMind Team
+category: coding
+tools:
+  - code_list_dir
+  - code_read_file
+  - code_write_file
+  - code_edit_file
+  - code_search_files
+  - code_grep_content
+  - code_git_status
+  - code_git_diff
+  - code_git_add
+  - code_git_commit
+  - code_git_branch
+  - code_git_log
+  - code_shell_exec
+permissions:
+  roles: [student, teacher, admin]

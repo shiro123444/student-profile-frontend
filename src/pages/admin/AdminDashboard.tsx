@@ -158,7 +158,7 @@ export default function AdminDashboard() {
             <Link 
               to="/admin/students"
               className="text-sm font-medium transition-colors"
-              style={{ color: primary[600] }}
+              style={{ color: 'var(--accent-text)' }}
             >
               查看详情 →
             </Link>
@@ -216,7 +216,7 @@ export default function AdminDashboard() {
             <Link 
               to="/admin/students"
               className="text-sm font-medium transition-colors"
-              style={{ color: primary[600] }}
+              style={{ color: 'var(--accent-text)' }}
             >
               全部 →
             </Link>
@@ -268,7 +268,7 @@ export default function AdminDashboard() {
         >
           <div 
             className="w-14 h-14 rounded-xl flex items-center justify-center"
-            style={{ background: `${primary[500]}15`, color: primary[500] }}
+            style={{ background: 'var(--accent-bg)', color: 'var(--accent-text)' }}
           >
             <FileEdit className="w-7 h-7" strokeWidth={1.5} />
           </div>

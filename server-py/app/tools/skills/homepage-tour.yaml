@@ -1,0 +1,35 @@
+name: homepage-tour
+description: 主页引导之旅 — 自动展示平台核心功能并配合视觉效果
+category: homepage
+input_schema:
+  type: object
+  properties:
+    student_id:
+      type: string
+      description: 学生ID (可选，未登录时为空)
+
+steps:
+  - id: stats
+    action: tool
+    tool: get_platform_stats
+    input: {}
+
+  - id: trending
+    action: tool
+    tool: get_trending_careers
+    input: {}
+
+  - id: welcome
+    action: agent
+    agent: homepage-guide
+    prompt: |
+      用户刚进入主页，请做一个简短有趣的欢迎介绍，并使用 UI 效果让页面活起来。
+
+      平台统计: {{stats}}
+      热门职业: {{trending}}
+
+      请依次：
+      1. 用 spotlight 高亮 hero 区域，欢迎用户
+      2. 用 highlight 高亮 stats 区域，展示平台数据
+      3. 用 spotlight 高亮 features 区域，介绍核心功能
+      4. 用 confetti 在 cta 区域庆祝，邀请用户开始探索

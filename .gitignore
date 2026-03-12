@@ -11,6 +11,17 @@ node_modules
 dist
 dist-ssr
 *.local
+playwright-report/
+test-results/
+blob-report/
+.run-logs/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.*
+!.env.example
+人工智能导论   全文.pdf
 
 # Editor directories and files
 .vscode/*

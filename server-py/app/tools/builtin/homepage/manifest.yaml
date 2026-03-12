@@ -1,0 +1,17 @@
+name: homepage
+version: "1.0.0"
+description: 主页展示工具 — 平台统计、热门职业、快速 MBTI 洞察、UI 指令、页面导航
+author: PathMind Team
+category: homepage
+tools:
+  - get_platform_stats
+  - get_trending_careers
+  - get_quick_mbti_insight
+  - get_featured_experiments
+  - emit_ui_command
+  - navigate_page
+  - show_toast
+  - scroll_to_section
+  - set_theme
+permissions:
+  roles: [student, teacher, admin]

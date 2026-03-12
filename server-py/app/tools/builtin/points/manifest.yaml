@@ -1,0 +1,10 @@
+name: points
+version: "1.0.0"
+description: 积分余额与 AI 额度查询
+author: PathMind Team
+category: gamification
+tools:
+  - get_point_balance
+  - check_ai_credits
+permissions:
+  roles: [student, teacher, admin]

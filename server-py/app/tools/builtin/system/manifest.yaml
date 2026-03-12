@@ -1,0 +1,11 @@
+name: system
+version: "1.0.0"
+description: 系统注册与运行态观测（Agent/Tool/会话/指标）
+author: PathMind Team
+category: system
+tools:
+  - list_registered_agents
+  - list_registered_tool_packages
+  - get_runtime_observability
+permissions:
+  roles: [student, teacher, admin]

@@ -1,9 +1,24 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { Button, Divider } from '@heroui/react'
 import { primary } from '../theme/colors'
-import { GraduationCap, Brain, Map, School, Globe, Lightbulb, AlertTriangle } from 'lucide-react'
+import { useTheme } from '../theme/ThemeContext'
+import { useAuth } from '../contexts/AuthContext'
+import { ApiError } from '../services/client'
+import {
+  GraduationCap,
+  Brain,
+  Map,
+  School,
+  Globe,
+  Lightbulb,
+  AlertTriangle,
+  User,
+  Lock,
+  Mail,
+  IdCard,
+} from 'lucide-react'
 
 // OAuth Icons
 const GoogleIcon = () => (
@@ -21,111 +36,131 @@ const GithubIcon = () => (
   </svg>
 )
 
-// 校内 VPN 图标
-const VPNIcon = () => (
-  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-  </svg>
-)
-
-// 学号图标
-const StudentIDIcon = () => (
-  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-    <path d="M6 12v5c0 1.1 2.7 2 6 2s6-.9 6-2v-5" />
-  </svg>
-)
-
 type LoginChannel = 'campus' | 'external'
+type AuthMode = 'login' | 'register'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { login, register } = useAuth()
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+
   const [channel, setChannel] = useState<LoginChannel>('campus')
-  const [studentId, setStudentId] = useState('')
-  const [studentIdError, setStudentIdError] = useState('')
+  const [authMode, setAuthMode] = useState<AuthMode>('login')
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  // 校内学号验证
-  const validateStudentId = (value: string) => {
-    if (!value) {
-      setStudentIdError('请输入学号')
-      return false
-    }
-    // 学号格式：一般为 U/D/M + 年份 + 序号，共 10-12 位
-    if (!/^[UDMudm]?\d{8,12}$/.test(value)) {
-      setStudentIdError('请输入有效的学号（如 U202112345）')
-      return false
-    }
-    setStudentIdError('')
-    return true
-  }
+  // Login form (默认填充 test/testtest 方便测试)
+  const [username, setUsername] = useState('test')
+  const [password, setPassword] = useState('testtest')
 
-  // 统一身份认证登录（学号）
-  const handleCampusLogin = async (e: React.FormEvent) => {
+  // Register form
+  const [regUsername, setRegUsername] = useState('')
+  const [regEmail, setRegEmail] = useState('')
+  const [regPassword, setRegPassword] = useState('')
+  const [regStudentNumber, setRegStudentNumber] = useState('')
+
+  const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/dashboard'
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!validateStudentId(studentId)) return
+    if (!username || !password) {
+      setError('请填写用户名和密码')
+      return
+    }
 
     setIsLoading(true)
+    setError('')
     try {
-      // TODO: 对接统一身份认证平台 API
-      // const res = await authApi.campusLogin(studentId)
-      // 自动拉取学生信息（姓名、院系、年级等）
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      navigate('/dashboard')
+      await login(username, password)
+      navigate(from, { replace: true })
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : '登录失败，请重试')
     } finally {
       setIsLoading(false)
     }
   }
 
-  // VPN 认证跳转
-  const handleVPNAuth = () => {
-    // TODO: 跳转到校内 VPN/CAS 统一认证页面
-    // window.location.href = 'https://cas.hust.edu.cn/cas/login?service=...'
-    console.log('Redirect to campus VPN/CAS auth')
-    navigate('/dashboard')
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!regUsername || !regEmail || !regPassword) {
+      setError('请填写所有必填项')
+      return
+    }
+
+    setIsLoading(true)
+    setError('')
+    try {
+      await register({
+        username: regUsername,
+        email: regEmail,
+        password: regPassword,
+        student_number: regStudentNumber || undefined,
+      })
+      navigate(from, { replace: true })
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : '注册失败，请重试')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  // 校外 OAuth
+  // OAuth (placeholder)
   const handleOAuth = (provider: string) => {
-    // TODO: 对接 OAuth 流程
     console.log(`OAuth with ${provider}`)
-    navigate('/dashboard')
   }
 
-  const glassStyle = {
-    background: 'rgba(255, 255, 255, 0.7)',
-    backdropFilter: 'blur(20px)',
-    WebkitBackdropFilter: 'blur(20px)',
-    border: '1px solid rgba(255, 255, 255, 0.3)',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
-  }
+  const glassStyle = isDark
+    ? {
+        background: 'rgba(255, 255, 255, 0.06)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+      }
+    : {
+        background: 'rgba(255, 255, 255, 0.7)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        border: '1px solid rgba(255, 255, 255, 0.3)',
+        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+      }
 
   const channelTabStyle = (active: boolean) => ({
-    background: active ? primary[600] : 'rgba(255, 255, 255, 0.5)',
+    background: active
+      ? primary[600]
+      : isDark
+        ? 'rgba(255, 255, 255, 0.08)'
+        : 'rgba(255, 255, 255, 0.5)',
     color: active ? '#fff' : 'var(--text-secondary)',
     backdropFilter: active ? 'none' : 'blur(10px)',
-    border: active ? 'none' : '1px solid rgba(255, 255, 255, 0.3)',
+    border: active ? 'none' : `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.3)'}`,
     transition: 'all 0.3s ease',
   })
 
+  const inputStyle = {
+    borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
+    background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.6)',
+    color: 'var(--text-primary)',
+  }
+
   return (
     <div className="min-h-screen flex relative overflow-hidden bg-bg-primary">
-      {/* 背景装饰 */}
+      {/* Background decorations */}
       <div className="absolute inset-0 pointer-events-none">
         <div
           className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full"
-          style={{ background: `radial-gradient(circle, ${primary[200]}40, transparent 70%)` }}
+          style={{
+            background: `radial-gradient(circle, ${isDark ? `${primary[800]}30` : `${primary[200]}40`}, transparent 70%)`,
+          }}
         />
         <div
           className="absolute -bottom-48 -right-48 w-[600px] h-[600px] rounded-full"
-          style={{ background: `radial-gradient(circle, ${primary[100]}50, transparent 70%)` }}
+          style={{
+            background: `radial-gradient(circle, ${isDark ? `${primary[900]}30` : `${primary[100]}50`}, transparent 70%)`,
+          }}
         />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full"
-          style={{ background: `radial-gradient(circle, ${primary[50]}30, transparent 60%)` }}
-        />
-        {/* 网格 */}
         <svg className="absolute inset-0 w-full h-full opacity-[0.03]">
           <defs>
             <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -136,7 +171,7 @@ export default function LoginPage() {
         </svg>
       </div>
 
-      {/* 左侧品牌区 */}
+      {/* Left branding */}
       <div className="hidden lg:flex lg:w-[45%] relative items-center justify-center p-16">
         <motion.div
           initial={{ opacity: 0, x: -40 }}
@@ -144,7 +179,6 @@ export default function LoginPage() {
           transition={{ duration: 0.8, ease: [0.25, 0.1, 0, 1] }}
           className="relative z-10 max-w-lg"
         >
-          {/* Logo */}
           <div className="flex items-center gap-3 mb-12">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-lg"
@@ -152,9 +186,7 @@ export default function LoginPage() {
             >
               P
             </div>
-            <span className="text-xl font-black text-text-primary">
-              PathMind
-            </span>
+            <span className="text-xl font-black text-text-primary">PathMind</span>
           </div>
 
           <h1 className="text-4xl md:text-5xl font-black leading-tight mb-6 text-text-primary">
@@ -172,7 +204,6 @@ export default function LoginPage() {
             基于 MBTI 性格分析与知识图谱，为每位同学构建个性化的 AI 学习路径与职业规划
           </p>
 
-          {/* 信息卡片 */}
           <div className="space-y-4">
             {[
               { icon: GraduationCap, title: '统一身份认证', desc: '校内学生一键登录，自动同步学籍信息' },
@@ -187,7 +218,7 @@ export default function LoginPage() {
                 className="flex items-start gap-4 p-4 rounded-2xl"
                 style={glassStyle}
               >
-                <item.icon className="w-6 h-6 mt-0.5" strokeWidth={1.5} />
+                <item.icon className="w-6 h-6 mt-0.5 text-text-secondary" strokeWidth={1.5} />
                 <div>
                   <p className="font-bold text-sm text-text-primary">{item.title}</p>
                   <p className="text-sm text-text-muted">{item.desc}</p>
@@ -198,7 +229,7 @@ export default function LoginPage() {
         </motion.div>
       </div>
 
-      {/* 右侧登录区 */}
+      {/* Right login area */}
       <div className="flex-1 flex items-center justify-center p-6 sm:p-8 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -206,9 +237,8 @@ export default function LoginPage() {
           transition={{ duration: 0.6, ease: [0.25, 0.1, 0, 1] }}
           className="w-full max-w-md"
         >
-          {/* 玻璃登录卡 */}
           <div className="rounded-3xl p-8 sm:p-10" style={glassStyle}>
-            {/* 移动端 Logo */}
+            {/* Mobile logo */}
             <Link to="/" className="lg:hidden inline-flex items-center gap-2 mb-8">
               <div
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-black text-sm"
@@ -220,194 +250,340 @@ export default function LoginPage() {
             </Link>
 
             <h2 className="text-2xl font-bold mb-1 text-text-primary">
-              登录平台
+              {authMode === 'login' ? '登录平台' : '注册账号'}
             </h2>
             <p className="text-sm mb-8 text-text-muted">
-              选择你的身份以继续
+              {authMode === 'login' ? '选择你的身份以继续' : '创建你的 PathMind 账号'}
             </p>
 
-            {/* 通道切换 Tabs */}
-            <div className="flex gap-2 mb-8 p-1 rounded-2xl" style={{ background: 'rgba(0,0,0,0.04)' }}>
-              <button
-                onClick={() => setChannel('campus')}
-                className="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold cursor-pointer"
-                style={channelTabStyle(channel === 'campus')}
+            {/* Error message */}
+            {error && (
+              <div
+                className="mb-4 p-3 rounded-xl text-sm flex items-center gap-2"
+                style={{
+                  background: isDark ? 'rgba(239,68,68,0.15)' : 'rgba(239,68,68,0.1)',
+                  color: isDark ? '#fca5a5' : '#dc2626',
+                  border: `1px solid ${isDark ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.15)'}`,
+                }}
               >
-                <School className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} />校内学生
-              </button>
-              <button
-                onClick={() => setChannel('external')}
-                className="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold cursor-pointer"
-                style={channelTabStyle(channel === 'external')}
-              >
-                <Globe className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} />校外用户
-              </button>
-            </div>
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" strokeWidth={1.5} />
+                {error}
+              </div>
+            )}
 
-            <AnimatePresence mode="wait">
-              {channel === 'campus' ? (
-                /* ========== 校内通道 ========== */
-                <motion.div
-                  key="campus"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ duration: 0.3 }}
+            {authMode === 'login' ? (
+              <>
+                {/* Channel tabs */}
+                <div
+                  className="flex gap-2 mb-8 p-1 rounded-2xl"
+                  style={{ background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)' }}
                 >
-                  {/* VPN / CAS 认证 */}
+                  <button
+                    onClick={() => setChannel('campus')}
+                    className="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold cursor-pointer"
+                    style={channelTabStyle(channel === 'campus')}
+                  >
+                    <School className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} />
+                    校内学生
+                  </button>
+                  <button
+                    onClick={() => setChannel('external')}
+                    className="flex-1 py-2.5 px-4 rounded-xl text-sm font-semibold cursor-pointer"
+                    style={channelTabStyle(channel === 'external')}
+                  >
+                    <Globe className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} />
+                    校外用户
+                  </button>
+                </div>
+
+                {channel === 'campus' ? (
+                  <motion.div
+                    key="campus"
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                      <form onSubmit={handleLogin} className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2 text-text-secondary">
+                            用户名 / 学号
+                          </label>
+                          <div className="relative">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">
+                              <User className="w-5 h-5" strokeWidth={1.5} />
+                            </div>
+                            <input
+                              type="text"
+                              value={username}
+                              onChange={(e) => setUsername(e.target.value)}
+                              placeholder="zhangsan 或 U202112345"
+                              className="w-full pl-11 pr-4 py-3 rounded-xl border-2 focus:outline-none transition-colors text-text-primary placeholder:text-text-muted"
+                              style={inputStyle}
+                              onFocus={(e) => (e.target.style.borderColor = primary[400])}
+                              onBlur={(e) => (e.target.style.borderColor = inputStyle.borderColor)}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium mb-2 text-text-secondary">
+                            密码
+                          </label>
+                          <div className="relative">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">
+                              <Lock className="w-5 h-5" strokeWidth={1.5} />
+                            </div>
+                            <input
+                              type="password"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              placeholder="请输入密码"
+                              className="w-full pl-11 pr-4 py-3 rounded-xl border-2 focus:outline-none transition-colors text-text-primary placeholder:text-text-muted"
+                              style={inputStyle}
+                              onFocus={(e) => (e.target.style.borderColor = primary[400])}
+                              onBlur={(e) => (e.target.style.borderColor = inputStyle.borderColor)}
+                            />
+                          </div>
+                        </div>
+
+                        <Button
+                          type="submit"
+                          fullWidth
+                          size="lg"
+                          isLoading={isLoading}
+                          className="font-semibold h-12 text-white"
+                          style={{
+                            background: `linear-gradient(135deg, ${primary[600]}, ${primary[500]})`,
+                          }}
+                        >
+                          {isLoading ? '登录中...' : '登录'}
+                        </Button>
+                      </form>
+
+                      <div className="flex items-center gap-4 my-4">
+                        <Divider className="flex-1" />
+                        <span className="text-xs text-text-muted">没有账号？</span>
+                        <Divider className="flex-1" />
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setAuthMode('register')
+                          setError('')
+                        }}
+                        className="w-full py-2.5 rounded-xl text-sm font-semibold cursor-pointer transition-colors"
+                        style={{
+                          border: `2px solid ${isDark ? 'rgba(255,255,255,0.15)' : primary[200]}`,
+                          color: 'var(--accent-text)',
+                          background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.5)',
+                        }}
+                      >
+                        注册新账号
+                      </button>
+
+                      <div
+                        className="mt-4 p-3 rounded-xl text-xs"
+                        style={{
+                          background: isDark ? 'rgba(255,255,255,0.06)' : `${primary[50]}80`,
+                          color: 'var(--accent-text)',
+                        }}
+                      >
+                        <Lightbulb className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} />
+                        登录后将自动同步你的学籍信息（姓名、院系、年级），无需手动填写
+                      </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="external"
+                    initial={{ opacity: 0, x: 12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                      <p className="text-sm mb-5 text-text-muted">
+                        校外同学或访客可使用第三方账号登录
+                      </p>
+
+                      <div className="space-y-3">
+                        <Button
+                          fullWidth
+                          size="lg"
+                          variant="bordered"
+                          className="font-semibold h-12 transition-colors"
+                          style={{
+                            borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
+                            borderWidth: 2,
+                            background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.5)',
+                            color: 'var(--text-primary)',
+                          }}
+                          startContent={<GoogleIcon />}
+                          onPress={() => handleOAuth('google')}
+                        >
+                          使用 Google 登录
+                        </Button>
+
+                        <Button
+                          fullWidth
+                          size="lg"
+                          variant="bordered"
+                          className="font-semibold h-12 transition-colors"
+                          style={{
+                            borderColor: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
+                            borderWidth: 2,
+                            background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.5)',
+                            color: 'var(--text-primary)',
+                          }}
+                          startContent={<GithubIcon />}
+                          onPress={() => handleOAuth('github')}
+                        >
+                          使用 GitHub 登录
+                        </Button>
+                      </div>
+
+                      <div
+                        className="mt-6 p-3 rounded-xl text-xs"
+                        style={{
+                          background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)',
+                          color: 'var(--text-muted)',
+                        }}
+                      >
+                        <AlertTriangle className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} />
+                        校外账号部分功能受限（如学籍同步、课程推荐等），建议校内学生使用统一认证登录
+                      </div>
+                  </motion.div>
+                )}
+              </>
+            ) : (
+              /* Register form */
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <form onSubmit={handleRegister} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-text-secondary">
+                      用户名 <span className="text-red-400">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">
+                        <User className="w-5 h-5" strokeWidth={1.5} />
+                      </div>
+                      <input
+                        type="text"
+                        value={regUsername}
+                        onChange={(e) => setRegUsername(e.target.value)}
+                        placeholder="请输入用户名"
+                        className="w-full pl-11 pr-4 py-3 rounded-xl border-2 focus:outline-none transition-colors text-text-primary placeholder:text-text-muted"
+                        style={inputStyle}
+                        onFocus={(e) => (e.target.style.borderColor = primary[400])}
+                        onBlur={(e) => (e.target.style.borderColor = inputStyle.borderColor)}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-text-secondary">
+                      邮箱 <span className="text-red-400">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">
+                        <Mail className="w-5 h-5" strokeWidth={1.5} />
+                      </div>
+                      <input
+                        type="email"
+                        value={regEmail}
+                        onChange={(e) => setRegEmail(e.target.value)}
+                        placeholder="your@email.com"
+                        className="w-full pl-11 pr-4 py-3 rounded-xl border-2 focus:outline-none transition-colors text-text-primary placeholder:text-text-muted"
+                        style={inputStyle}
+                        onFocus={(e) => (e.target.style.borderColor = primary[400])}
+                        onBlur={(e) => (e.target.style.borderColor = inputStyle.borderColor)}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-text-secondary">
+                      密码 <span className="text-red-400">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">
+                        <Lock className="w-5 h-5" strokeWidth={1.5} />
+                      </div>
+                      <input
+                        type="password"
+                        value={regPassword}
+                        onChange={(e) => setRegPassword(e.target.value)}
+                        placeholder="至少 6 位"
+                        className="w-full pl-11 pr-4 py-3 rounded-xl border-2 focus:outline-none transition-colors text-text-primary placeholder:text-text-muted"
+                        style={inputStyle}
+                        onFocus={(e) => (e.target.style.borderColor = primary[400])}
+                        onBlur={(e) => (e.target.style.borderColor = inputStyle.borderColor)}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-text-secondary">
+                      学号 <span className="text-text-muted text-xs">(选填)</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">
+                        <IdCard className="w-5 h-5" strokeWidth={1.5} />
+                      </div>
+                      <input
+                        type="text"
+                        value={regStudentNumber}
+                        onChange={(e) => setRegStudentNumber(e.target.value)}
+                        placeholder="U202112345"
+                        className="w-full pl-11 pr-4 py-3 rounded-xl border-2 focus:outline-none transition-colors text-text-primary placeholder:text-text-muted"
+                        style={inputStyle}
+                        onFocus={(e) => (e.target.style.borderColor = primary[400])}
+                        onBlur={(e) => (e.target.style.borderColor = inputStyle.borderColor)}
+                      />
+                    </div>
+                  </div>
+
                   <Button
+                    type="submit"
                     fullWidth
                     size="lg"
-                    className="font-semibold h-12 mb-3 text-white"
+                    isLoading={isLoading}
+                    className="font-semibold h-12 text-white"
                     style={{
                       background: `linear-gradient(135deg, ${primary[600]}, ${primary[500]})`,
                     }}
-                    startContent={<VPNIcon />}
-                    onPress={handleVPNAuth}
                   >
-                    校园网 / VPN 统一认证
+                    {isLoading ? '注册中...' : '注册'}
                   </Button>
+                </form>
 
-                  <p className="text-center text-xs mb-4 text-text-muted">
-                    需连接校园网或 VPN，跳转至学校 CAS 统一认证
-                  </p>
-
-                  <div className="flex items-center gap-4 mb-4">
-                    <Divider className="flex-1" />
-                    <span className="text-xs text-text-muted">
-                      或使用学号登录
-                    </span>
-                    <Divider className="flex-1" />
-                  </div>
-
-                  {/* 学号登录 */}
-                  <form onSubmit={handleCampusLogin} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2 text-text-secondary">
-                        学号
-                      </label>
-                      <div className="relative">
-                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">
-                          <StudentIDIcon />
-                        </div>
-                        <input
-                          type="text"
-                          value={studentId}
-                          onChange={(e) => {
-                            setStudentId(e.target.value)
-                            if (studentIdError) validateStudentId(e.target.value)
-                          }}
-                          placeholder="U202112345"
-                          className="w-full pl-11 pr-4 py-3 rounded-xl border-2 focus:outline-none transition-colors"
-                          style={{
-                            borderColor: studentIdError ? '#ef4444' : 'rgba(0,0,0,0.08)',
-                            background: 'rgba(255,255,255,0.6)',
-                          }}
-                          onFocus={(e) => {
-                            if (!studentIdError) e.target.style.borderColor = primary[400]
-                          }}
-                          onBlur={(e) => {
-                            if (!studentIdError) e.target.style.borderColor = 'rgba(0,0,0,0.08)'
-                          }}
-                        />
-                      </div>
-                      {studentIdError && (
-                        <p className="text-red-500 text-xs mt-1.5">{studentIdError}</p>
-                      )}
-                    </div>
-
-                    <Button
-                      type="submit"
-                      fullWidth
-                      size="lg"
-                      isLoading={isLoading}
-                      variant="bordered"
-                      className="font-semibold h-12 border-2"
-                      style={{
-                        borderColor: primary[200],
-                        color: primary[700],
-                        background: 'rgba(255,255,255,0.5)',
-                      }}
-                    >
-                      {isLoading ? '认证中...' : '学号登录'}
-                    </Button>
-                  </form>
-
-                  <div
-                    className="mt-4 p-3 rounded-xl text-xs"
-                    style={{ background: `${primary[50]}80`, color: primary[700] }}
+                <div className="flex items-center gap-4 mt-4">
+                  <Divider className="flex-1" />
+                  <button
+                    onClick={() => {
+                      setAuthMode('login')
+                      setError('')
+                    }}
+                    className="text-xs font-semibold cursor-pointer hover:underline"
+                    style={{ color: 'var(--accent-text)' }}
                   >
-                    <Lightbulb className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} />登录后将自动同步你的学籍信息（姓名、院系、年级），无需手动填写
-                  </div>
-                </motion.div>
-              ) : (
-                /* ========== 校外通道 ========== */
-                <motion.div
-                  key="external"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <p className="text-sm mb-5 text-text-muted">
-                    校外同学或访客可使用第三方账号登录
-                  </p>
-
-                  <div className="space-y-3">
-                    <Button
-                      fullWidth
-                      size="lg"
-                      variant="bordered"
-                      className="font-semibold h-12 transition-colors"
-                      style={{
-                        borderColor: 'rgba(0,0,0,0.08)',
-                        borderWidth: 2,
-                        background: 'rgba(255,255,255,0.5)',
-                        color: 'var(--text-primary)',
-                      }}
-                      startContent={<GoogleIcon />}
-                      onPress={() => handleOAuth('google')}
-                    >
-                      使用 Google 登录
-                    </Button>
-
-                    <Button
-                      fullWidth
-                      size="lg"
-                      variant="bordered"
-                      className="font-semibold h-12 transition-colors"
-                      style={{
-                        borderColor: 'rgba(0,0,0,0.08)',
-                        borderWidth: 2,
-                        background: 'rgba(255,255,255,0.5)',
-                        color: 'var(--text-primary)',
-                      }}
-                      startContent={<GithubIcon />}
-                      onPress={() => handleOAuth('github')}
-                    >
-                      使用 GitHub 登录
-                    </Button>
-                  </div>
-
-                  <div
-                    className="mt-6 p-3 rounded-xl text-xs text-text-muted"
-                    style={{ background: 'rgba(0,0,0,0.03)' }}
-                  >
-                    <AlertTriangle className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} />校外账号部分功能受限（如学籍同步、课程推荐等），建议校内学生使用统一认证登录
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+                    已有账号？返回登录
+                  </button>
+                  <Divider className="flex-1" />
+                </div>
+              </motion.div>
+            )}
           </div>
 
-          {/* 底部链接 */}
+          {/* Bottom link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-text-muted">
               首次使用？
               <Link
                 to="/mbti-test"
                 className="font-semibold ml-1 hover:underline"
-                style={{ color: primary[600] }}
+                style={{ color: 'var(--accent-text)' }}
               >
                 先做一次性格测试 →
               </Link>

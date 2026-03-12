@@ -87,7 +87,7 @@ export default function RankingQuestion({ question, answer, onAnswer }: RankingQ
               transition={{ delay: index * 0.05 }}
               className="p-4 rounded-xl border flex items-center gap-4 transition-shadow hover:shadow-md"
               style={{
-                background: 'rgba(255,255,255,0.8)',
+                background: 'var(--bg-card)',
                 borderColor: 'var(--border-primary)',
               }}
             >
@@ -124,9 +124,9 @@ export default function RankingQuestion({ question, answer, onAnswer }: RankingQ
               {index === 0 && (
                 <span 
                   className="text-xs px-2 py-1 rounded-full"
-                  style={{ 
-                    background: `${primary[500]}15`,
-                    color: primary[600],
+                  style={{
+                    background: 'var(--accent-bg)',
+                    color: 'var(--accent-text)',
                   }}
                 >
                   最喜欢

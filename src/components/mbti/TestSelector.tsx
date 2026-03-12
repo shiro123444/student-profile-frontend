@@ -10,7 +10,8 @@ import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 import { Link } from 'react-router-dom'
 import { testCategories, difficultyLabels, difficultyColors, testCategoryIcons } from '../../data/testCategories'
 import type { TestCategory, TestProgress } from '../../types/mbti'
-import { primary, neutral } from '../../theme/colors'
+import { primary } from '../../theme/colors'
+import { useTheme } from '../../theme/ThemeContext'
 import { Lightbulb, Brain, Target } from 'lucide-react'
 
 interface TestSelectorProps {
@@ -38,10 +39,10 @@ function TestCard({
       onClick={onSelect}
       className="w-full text-left group"
     >
-      <div 
-        className="relative p-6 rounded-2xl border border-border-primary transition-all duration-300 hover:shadow-lg hover:scale-[1.02]"
+      <div
+        className="relative p-6 rounded-2xl border border-border-primary transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer"
         style={{
-          background: 'rgba(255,255,255,0.8)',
+          background: 'var(--bg-card)',
           backdropFilter: 'blur(12px)',
         }}
       >
@@ -126,6 +127,9 @@ function TestCard({
 }
 
 export default function TestSelector({ onSelectTest, savedProgress }: TestSelectorProps) {
+  const { theme } = useTheme()
+  const isDark = theme === 'dark'
+
   return (
     <div className="min-h-screen flex items-center py-12 px-6 md:px-12 lg:px-20">
       <div className="w-full max-w-7xl mx-auto">
@@ -192,7 +196,7 @@ export default function TestSelector({ onSelectTest, savedProgress }: TestSelect
                   border: `1px solid ${primary[200]}`,
                 }}
               >
-                <p className="text-sm" style={{ color: primary[700] }}>
+                <p className="text-sm" style={{ color: 'var(--accent-text)' }}>
                   <Lightbulb className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} /> 你有一个未完成的测试，点击对应卡片可以继续
                 </p>
               </motion.div>
@@ -207,19 +211,24 @@ export default function TestSelector({ onSelectTest, savedProgress }: TestSelect
             className="relative hidden lg:block"
           >
             {/* Lottie 容器 */}
-            <div 
+            <div
               className="relative rounded-3xl overflow-hidden"
               style={{
-                aspectRatio: '1/1',
-                background: `linear-gradient(135deg, ${neutral[50]}80 0%, white 50%, ${primary[50]}40 100%)`,
-                boxShadow: `0 25px 80px -20px ${primary[900]}15, 0 10px 40px -15px ${primary[800]}10`,
+                aspectRatio: '4/3',
+                background: isDark
+                  ? 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.06) 100%)'
+                  : `linear-gradient(135deg, #f8fafc 0%, white 50%, #f1f5f9 100%)`,
+                boxShadow: isDark
+                  ? '0 25px 80px -20px rgba(0,0,0,0.4)'
+                  : '0 25px 80px -20px rgba(0,0,0,0.08)',
+                border: isDark ? '1px solid rgba(255,255,255,0.08)' : 'none',
               }}
             >
               <DotLottieReact
                 src="/animations/ball-playing.json"
                 loop
                 autoplay
-                style={{ width: '100%', height: '100%' }}
+                style={{ width: '100%', height: '100%', objectFit: 'contain' }}
               />
 
               {/* 浮动装饰 */}
@@ -228,10 +237,10 @@ export default function TestSelector({ onSelectTest, savedProgress }: TestSelect
                 transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                 className="absolute top-6 right-6 px-4 py-2 rounded-full text-sm font-medium"
                 style={{
-                  background: 'rgba(255,255,255,0.9)',
+                  background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.9)',
                   backdropFilter: 'blur(8px)',
-                  color: primary[700],
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                  color: 'var(--accent-text)',
+                  boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.3)' : '0 4px 20px rgba(0,0,0,0.1)',
                 }}
               >
                 <Brain className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} /> 了解自己
@@ -242,10 +251,10 @@ export default function TestSelector({ onSelectTest, savedProgress }: TestSelect
                 transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
                 className="absolute bottom-6 left-6 px-4 py-2 rounded-full text-sm font-medium"
                 style={{
-                  background: 'rgba(255,255,255,0.9)',
+                  background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.9)',
                   backdropFilter: 'blur(8px)',
-                  color: primary[700],
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                  color: 'var(--accent-text)',
+                  boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.3)' : '0 4px 20px rgba(0,0,0,0.1)',
                 }}
               >
                 <Target className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} /> 发现方向

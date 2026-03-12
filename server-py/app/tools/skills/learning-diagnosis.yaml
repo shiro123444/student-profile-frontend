@@ -1,0 +1,38 @@
+name: learning-diagnosis
+description: 诊断学生学习状态并给出改进建议
+category: learning
+input_schema:
+  type: object
+  properties:
+    student_id:
+      type: string
+      description: 学生ID
+  required: [student_id]
+
+steps:
+  - id: profile
+    action: tool
+    tool: get_student_profile
+    input:
+      student_id: "{{student_id}}"
+
+  - id: history
+    action: tool
+    tool: get_learning_history
+    input:
+      student_id: "{{student_id}}"
+
+  - id: diagnosis
+    action: agent
+    agent: quick-qa
+    prompt: |
+      你是一位学习诊断专家。根据以下学生数据，分析学习状态并给出改进建议。
+
+      学生画像: {{profile}}
+      学习历史: {{history}}
+
+      请从以下维度分析：
+      1. 学习活跃度评估
+      2. 知识薄弱点识别
+      3. 学习习惯分析
+      4. 具体改进建议（3条）

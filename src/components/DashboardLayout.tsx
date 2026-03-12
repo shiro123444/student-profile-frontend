@@ -9,25 +9,51 @@
  * - 滚动时的模糊过渡效果
  */
 
-import { useState, useEffect, useRef } from 'react'
-import { Outlet, useLocation, Link } from 'react-router-dom'
+import { useState, useEffect, useLayoutEffect, useRef } from 'react'
+import { Outlet, useLocation, Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import {
+  LayoutDashboard,
+  BarChart3,
+  Briefcase,
+  BookOpen,
+  MessageCircle,
+  Network,
+  Settings,
+  UserCircle,
+  FlaskConical,
+  StickyNote,
+  FileText,
+  LogOut,
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { BreathingOrb } from './animations'
 import { neutral, primary } from '../theme/colors'
 import { ThemeToggle, useTheme } from '../theme/ThemeContext'
+import { useAuth } from '../contexts/AuthContext'
 
-// 导航项配置
-const navItems = [
-  { path: '/dashboard', label: '概览', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-  { path: '/results', label: '结果分析', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
-  { path: '/careers', label: '职业推荐', icon: 'M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
-  { path: '/learning-path', label: '学习路径', icon: 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253' },
+// Nav item config with Lucide icons
+interface NavItemConfig {
+  path: string
+  label: string
+  Icon: LucideIcon
+}
+
+const navItems: NavItemConfig[] = [
+  { path: '/dashboard', label: '概览', Icon: LayoutDashboard },
+  { path: '/results', label: '结果分析', Icon: BarChart3 },
+  { path: '/careers', label: '职业推荐', Icon: Briefcase },
+  { path: '/learning-path', label: '学习路径', Icon: BookOpen },
+  { path: '/profile', label: '学生画像', Icon: UserCircle },
+  { path: '/experiments', label: '实验管理', Icon: FlaskConical },
+  { path: '/notes', label: '笔记', Icon: StickyNote },
+  { path: '/documents', label: 'PDF 工作台', Icon: FileText },
 ]
 
-const bottomNavItems = [
-  { path: '/ai-advisor', label: 'AI 助手', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
-  { path: '/graph', label: '知识图谱', icon: 'M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1' },
-  { path: '/admin', label: '管理后台', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z' },
+const bottomNavItems: NavItemConfig[] = [
+  { path: '/ai-advisor', label: 'AI 助手', Icon: MessageCircle },
+  { path: '/graph', label: '知识图谱', Icon: Network },
+  { path: '/admin', label: '管理后台', Icon: Settings },
 ]
 
 // 响应式 margin hook
@@ -44,24 +70,24 @@ const useResponsiveMargin = (isCollapsed: boolean) => {
   return isMobile ? 0 : (isCollapsed ? 72 : 240)
 }
 
-// 光感玻璃导航项组件 - 使用专业的蓝灰色系
-function NavItem({ 
-  item, 
-  isActive, 
-  isCollapsed 
-}: { 
-  item: typeof navItems[0]
+// 光感玻璃导航项组件 - 使用 Lucide 图标
+function NavItem({
+  item,
+  isActive,
+  isCollapsed
+}: {
+  item: NavItemConfig
   isActive: boolean
-  isCollapsed: boolean 
+  isCollapsed: boolean
 }) {
   return (
     <Link
       to={item.path}
       className={`
-        relative flex items-center rounded-xl transition-all duration-300 group
+        relative flex items-center rounded-xl transition-all duration-300 group cursor-pointer
         ${isCollapsed ? 'justify-center px-3 py-3' : 'px-4 py-3 gap-3'}
-        ${isActive 
-          ? 'text-white shadow-lg' 
+        ${isActive
+          ? 'text-white shadow-lg'
           : 'text-text-muted hover:text-text-primary hover:bg-bg-hover'
         }
       `}
@@ -79,16 +105,11 @@ function NavItem({
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         />
       )}
-      
-      <svg 
+
+      <item.Icon
         className={`flex-shrink-0 transition-transform duration-200 ${isCollapsed ? 'w-6 h-6' : 'w-5 h-5'} ${!isActive ? 'group-hover:scale-110' : ''}`}
-        fill="none" 
-        viewBox="0 0 24 24" 
-        stroke="currentColor"
         strokeWidth={1.5}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-      </svg>
+      />
       
       <AnimatePresence>
         {!isCollapsed && (
@@ -127,12 +148,19 @@ function NavItem({
 
 export default function DashboardLayout() {
   const location = useLocation()
+  const navigate = useNavigate()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const marginLeft = useResponsiveMargin(isCollapsed)
   const { theme } = useTheme()
+  const { user, logout } = useAuth()
   const isDark = theme === 'dark'
-  
+
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
+
   // 滚动模糊效果 - 用于主内容区
   const mainRef = useRef<HTMLDivElement>(null)
 
@@ -141,10 +169,46 @@ export default function DashboardLayout() {
     setIsMobileMenuOpen(false)
   }, [location.pathname])
 
+  // 禁用浏览器自动滚动恢复，避免刷新后回到旧滚动位置
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('scrollRestoration' in window.history)) return
+    const prev = window.history.scrollRestoration
+    window.history.scrollRestoration = 'manual'
+    return () => {
+      window.history.scrollRestoration = prev
+    }
+  }, [])
+
+  // 路由切换时重置滚动，避免新页面被保留滚动位置顶出可视区
+  useLayoutEffect(() => {
+    const mainEl = mainRef.current
+
+    const resetScroll = () => {
+      if (mainEl) {
+        mainEl.scrollTop = 0
+        mainEl.scrollLeft = 0
+      }
+      window.scrollTo(0, 0)
+    }
+
+    resetScroll()
+    const raf1 = window.requestAnimationFrame(resetScroll)
+    const raf2 = window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(resetScroll)
+    })
+    const timer = window.setTimeout(resetScroll, 120)
+
+    return () => {
+      window.cancelAnimationFrame(raf1)
+      window.cancelAnimationFrame(raf2)
+      window.clearTimeout(timer)
+    }
+  }, [location.pathname, location.key])
+
   const isActive = (path: string) => location.pathname === path
 
   return (
-    <div className="min-h-screen w-full relative flex" style={{ background: isDark ? '#0c0c0c' : `linear-gradient(135deg, ${neutral[50]} 0%, #F8FAFC 50%, rgba(241,245,249,0.5) 100%)` }}>
+    <div className="h-screen min-h-0 w-full relative flex overflow-hidden" style={{ background: isDark ? '#0c0c0c' : `linear-gradient(135deg, ${neutral[50]} 0%, #F8FAFC 50%, rgba(241,245,249,0.5) 100%)` }}>
       {/* 背景呼吸光晕 - 使用专业的低饱和度色彩 */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <BreathingOrb 
@@ -174,14 +238,14 @@ export default function DashboardLayout() {
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         style={isDark ? {
           background: 'linear-gradient(135deg, rgba(20,20,20,0.95) 0%, rgba(20,20,20,0.85) 100%)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
           borderRight: '1px solid rgba(255,255,255,0.08)',
           boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
         } : {
           background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
           borderRight: '1px solid rgba(255,255,255,0.5)',
           boxShadow: '0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)',
         }}
@@ -241,35 +305,59 @@ export default function DashboardLayout() {
           ))}
         </nav>
 
-        {/* 底部：主题切换 + 折叠按钮 */}
-        <div className="p-3 flex items-center justify-between border-t border-border-primary">
-          <ThemeToggle />
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors"
-          >
-            <motion.svg 
-              className="w-5 h-5" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-              animate={{ rotate: isCollapsed ? 180 : 0 }}
+        {/* 底部：用户信息 + 主题切换 + 折叠 */}
+        <div className="p-3 space-y-2 border-t border-border-primary">
+          {/* 用户信息 + 登出 */}
+          {user && !isCollapsed && (
+            <div className="flex items-center justify-between px-2 py-1">
+              <span className="text-xs text-text-muted truncate">{user.username}</span>
+              <button
+                onClick={handleLogout}
+                className="p-1.5 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
+                title="退出登录"
+              >
+                <LogOut className="w-4 h-4" strokeWidth={1.5} />
+              </button>
+            </div>
+          )}
+          {user && isCollapsed && (
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center p-2 rounded-xl text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
+              title="退出登录"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-            </motion.svg>
-            <AnimatePresence>
-              {!isCollapsed && (
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="text-sm"
-                >
-                  收起
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </button>
+              <LogOut className="w-5 h-5" strokeWidth={1.5} />
+            </button>
+          )}
+          <div className="flex items-center justify-between">
+            <ThemeToggle />
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 text-text-muted hover:text-text-primary hover:bg-bg-hover cursor-pointer"
+            >
+              <motion.svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                animate={{ rotate: isCollapsed ? 180 : 0 }}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+              </motion.svg>
+              <AnimatePresence>
+                {!isCollapsed && (
+                  <motion.span
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="text-sm"
+                  >
+                    收起
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </button>
+          </div>
         </div>
       </motion.aside>
 
@@ -278,13 +366,13 @@ export default function DashboardLayout() {
         className="md:hidden fixed top-0 left-0 right-0 h-16 z-40 flex items-center justify-between px-4 border-b border-border-primary"
         style={isDark ? {
           background: 'linear-gradient(135deg, rgba(20,20,20,0.95) 0%, rgba(20,20,20,0.85) 100%)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
           boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
         } : {
           background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.9) 100%)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
+          backdropFilter: 'blur(14px)',
+          WebkitBackdropFilter: 'blur(14px)',
           boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
         }}
       >
@@ -334,8 +422,8 @@ export default function DashboardLayout() {
             className="md:hidden fixed inset-0 z-30 pt-16"
             style={{
               background: isDark ? 'rgba(12,12,12,0.98)' : `linear-gradient(135deg, rgba(255,255,255,0.98) 0%, ${neutral[50]}F2 100%)`,
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
+              backdropFilter: 'blur(14px)',
+              WebkitBackdropFilter: 'blur(14px)',
             }}
           >
             <nav className="p-4 space-y-2">
@@ -343,15 +431,13 @@ export default function DashboardLayout() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 ${isActive(item.path) ? '' : 'text-text-secondary'}`}
+                  className={`flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${isActive(item.path) ? '' : 'text-text-secondary'}`}
                   style={isActive(item.path) ? {
                     background: `linear-gradient(135deg, ${primary[100]} 0%, ${primary[50]} 100%)`,
                     color: primary[800],
                   } : {}}
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-                  </svg>
+                  <item.Icon className="w-6 h-6" strokeWidth={1.5} />
                   <span className="font-medium">{item.label}</span>
                 </Link>
               ))}
@@ -363,25 +449,12 @@ export default function DashboardLayout() {
       {/* 主内容区 - 垂直滚动 + 滚动模糊过渡 */}
       <main
         ref={mainRef}
-        className="flex-1 min-h-screen pt-16 md:pt-0 relative z-10 transition-all duration-300 overflow-y-auto"
+        className="flex-1 h-full min-h-0 pt-16 md:pt-0 relative z-10 transition-all duration-300 overflow-y-auto"
         style={{ marginLeft }}
       >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 30, filter: 'blur(12px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, y: -20, filter: 'blur(8px)' }}
-            transition={{ 
-              duration: 0.5, 
-              ease: [0.22, 1, 0.36, 1],
-              filter: { duration: 0.4 }
-            }}
-            className="min-h-screen"
-          >
-            <Outlet />
-          </motion.div>
-        </AnimatePresence>
+        <div className="h-full min-h-0 flex flex-col">
+          <Outlet />
+        </div>
       </main>
     </div>
   )

@@ -34,9 +34,9 @@ export default function ScenarioQuestion({ question, answer, onAnswer }: Scenari
       {/* 情景描述 */}
       <div 
         className="p-5 rounded-2xl"
-        style={{ 
-          background: `linear-gradient(135deg, ${primary[50]} 0%, var(--bg-primary) 100%)`,
-          border: `1px solid ${primary[100]}`,
+        style={{
+          background: 'var(--accent-bg)',
+          border: '1px solid var(--border-primary)',
         }}
       >
         <div className="flex items-start gap-3">
@@ -68,7 +68,7 @@ export default function ScenarioQuestion({ question, answer, onAnswer }: Scenari
               className="w-full p-4 rounded-xl text-left transition-all duration-200 flex items-start gap-3 border"
               style={{
                 borderColor: isSelected ? primary[500] : 'var(--border-primary)',
-                background: isSelected ? `${primary[500]}10` : 'rgba(255,255,255,0.6)',
+                background: isSelected ? `${primary[500]}10` : 'var(--bg-card)',
               }}
             >
               {/* 选项标签 */}

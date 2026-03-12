@@ -1,0 +1,2707 @@
+{
+  "generated_at": "2026-02-22T15:24:49.341Z",
+  "source": "obsidian-releases/community-plugins.json + community-plugin-stats.json",
+  "count": 300,
+  "plugins": [
+    {
+      "id": "obsidian-excalidraw-plugin",
+      "name": "Excalidraw",
+      "author": "Zsolt Viczian",
+      "description": "Edit and view Excalidraw drawings.",
+      "repo": "zsviczian/obsidian-excalidraw-plugin",
+      "downloads": 5437138,
+      "updated": 1771010656000
+    },
+    {
+      "id": "templater-obsidian",
+      "name": "Templater",
+      "author": "SilentVoid",
+      "description": "Create and use templates.",
+      "repo": "SilentVoid13/Templater",
+      "downloads": 3750433,
+      "updated": 1769699522000
+    },
+    {
+      "id": "dataview",
+      "name": "Dataview",
+      "author": "Michael Brenan",
+      "description": "Advanced queries over your vault for the data-obsessed.",
+      "repo": "blacksmithgu/obsidian-dataview",
+      "downloads": 3724060,
+      "updated": 1744053450000
+    },
+    {
+      "id": "obsidian-tasks-plugin",
+      "name": "Tasks",
+      "author": "Clare Macrae and Ilyas Landikov (created by Martin Schenck)",
+      "description": "Track tasks across your vault. Supports due dates, recurring tasks, done dates, sub-set of checklist items, and filtering.",
+      "repo": "obsidian-tasks-group/obsidian-tasks",
+      "downloads": 3116185,
+      "updated": 1759054105000
+    },
+    {
+      "id": "table-editor-obsidian",
+      "name": "Advanced Tables",
+      "author": "Tony Grosinger",
+      "description": "Improved table navigation, formatting, and manipulation.",
+      "repo": "tgrosinger/advanced-tables-obsidian",
+      "downloads": 2625492,
+      "updated": 1729698278000
+    },
+    {
+      "id": "calendar",
+      "name": "Calendar",
+      "author": "Liam Cain",
+      "description": "Simple calendar widget.",
+      "repo": "liamcain/obsidian-calendar-plugin",
+      "downloads": 2374549,
+      "updated": 1618944601000
+    },
+    {
+      "id": "obsidian-git",
+      "name": "Git",
+      "author": "Vinzent, (Denis Olehov)",
+      "description": "Integrate Git version control with automatic backup and other advanced features.",
+      "repo": "Vinzent03/obsidian-git",
+      "downloads": 2179831,
+      "updated": 1770989756000
+    },
+    {
+      "id": "obsidian-kanban",
+      "name": "Kanban",
+      "author": "mgmeyers",
+      "description": "Create Markdown-backed Kanban boards.",
+      "repo": "mgmeyers/obsidian-kanban",
+      "downloads": 2113358,
+      "updated": 1717117708000
+    },
+    {
+      "id": "obsidian-style-settings",
+      "name": "Style Settings",
+      "author": "mgmeyers",
+      "description": "Adjust theme, plugin, and snippet CSS variables.",
+      "repo": "mgmeyers/obsidian-style-settings",
+      "downloads": 2094899,
+      "updated": 1724521516000
+    },
+    {
+      "id": "obsidian-icon-folder",
+      "name": "Iconize",
+      "author": "FlorianWoelki",
+      "description": "Add icons to anything in Obsidian, including files, folders, and text.",
+      "repo": "FlorianWoelki/obsidian-iconize",
+      "downloads": 1866143,
+      "updated": 1735894995000
+    },
+    {
+      "id": "remotely-save",
+      "name": "Remotely Save",
+      "author": "fyears",
+      "description": "Sync notes between local and cloud with smart conflict: S3 (Amazon S3/Cloudflare R2/Backblaze B2/...), Dropbox, webdav (NextCloud/InfiniCLOUD/Synology/...), OneDrive, Google Drive (GDrive), Box, pCloud, Yandex Disk, Koofr, Azure Blob Storage.",
+      "repo": "remotely-save/remotely-save",
+      "downloads": 1690373,
+      "updated": 1729415674000
+    },
+    {
+      "id": "quickadd",
+      "name": "QuickAdd",
+      "author": "Christian B. B. Houmann",
+      "description": "Quickly add new notes or content to your vault.",
+      "repo": "chhoumann/quickadd",
+      "downloads": 1606828,
+      "updated": 1770540644000
+    },
+    {
+      "id": "obsidian-minimal-settings",
+      "name": "Minimal Theme Settings",
+      "author": "@kepano",
+      "description": "Control the colors and fonts in Minimal Theme.",
+      "repo": "kepano/obsidian-minimal-settings",
+      "downloads": 1408309,
+      "updated": 1765724624000
+    },
+    {
+      "id": "omnisearch",
+      "name": "Omnisearch",
+      "author": "Simon Cambier",
+      "description": "Intelligent search for your notes, PDFs, and OCR for images.",
+      "repo": "scambier/obsidian-omnisearch",
+      "downloads": 1257041,
+      "updated": 1767638037000
+    },
+    {
+      "id": "editing-toolbar",
+      "name": "Editing Toolbar",
+      "author": "Cuman",
+      "description": "The Editing Toolbar is modified from cMenu, which provides more powerful customization settings and has many built-in editing commands to be a MS Word-like toolbar editing experience.",
+      "repo": "PKM-er/obsidian-editing-toolbar",
+      "downloads": 1199089,
+      "updated": 1768468393000
+    },
+    {
+      "id": "obsidian-outliner",
+      "name": "Outliner",
+      "author": "Viacheslav Slinko",
+      "description": "Work with your lists like in Workflowy or Roam Research.",
+      "repo": "vslinko/obsidian-outliner",
+      "downloads": 1105767,
+      "updated": 1741002650000
+    },
+    {
+      "id": "copilot",
+      "name": "Copilot",
+      "author": "Logan Yang",
+      "description": "Your AI Copilot: Chat with Your Second Brain, Learn Faster, Work Smarter.",
+      "repo": "logancyang/obsidian-copilot",
+      "downloads": 1054951,
+      "updated": 1770785442000
+    },
+    {
+      "id": "obsidian-importer",
+      "name": "Importer",
+      "author": "Obsidian",
+      "description": "Import data from Notion, Evernote, Apple Notes, Microsoft OneNote, Google Keep, Bear, Roam, and HTML files.",
+      "repo": "obsidianmd/obsidian-importer",
+      "downloads": 1053558,
+      "updated": 1770143806000
+    },
+    {
+      "id": "homepage",
+      "name": "Homepage",
+      "author": "mirnovov",
+      "description": "Open a specified note, canvas, or workspace on startup, or set it for quick access later.",
+      "repo": "mirnovov/obsidian-homepage",
+      "downloads": 993567,
+      "updated": 1768444015000
+    },
+    {
+      "id": "recent-files-obsidian",
+      "name": "Recent Files",
+      "author": "Tony Grosinger",
+      "description": "Display a list of recently opened files.",
+      "repo": "tgrosinger/recent-files-obsidian",
+      "downloads": 943239,
+      "updated": 1767989182000
+    },
+    {
+      "id": "tag-wrangler",
+      "name": "Tag Wrangler",
+      "author": "PJ Eby",
+      "description": "Rename, merge, toggle, and search tags from the tag pane.",
+      "repo": "pjeby/tag-wrangler",
+      "downloads": 890621,
+      "updated": 1741734643000
+    },
+    {
+      "id": "obsidian-admonition",
+      "name": "Admonition",
+      "author": "Jeremy Valentine",
+      "description": "Admonition block-styled content.",
+      "repo": "javalent/admonitions",
+      "downloads": 865896,
+      "updated": 1717286788000
+    },
+    {
+      "id": "smart-connections",
+      "name": "Smart Connections",
+      "author": "Brian Petro",
+      "description": "AI link discovery copilot. See related notes as you write. Lookup using semantic (vector) search across your vault. Zero-setup local model for embeddings, no API keys, private.",
+      "repo": "brianpetro/obsidian-smart-connections",
+      "downloads": 828892,
+      "updated": 1768691260000
+    },
+    {
+      "id": "obsidian-advanced-slides",
+      "name": "Advanced Slides",
+      "author": "MSzturc",
+      "description": "Create Markdown-based presentations.",
+      "repo": "MSzturc/obsidian-advanced-slides",
+      "downloads": 809781,
+      "updated": 1676504371000
+    },
+    {
+      "id": "obsidian-linter",
+      "name": "Linter",
+      "author": "Victor Tao",
+      "description": "Format and style your notes. Linter can be used to format YAML tags, aliases, arrays, and metadata; footnotes; headings; spacing; math blocks; regular Markdown contents like list, italics, and bold styles; and more with the use of custom rule options.",
+      "repo": "platers/obsidian-linter",
+      "downloads": 788975,
+      "updated": 1757868936000
+    },
+    {
+      "id": "obsidian-mind-map",
+      "name": "Mind Map",
+      "author": "James Lynch",
+      "description": "Display Markdown notes as mind maps using Markmap.",
+      "repo": "lynchjames/obsidian-mind-map",
+      "downloads": 774715,
+      "updated": 1607877184000
+    },
+    {
+      "id": "make-md",
+      "name": "MAKE.md",
+      "author": "MAKE.md",
+      "description": "Make.md brings you features that supercharges Obsidian. Sort your files in custom order and add file icons using Spaces. Edit inline embeds with Flow Editor. And style your text and add new Markdown blocks without writing Markdown using Maker Mode.",
+      "repo": "Make-md/makemd",
+      "downloads": 759804,
+      "updated": 1769459120000
+    },
+    {
+      "id": "obsidian-day-planner",
+      "name": "Day Planner",
+      "author": "James Lynch (continued by Ivan Lednev)",
+      "description": "Day planning from a task list in a Markdown note with enhanced time block functionality.",
+      "repo": "ivan-lednev/obsidian-day-planner",
+      "downloads": 752387,
+      "updated": 1747411128000
+    },
+    {
+      "id": "highlightr-plugin",
+      "name": "Highlightr",
+      "author": "Chetachi",
+      "description": "A minimal and aesthetically pleasing highlighting menu that makes color-coded highlighting much easier with a configurable assortment of highlight colors.",
+      "repo": "chetachiezikeuzor/Highlightr-Plugin",
+      "downloads": 594422,
+      "updated": 1661971970000
+    },
+    {
+      "id": "periodic-notes",
+      "name": "Periodic Notes",
+      "author": "Liam Cain",
+      "description": "Create/manage your daily, weekly, and monthly notes.",
+      "repo": "liamcain/obsidian-periodic-notes",
+      "downloads": 593063,
+      "updated": 1649948603000
+    },
+    {
+      "id": "obsidian-livesync",
+      "name": "Self-hosted LiveSync",
+      "author": "vorotamoroz",
+      "description": "Community implementation of self-hosted livesync. Reflect your vault changes to some other devices immediately. Please make sure to disable other synchronize solutions to avoid content corruption or duplication.",
+      "repo": "vrtmrz/obsidian-livesync",
+      "downloads": 565727,
+      "updated": 1771050259000
+    },
+    {
+      "id": "obsidian42-brat",
+      "name": "BRAT",
+      "author": "TfTHacker",
+      "description": "Easily install a beta version of a plugin for testing.",
+      "repo": "TfTHacker/obsidian42-brat",
+      "downloads": 563193,
+      "updated": 1771089904000
+    },
+    {
+      "id": "better-word-count",
+      "name": "Better Word Count",
+      "author": "Luke Leppan",
+      "description": "Count the words of selected text in the editor.",
+      "repo": "lukeleppan/better-word-count",
+      "downloads": 551867,
+      "updated": 1706020459000
+    },
+    {
+      "id": "obsidian-annotator",
+      "name": "Annotator",
+      "author": "Elias Sundqvist",
+      "description": "Read and annotate PDFs and EPUB files.",
+      "repo": "elias-sundqvist/obsidian-annotator",
+      "downloads": 547844,
+      "updated": 1704710661000
+    },
+    {
+      "id": "obsidian-advanced-uri",
+      "name": "Advanced URI",
+      "author": "Vinzent",
+      "description": "Control everything with URI.",
+      "repo": "Vinzent03/obsidian-advanced-uri",
+      "downloads": 545044,
+      "updated": 1769458581000
+    },
+    {
+      "id": "obsidian-textgenerator-plugin",
+      "name": "Text Generator",
+      "author": "Noureddine Haouari",
+      "description": "Generate text content using GPT-3 (OpenAI).",
+      "repo": "nhaouari/obsidian-textgenerator-plugin",
+      "downloads": 505130,
+      "updated": 1770476329000
+    },
+    {
+      "id": "obsidian-markmind",
+      "name": "Markmind",
+      "author": "Mark",
+      "description": "Mind map, outline and PDF annotation tool. (Closed source)",
+      "repo": "MarkMindCkm/obsidian-markmind",
+      "downloads": 499585,
+      "updated": 1770609391000
+    },
+    {
+      "id": "pdf-plus",
+      "name": "PDF++",
+      "author": "Ryota Ushio",
+      "description": "The most Obsidian-native PDF annotation tool ever.",
+      "repo": "RyotaUshio/obsidian-pdf-plus",
+      "downloads": 478595,
+      "updated": 1756521138000
+    },
+    {
+      "id": "obsidian-pandoc",
+      "name": "Pandoc",
+      "author": "Oliver Balfour",
+      "description": "Commands to export to Pandoc-supported formats like DOCX, ePub and PDF.",
+      "repo": "OliverBalfour/obsidian-pandoc",
+      "downloads": 474456,
+      "updated": 1664139062000
+    },
+    {
+      "id": "nldates-obsidian",
+      "name": "Natural Language Dates",
+      "author": "Argentina Ortega Sainz",
+      "description": "Create date-links based on natural language.",
+      "repo": "argenos/nldates-obsidian",
+      "downloads": 470373,
+      "updated": 1701462704000
+    },
+    {
+      "id": "advanced-canvas",
+      "name": "Advanced Canvas",
+      "author": "Developer-Mike",
+      "description": "Supercharge your canvas experience. Create presentations, flowcharts and more.",
+      "repo": "Developer-Mike/obsidian-advanced-canvas",
+      "downloads": 470138,
+      "updated": 1769956465000
+    },
+    {
+      "id": "cmdr",
+      "name": "Commander",
+      "author": "Johnny and phibr0",
+      "description": "Customize your workspace by adding commands everywhere, create macros and supercharge your mobile toolbar.",
+      "repo": "phibr0/obsidian-commander",
+      "downloads": 460731,
+      "updated": 1749727943000
+    },
+    {
+      "id": "obsidian-hover-editor",
+      "name": "Hover Editor",
+      "author": "NothingIsLost",
+      "description": "Transform the Page Preview hover popover into a fully working editor instance.",
+      "repo": "nothingislost/obsidian-hover-editor",
+      "downloads": 457290,
+      "updated": 1767210573000
+    },
+    {
+      "id": "various-complements",
+      "name": "Various Complements",
+      "author": "tadashi-aikawa",
+      "description": "Complete words similar to auto-completion in an IDE.",
+      "repo": "tadashi-aikawa/obsidian-various-complements-plugin",
+      "downloads": 452077,
+      "updated": 1769339521000
+    },
+    {
+      "id": "obsidian-zotero-desktop-connector",
+      "name": "Zotero Integration",
+      "author": "mgmeyers",
+      "description": "Insert and import citations, bibliographies, notes, and PDF annotations from Zotero.",
+      "repo": "mgmeyers/obsidian-zotero-integration",
+      "downloads": 446313,
+      "updated": 1723391322000
+    },
+    {
+      "id": "obsidian-spaced-repetition",
+      "name": "Spaced Repetition",
+      "author": "Stephen Mwangi",
+      "description": "Fight the forgetting curve by reviewing flashcards & entire notes.",
+      "repo": "st3v3nmw/obsidian-spaced-repetition",
+      "downloads": 444763,
+      "updated": 1764515287000
+    },
+    {
+      "id": "obsidian-emoji-toolbar",
+      "name": "Emoji Toolbar",
+      "author": "oliveryh",
+      "description": "Quickly search for and insert emojis into your editor.",
+      "repo": "oliveryh/obsidian-emoji-toolbar",
+      "downloads": 439963,
+      "updated": 1763415182000
+    },
+    {
+      "id": "url-into-selection",
+      "name": "Paste URL into selection",
+      "author": "Denis Olehov",
+      "description": "Paste URL \"into\" selected text.",
+      "repo": "denolehov/obsidian-url-into-selection",
+      "downloads": 432184,
+      "updated": 1756330969000
+    },
+    {
+      "id": "obsidian-checklist-plugin",
+      "name": "Checklist",
+      "author": "delashum",
+      "description": "Consolidate checklists across all files into a single view.",
+      "repo": "delashum/obsidian-checklist-plugin",
+      "downloads": 432073,
+      "updated": 1736622478000
+    },
+    {
+      "id": "obsidian-latex-suite",
+      "name": "Latex Suite",
+      "author": "artisticat1",
+      "description": "Make typesetting LaTeX math as fast as handwriting through snippets, text expansion, and editor enhancements.",
+      "repo": "artisticat1/obsidian-latex-suite",
+      "downloads": 399680,
+      "updated": 1770841381000
+    },
+    {
+      "id": "obsidian-full-calendar",
+      "name": "Full Calendar",
+      "author": "Davis Haupt (@davish)",
+      "description": "Keep events and manage your calendar alongside all your other notes in your vault.",
+      "repo": "obsidian-community/obsidian-full-calendar",
+      "downloads": 385981,
+      "updated": 1680794532000
+    },
+    {
+      "id": "obsidian-enhancing-export",
+      "name": "Enhancing Export",
+      "author": "YISH",
+      "description": "Enhanced export based on Pandoc. Allows export to formats like HTML, DOCX, ePub and PDF or Hugo.",
+      "repo": "mokeyish/obsidian-enhancing-export",
+      "downloads": 371866,
+      "updated": 1770303532000
+    },
+    {
+      "id": "buttons",
+      "name": "Buttons",
+      "author": "Sam Morrison",
+      "description": "Create Buttons in your notes to run commands, open links, and insert templates.",
+      "repo": "shabegom/buttons",
+      "downloads": 366190,
+      "updated": 1756236430000
+    },
+    {
+      "id": "obsidian-hider",
+      "name": "Hider",
+      "author": "@kepano",
+      "description": "Hide UI elements such as tooltips, status, titlebar and more.",
+      "repo": "kepano/obsidian-hider",
+      "downloads": 365781,
+      "updated": 1765724662000
+    },
+    {
+      "id": "darlal-switcher-plus",
+      "name": "Quick Switcher++",
+      "author": "darlal",
+      "description": "Enhanced Quick Switcher, search open panels, and symbols.",
+      "repo": "darlal/obsidian-switcher-plus",
+      "downloads": 354714,
+      "updated": 1769883471000
+    },
+    {
+      "id": "image-converter",
+      "name": "Image Converter",
+      "author": "xRyul",
+      "description": "Convert, compress, resize, annotate, markup, draw, crop, rotate, flip, align, drag-resize, rename with variables, and batch process images: WEBP, JPG, PNG, HEIC, TIF",
+      "repo": "xRyul/obsidian-image-converter",
+      "downloads": 347930,
+      "updated": 1769211820000
+    },
+    {
+      "id": "obsidian-banners",
+      "name": "Banners",
+      "author": "Danny Hernandez",
+      "description": "Add banner images to your notes!",
+      "repo": "noatpad/obsidian-banners",
+      "downloads": 340730,
+      "updated": 1697310259000
+    },
+    {
+      "id": "oz-image-plugin",
+      "name": "Image in Editor",
+      "author": "Ozan Tellioglu",
+      "description": "View Images, Transclusions, iFrames and PDF Files within the Editor without a necessity to switch to Preview.",
+      "repo": "ozntel/oz-image-in-editor-obsidian",
+      "downloads": 339165,
+      "updated": 1707593714000
+    },
+    {
+      "id": "obsidian-auto-link-title",
+      "name": "Auto Link Title",
+      "author": "Matt Furden",
+      "description": "Automatically fetches the titles of links from the web.",
+      "repo": "zolrath/obsidian-auto-link-title",
+      "downloads": 338249,
+      "updated": 1733348135000
+    },
+    {
+      "id": "obsidian-memos",
+      "name": "Thino",
+      "author": "Boninall",
+      "description": "Quickly capture memos and display them in the sidebar with a heatmap. (Closed source)",
+      "repo": "Quorafind/Obsidian-Thino",
+      "downloads": 328557,
+      "updated": 1770609762000
+    },
+    {
+      "id": "file-tree-alternative",
+      "name": "File Tree Alternative",
+      "author": "Ozan Tellioglu",
+      "description": "An alternative file tree view with separate folder and file panes.",
+      "repo": "ozntel/file-tree-alternative",
+      "downloads": 323450,
+      "updated": 1719082237000
+    },
+    {
+      "id": "obsidian-meta-bind-plugin",
+      "name": "Meta Bind",
+      "author": "Moritz Jung",
+      "description": "Make your notes interactive with inline input fields, metadata displays, and buttons.",
+      "repo": "mProjectsCode/obsidian-meta-bind-plugin",
+      "downloads": 316146,
+      "updated": 1757249275000
+    },
+    {
+      "id": "note-refactor-obsidian",
+      "name": "Note Refactor",
+      "author": "James Lynch",
+      "description": "Extract note content into new notes and split notes.",
+      "repo": "lynchjames/note-refactor-obsidian",
+      "downloads": 313344,
+      "updated": 1695078360000
+    },
+    {
+      "id": "notebook-navigator",
+      "name": "Notebook Navigator",
+      "author": "Johan Sanneblad",
+      "description": "Replace the default file explorer with a clean two-pane interface featuring folder tree, tag browsing, file previews, keyboard navigation, drag-and-drop, pinned notes, and customizable display options.",
+      "repo": "johansan/notebook-navigator",
+      "downloads": 311621,
+      "updated": 1770759430000
+    },
+    {
+      "id": "obsidian-tracker",
+      "name": "Tracker",
+      "author": "pyrochlore",
+      "description": "Track occurrences and numbers in your notes.",
+      "repo": "pyrochlore/obsidian-tracker",
+      "downloads": 307993,
+      "updated": 1750378752000
+    },
+    {
+      "id": "media-extended",
+      "name": "Media Extended",
+      "author": "AidenLx",
+      "description": "Integrate, manage video or audio directly in your notes, with enhanced playback and timestamp support. (Closed source)",
+      "repo": "aidenlx/media-extended",
+      "downloads": 300776,
+      "updated": 1770625703000
+    },
+    {
+      "id": "obsidian-5e-statblocks",
+      "name": "Fantasy Statblocks",
+      "author": "Jeremy Valentine",
+      "description": "Create, manage and view a Fantasy Bestiary with Dungeons and Dragons style statblocks.",
+      "repo": "javalent/fantasy-statblocks",
+      "downloads": 277159,
+      "updated": 1769010347000
+    },
+    {
+      "id": "excalibrain",
+      "name": "ExcaliBrain",
+      "author": "Zsolt Viczian",
+      "description": "ExcaliBrain is inspired by TheBrain and Breadcrumbs. It is an interactive, structured mind-map of your vault generated based on the folders and files in your vault by interpreting the links, Dataview fields, tags and YAML frontmatter in your Markdown files.",
+      "repo": "zsviczian/excalibrain",
+      "downloads": 276955,
+      "updated": 1762726115000
+    },
+    {
+      "id": "folder-notes",
+      "name": "Folder notes",
+      "author": "Lost Paul",
+      "description": "Create notes within folders that can be accessed without collapsing the folder, similar to the functionality offered in Notion.",
+      "repo": "LostPaul/obsidian-folder-notes",
+      "downloads": 275739,
+      "updated": 1769971658000
+    },
+    {
+      "id": "obsidian-charts",
+      "name": "Charts",
+      "author": "phibr0",
+      "description": "Easily create interactive charts in your notes.",
+      "repo": "phibr0/obsidian-charts",
+      "downloads": 275523,
+      "updated": 1706264023000
+    },
+    {
+      "id": "obsidian-reminder-plugin",
+      "name": "Reminder",
+      "author": "uphy",
+      "description": "Manage Markdown TODOs with reminder.",
+      "repo": "uphy/obsidian-reminder",
+      "downloads": 273066,
+      "updated": 1754207356000
+    },
+    {
+      "id": "easy-typing-obsidian",
+      "name": "Easy Typing",
+      "author": "yaozhuwa",
+      "description": "Auto format when typing.",
+      "repo": "Yaozhuwa/easy-typing-obsidian",
+      "downloads": 271817,
+      "updated": 1755869448000
+    },
+    {
+      "id": "obsidian-leaflet-plugin",
+      "name": "Leaflet",
+      "author": "Jeremy Valentine",
+      "description": "Interactive maps inside your notes.",
+      "repo": "javalent/obsidian-leaflet",
+      "downloads": 267380,
+      "updated": 1711928586000
+    },
+    {
+      "id": "obsidian-languagetool-plugin",
+      "name": "LanguageTool Integration",
+      "author": "Clemens Ertle",
+      "description": "advanced spell/grammar checks with the help of language-tool.",
+      "repo": "Clemens-E/obsidian-languagetool-plugin",
+      "downloads": 265662,
+      "updated": 1708271978000
+    },
+    {
+      "id": "text-extractor",
+      "name": "Text Extractor",
+      "author": "Simon Cambier",
+      "description": "A (companion) plugin to facilitate the extraction of text from images (OCR) and PDFs.",
+      "repo": "scambier/obsidian-text-extractor",
+      "downloads": 263366,
+      "updated": 1766743718000
+    },
+    {
+      "id": "obsidian-quiet-outline",
+      "name": "Quiet Outline",
+      "author": "the_tree",
+      "description": "Make outline quiet and more powerful, including no-auto-expand, rendering heading as Markdown, and search support.",
+      "repo": "guopenghui/obsidian-quiet-outline",
+      "downloads": 257204,
+      "updated": 1770395178000
+    },
+    {
+      "id": "obsidian-dice-roller",
+      "name": "Dice Roller",
+      "author": "Jeremy Valentine",
+      "description": "Add a little randomness to your notes!",
+      "repo": "javalent/dice-roller",
+      "downloads": 256444,
+      "updated": 1742821103000
+    },
+    {
+      "id": "breadcrumbs",
+      "name": "Breadcrumbs",
+      "author": "SkepticMystic",
+      "description": "Visualise the hierarchy of your vault using a breadcrumb trail or matrix view.",
+      "repo": "SkepticMystic/breadcrumbs",
+      "downloads": 245819,
+      "updated": 1767965948000
+    },
+    {
+      "id": "mermaid-tools",
+      "name": "Mermaid Tools",
+      "author": "dartungar",
+      "description": "Improved Mermaid.js experience: visual toolbar with common elements and more.",
+      "repo": "dartungar/obsidian-mermaid",
+      "downloads": 245735,
+      "updated": 1754219274000
+    },
+    {
+      "id": "file-explorer-note-count",
+      "name": "File Explorer Note Count",
+      "author": "Ozan Tellioglu",
+      "description": "See the number of notes in each folder within the file explorer.",
+      "repo": "ozntel/file-explorer-note-count",
+      "downloads": 240874,
+      "updated": 1758580421000
+    },
+    {
+      "id": "metadata-menu",
+      "name": "Metadata Menu",
+      "author": "mdelobelle",
+      "description": "For data quality enthusiasts and Dataview users: access and manage the metadata of your notes.",
+      "repo": "mdelobelle/metadatamenu",
+      "downloads": 240782,
+      "updated": 1770803264000
+    },
+    {
+      "id": "obsidian-local-rest-api",
+      "name": "Local REST API",
+      "author": "Adam Coddington",
+      "description": "Unlock your automation needs by interacting with your notes over a secure REST API.",
+      "repo": "coddingtonbear/obsidian-local-rest-api",
+      "downloads": 237448,
+      "updated": 1770503030000
+    },
+    {
+      "id": "colored-text",
+      "name": "Colored Text",
+      "author": "Erinc Ayaz",
+      "description": "Color the selected texts.",
+      "repo": "erincayaz/obsidian-colored-text",
+      "downloads": 225107,
+      "updated": 1759660597000
+    },
+    {
+      "id": "datacore",
+      "name": "Datacore",
+      "author": "Michael Brenan",
+      "description": "An even faster reactive query engine for the data obsessed.",
+      "repo": "blacksmithgu/datacore",
+      "downloads": 223906,
+      "updated": 1757924931000
+    },
+    {
+      "id": "better-export-pdf",
+      "name": "Better Export PDF",
+      "author": "l1xnan",
+      "description": "Export your notes to PDF, supports export preview, add bookmarks outline and header/footer.",
+      "repo": "l1xnan/obsidian-better-export-pdf",
+      "downloads": 220178,
+      "updated": 1744520422000
+    },
+    {
+      "id": "cmenu-plugin",
+      "name": "cMenu",
+      "author": "Chetachi",
+      "description": "Add a minimal text formatting toolbar for a smoother writing/editing experience.",
+      "repo": "chetachiezikeuzor/cMenu-Plugin",
+      "downloads": 218792,
+      "updated": 1631597488000
+    },
+    {
+      "id": "obsidian-enhancing-mindmap",
+      "name": "Enhancing Mindmap",
+      "author": "Mark",
+      "description": "Edit mindmaps with Markdown.",
+      "repo": "MarkMindCkm/obsidian-enhancing-mindmap",
+      "downloads": 215907,
+      "updated": 1691043708000
+    },
+    {
+      "id": "obsidian-custom-frames",
+      "name": "Custom Frames",
+      "author": "Ellpeck",
+      "description": "Turn web apps into panes using iframes with custom styling. Also comes with presets for Google Keep, Todoist and more.",
+      "repo": "Ellpeck/ObsidianCustomFrames",
+      "downloads": 215110,
+      "updated": 1737284546000
+    },
+    {
+      "id": "obsidian-citation-plugin",
+      "name": "Citations",
+      "author": "Jon Gauthier",
+      "description": "Automatically search and insert citations from a Zotero library.",
+      "repo": "hans/obsidian-citation-plugin",
+      "downloads": 212531,
+      "updated": 1664033158000
+    },
+    {
+      "id": "obsidian-tagfolder",
+      "name": "TagFolder",
+      "author": "vorotamoroz",
+      "description": "Show tags as folder.",
+      "repo": "vrtmrz/obsidian-tagfolder",
+      "downloads": 212099,
+      "updated": 1764825288000
+    },
+    {
+      "id": "readwise-official",
+      "name": "Readwise Official",
+      "author": "Readwise",
+      "description": "Official Readwise integration.",
+      "repo": "readwiseio/obsidian-readwise",
+      "downloads": 207393,
+      "updated": 1738014664000
+    },
+    {
+      "id": "obsidian-dictionary-plugin",
+      "name": "Dictionary",
+      "author": "phibr0",
+      "description": "A multilingual dictionary that shows word definitions in the sidebar and popover synonyms.",
+      "repo": "phibr0/obsidian-dictionary",
+      "downloads": 205190,
+      "updated": 1668540774000
+    },
+    {
+      "id": "obsidian-text-format",
+      "name": "Text Format",
+      "author": "Benature",
+      "description": "Format selected text upper/lower/capitalize.",
+      "repo": "Benature/obsidian-text-format",
+      "downloads": 201510,
+      "updated": 1721554620000
+    },
+    {
+      "id": "find-unlinked-files",
+      "name": "Find orphaned files and broken links",
+      "author": "Vinzent",
+      "description": "Find files that are not linked anywhere and would otherwise be lost in your vault. In other words: files with no backlinks.",
+      "repo": "Vinzent03/find-unlinked-files",
+      "downloads": 201009,
+      "updated": 1723496256000
+    },
+    {
+      "id": "obsidian-book-search-plugin",
+      "name": "Book Search",
+      "author": "anpigon",
+      "description": "Create book notes and insert book metadata from providers including Google Books and Naver.",
+      "repo": "anpigon/obsidian-book-search-plugin",
+      "downloads": 199541,
+      "updated": 1729090031000
+    },
+    {
+      "id": "quick-latex",
+      "name": "Quick LaTeX",
+      "author": "joeyuping",
+      "description": "Simplify and speed up LaTeX math typing.",
+      "repo": "joeyuping/quick_latex_obsidian",
+      "downloads": 199185,
+      "updated": 1706498647000
+    },
+    {
+      "id": "obsidian-plugin-toc",
+      "name": "Table of Contents",
+      "author": "hipstersmoothie",
+      "description": "Create a table of contents for a note.",
+      "repo": "hipstersmoothie/obsidian-plugin-toc",
+      "downloads": 198925,
+      "updated": 1683770915000
+    },
+    {
+      "id": "multi-column-markdown",
+      "name": "Multi-Column Markdown",
+      "author": "Cameron Robinson",
+      "description": "Create Markdown documents with multiple columns of content viewable in reading mode.",
+      "repo": "ckRobinson/multi-column-markdown",
+      "downloads": 188393,
+      "updated": 1705297017000
+    },
+    {
+      "id": "supercharged-links-obsidian",
+      "name": "Supercharged Links",
+      "author": "mdelobelle",
+      "description": "Add attributes to internal links with the values of target note's frontmatter attributes.",
+      "repo": "mdelobelle/obsidian_supercharged_links",
+      "downloads": 184750,
+      "updated": 1765790213000
+    },
+    {
+      "id": "settings-search",
+      "name": "Settings Search",
+      "author": "Jeremy Valentine",
+      "description": "Globally search settings.",
+      "repo": "javalent/settings-search",
+      "downloads": 181814,
+      "updated": 1696509384000
+    },
+    {
+      "id": "drawio-obsidian",
+      "name": "Diagrams",
+      "author": "Sam Greenhalgh",
+      "description": "Create and edit Draw.io diagrams.",
+      "repo": "zapthedingbat/drawio-obsidian",
+      "downloads": 181632,
+      "updated": 1737350413000
+    },
+    {
+      "id": "code-styler",
+      "name": "Code Styler",
+      "author": "Mayuran Visakan",
+      "description": "Style codeblocks and inline code in reading view and editing view.",
+      "repo": "mayurankv/Obsidian-Code-Styler",
+      "downloads": 180951,
+      "updated": 1708695160000
+    },
+    {
+      "id": "note-toolbar",
+      "name": "Note Toolbar",
+      "author": "Chris Gurney",
+      "description": "Add customizable toolbars to your notes.",
+      "repo": "chrisgurney/obsidian-note-toolbar",
+      "downloads": 177876,
+      "updated": 1771114355000
+    },
+    {
+      "id": "google-calendar",
+      "name": "Google Calendar",
+      "author": "YukiGasai",
+      "description": "Interact with your Google Calendar.",
+      "repo": "YukiGasai/obsidian-google-calendar",
+      "downloads": 174503,
+      "updated": 1742484586000
+    },
+    {
+      "id": "obsidian-file-color",
+      "name": "File Color",
+      "author": "ecustic",
+      "description": "Set colors on folders and files in the file tree.",
+      "repo": "ecustic/obsidian-file-color",
+      "downloads": 172601,
+      "updated": 1701558901000
+    },
+    {
+      "id": "system3-relay",
+      "name": "Relay",
+      "author": "System 3",
+      "description": "Collaborate in real time with live cursors. Share folders. Manage access to updates.",
+      "repo": "No-Instructions/Relay",
+      "downloads": 170188,
+      "updated": 1769145782000
+    },
+    {
+      "id": "obsidian-excel-to-markdown-table",
+      "name": "Excel to Markdown Table",
+      "author": "Ganessh Kumar R P",
+      "description": "Paste data from Microsoft Excel, Google Sheets, Apple Numbers and LibreOffice Calc as Markdown tables.",
+      "repo": "ganesshkumar/obsidian-excel-to-markdown-table",
+      "downloads": 166506,
+      "updated": 1655458613000
+    },
+    {
+      "id": "todoist-sync-plugin",
+      "name": "Todoist Sync",
+      "author": "jamiebrynes7",
+      "description": "Materialize Todoist tasks within your notes.",
+      "repo": "jamiebrynes7/obsidian-todoist-plugin",
+      "downloads": 162052,
+      "updated": 1769956857000
+    },
+    {
+      "id": "custom-sort",
+      "name": "Custom File Explorer sorting",
+      "author": "SebastianMC",
+      "description": "Manual or automatic config-driven reordering and sorting of files and folders in File Explorer.",
+      "repo": "SebastianMC/obsidian-custom-sort",
+      "downloads": 160020,
+      "updated": 1753394077000
+    },
+    {
+      "id": "novel-word-count",
+      "name": "Novel Word Count",
+      "author": "Isaac Lyman",
+      "description": "Display a word count, page count, creation date, or other statistics for each file, folder and vault in the File Explorer pane.",
+      "repo": "isaaclyman/novel-word-count-obsidian",
+      "downloads": 157552,
+      "updated": 1768413289000
+    },
+    {
+      "id": "meld-encrypt",
+      "name": "Meld Encrypt",
+      "author": "meld-cp",
+      "description": "Hide secrets in your notes.",
+      "repo": "meld-cp/obsidian-encrypt",
+      "downloads": 157532,
+      "updated": 1752324692000
+    },
+    {
+      "id": "card-board",
+      "name": "CardBoard",
+      "author": "roovo",
+      "description": "Display Markdown tasks on kanban-style boards.",
+      "repo": "roovo/obsidian-card-board",
+      "downloads": 154031,
+      "updated": 1708860393000
+    },
+    {
+      "id": "obsidian-custom-attachment-location",
+      "name": "Custom Attachment Location",
+      "author": "mnaoumov (created by RainCat1998)",
+      "description": "Customize attachment location with variables($filename, $data, etc) like Typora.",
+      "repo": "mnaoumov/obsidian-custom-attachment-location",
+      "downloads": 153641,
+      "updated": 1768714969000
+    },
+    {
+      "id": "tasknotes",
+      "name": "TaskNotes",
+      "author": "Callum Alpass",
+      "description": "Note-based task management with calendar, pomodoro and time-tracking integration.",
+      "repo": "callumalpass/tasknotes",
+      "downloads": 153610,
+      "updated": 1770539232000
+    },
+    {
+      "id": "pane-relief",
+      "name": "Pane Relief",
+      "author": "PJ Eby",
+      "description": "Per-pane history, hotkeys for pane movement + navigation, and more.",
+      "repo": "pjeby/pane-relief",
+      "downloads": 152691,
+      "updated": 1740214144000
+    },
+    {
+      "id": "obsidian-plugin-update-tracker",
+      "name": "Plugin Update Tracker",
+      "author": "Steven Swartz",
+      "description": "Know when installed plugins have updates and evaluate the risk of upgrading.",
+      "repo": "swar8080/obsidian-plugin-update-tracker",
+      "downloads": 152116,
+      "updated": 1748641958000
+    },
+    {
+      "id": "mousewheel-image-zoom",
+      "name": "Mousewheel Image zoom",
+      "author": "Nico Jeske",
+      "description": "Increase or decrease the size of an image by scrolling.",
+      "repo": "nicojeske/mousewheel-image-zoom",
+      "downloads": 149025,
+      "updated": 1748482801000
+    },
+    {
+      "id": "ink",
+      "name": "Ink",
+      "author": "Dale de Silva",
+      "description": "Hand write or draw directly between paragraphs using a digital pen, stylus, or Apple pencil. Useful for handwriting, sketches, scribbles, or even math equations and scientific notation. Runs on the tldraw framework and drawing provides an infinite canvas.",
+      "repo": "daledesilva/obsidian_ink",
+      "downloads": 148297,
+      "updated": 1768476836000
+    },
+    {
+      "id": "heatmap-calendar",
+      "name": "Heatmap Calendar",
+      "author": "Richard Slettevoll",
+      "description": "Activity Year Overview for DataviewJS, Github style – Track Goals, Progress, Habits, Tasks, Exercise, Finances, \"Dont Break the Chain\" etc.",
+      "repo": "Richardsl/heatmap-calendar-obsidian",
+      "downloads": 147829,
+      "updated": 1719560507000
+    },
+    {
+      "id": "colored-tags",
+      "name": "Colored Tags",
+      "author": "Pavel Frankov",
+      "description": "Colorize tags in different colors to visually distinguish them from each other. Colors of nested tags are mixed with parent tags. Text color contrast is automatically matched to comply with AA level WCAG 2.1.",
+      "repo": "pfrankov/obsidian-colored-tags",
+      "downloads": 144503,
+      "updated": 1765994343000
+    },
+    {
+      "id": "execute-code",
+      "name": "Execute Code",
+      "author": "twibiral",
+      "description": "Execute code snippets within a note.",
+      "repo": "twibiral/obsidian-execute-code",
+      "downloads": 143714,
+      "updated": 1740846725000
+    },
+    {
+      "id": "obsidian-smart-typography",
+      "name": "Smart Typography",
+      "author": "mgmeyers",
+      "description": "Convert quotes to curly quotes, dashes to em dashes, and periods to ellipses.",
+      "repo": "mgmeyers/obsidian-smart-typography",
+      "downloads": 141590,
+      "updated": 1655492531000
+    },
+    {
+      "id": "longform",
+      "name": "Longform",
+      "author": "Kevin Barrett",
+      "description": "Helps you write and edit novels, screenplays, and other long projects.",
+      "repo": "kevboh/longform",
+      "downloads": 141219,
+      "updated": 1742426564000
+    },
+    {
+      "id": "calendarium",
+      "name": "Calendarium",
+      "author": "Jeremy Valentine",
+      "description": "Craft mind-bending fantasy and sci-fi calendars.",
+      "repo": "javalent/calendarium",
+      "downloads": 141075,
+      "updated": 1758934223000
+    },
+    {
+      "id": "obsidian-kindle-plugin",
+      "name": "Kindle Highlights",
+      "author": "Hady Osman",
+      "description": "Sync your Kindle book highlights using your Amazon login or uploading your My Clippings file.",
+      "repo": "hadynz/obsidian-kindle-plugin",
+      "downloads": 140354,
+      "updated": 1680477668000
+    },
+    {
+      "id": "obsidian-footnotes",
+      "name": "Footnote Shortcut",
+      "author": "Alexis Rondeau, Micha Brugger",
+      "description": "Makes creating footnotes more fun!",
+      "repo": "MichaBrugger/obsidian-footnotes",
+      "downloads": 139191,
+      "updated": 1692937209000
+    },
+    {
+      "id": "initiative-tracker",
+      "name": "Initiative Tracker",
+      "author": "Jeremy Valentine",
+      "description": "TTRPG initiative tracker.",
+      "repo": "javalent/initiative-tracker",
+      "downloads": 138143,
+      "updated": 1755469583000
+    },
+    {
+      "id": "quick-explorer",
+      "name": "Quick Explorer",
+      "author": "PJ Eby",
+      "description": "Perform file explorer operations (and see your current file path) from the title bar, using the mouse or keyboard.",
+      "repo": "pjeby/quick-explorer",
+      "downloads": 138075,
+      "updated": 1742683526000
+    },
+    {
+      "id": "obsidian-vimrc-support",
+      "name": "Vimrc Support",
+      "author": "esm",
+      "description": "Auto-load a startup file with Vim commands.",
+      "repo": "esm7/obsidian-vimrc-support",
+      "downloads": 137628,
+      "updated": 1730626633000
+    },
+    {
+      "id": "pretty-properties",
+      "name": "Pretty Properties",
+      "author": "Anareaty",
+      "description": "Makes note properties look more fun: adds side image, banners, list property colors and allows to hide specific properties.",
+      "repo": "anareaty/pretty-properties",
+      "downloads": 136477,
+      "updated": 1770835058000
+    },
+    {
+      "id": "obsidian-map-view",
+      "name": "Map View",
+      "author": "esm",
+      "description": "An interactive map view for your notes.",
+      "repo": "esm7/obsidian-map-view",
+      "downloads": 136047,
+      "updated": 1768750742000
+    },
+    {
+      "id": "remember-cursor-position",
+      "name": "Remember cursor position",
+      "author": "Dmitry Savosh",
+      "description": "Remember cursor and scroll position for each note.",
+      "repo": "dy-sh/obsidian-remember-cursor-position",
+      "downloads": 135703,
+      "updated": 1717111604000
+    },
+    {
+      "id": "obsidian-rollover-daily-todos",
+      "name": "Rollover Daily Todos",
+      "author": "Matt Sessions",
+      "description": "Rollover any unchecked checkboxes from your last daily note into today's note.",
+      "repo": "lumoe/obsidian-rollover-daily-todos",
+      "downloads": 134502,
+      "updated": 1748365005000
+    },
+    {
+      "id": "iconic",
+      "name": "Iconic",
+      "author": "Holo",
+      "description": "Customize your icons and their colors directly from the UI, including tabs, files & folders, bookmarks, tags, properties, and ribbon commands.",
+      "repo": "gfxholo/iconic",
+      "downloads": 133758,
+      "updated": 1769338477000
+    },
+    {
+      "id": "callout-manager",
+      "name": "Callout Manager",
+      "author": "eth-p",
+      "description": "Easily create and customize callouts.",
+      "repo": "eth-p/obsidian-callout-manager",
+      "downloads": 133404,
+      "updated": 1717296536000
+    },
+    {
+      "id": "folder-note-plugin",
+      "name": "Folder Note",
+      "author": "xpgo",
+      "description": "Add description note to a folder.",
+      "repo": "xpgo/obsidian-folder-note-plugin",
+      "downloads": 133272,
+      "updated": 1613803750000
+    },
+    {
+      "id": "oz-clear-unused-images",
+      "name": "Clear Unused Images",
+      "author": "Ozan Tellioglu",
+      "description": "Clear the images that you are not using anymore in your Markdown notes to save space.",
+      "repo": "ozntel/oz-clear-unused-images-obsidian",
+      "downloads": 133242,
+      "updated": 1724187207000
+    },
+    {
+      "id": "smart-composer",
+      "name": "Smart Composer",
+      "author": "Heesu Suh",
+      "description": "AI chat with note context, smart writing assistance, and one-click edits for your vault.",
+      "repo": "glowingjade/obsidian-smart-composer",
+      "downloads": 132658,
+      "updated": 1769421200000
+    },
+    {
+      "id": "obsidian-another-quick-switcher",
+      "name": "Another Quick Switcher",
+      "author": "tadashi-aikawa",
+      "description": "Another choice of Quick switcher.",
+      "repo": "tadashi-aikawa/obsidian-another-quick-switcher",
+      "downloads": 132078,
+      "updated": 1769602832000
+    },
+    {
+      "id": "obsidian-omnivore",
+      "name": "Omnivore",
+      "author": "Omnivore",
+      "description": "Import your saved Omnivore articles and highlights.",
+      "repo": "omnivore-app/obsidian-omnivore",
+      "downloads": 130707,
+      "updated": 1721103320000
+    },
+    {
+      "id": "obsidian-task-progress-bar",
+      "name": "Task Genius",
+      "author": "Boninall",
+      "description": "Comprehensive task management that includes progress bars, task status cycling, and advanced task tracking features.",
+      "repo": "taskgenius/taskgenius-plugin",
+      "downloads": 129739,
+      "updated": 1767579932000
+    },
+    {
+      "id": "emoji-shortcodes",
+      "name": "Emoji Shortcodes",
+      "author": "phibr0",
+      "description": "Enable the use of Markdown Emoji shortcodes :smile:, just like in Slack or Discord.",
+      "repo": "phibr0/obsidian-emoji-shortcodes",
+      "downloads": 129350,
+      "updated": 1670756346000
+    },
+    {
+      "id": "webpage-html-export",
+      "name": "Webpage HTML Export",
+      "author": "Nathan George",
+      "description": "Export html from single files, canvas pages, or whole vaults. Direct access to the exported HTML files allows you to publish your digital garden anywhere. Focuses on flexibility, features, and style parity.",
+      "repo": "KosmosisDire/obsidian-webpage-export",
+      "downloads": 128693,
+      "updated": 1753718506000
+    },
+    {
+      "id": "canvas-mindmap",
+      "name": "Canvas Mindmap",
+      "author": "Boninall",
+      "description": "Make your canvas work like a mindmap.",
+      "repo": "Quorafind/Obsidian-Canvas-MindMap",
+      "downloads": 127558,
+      "updated": 1725418023000
+    },
+    {
+      "id": "obsidian-weread-plugin",
+      "name": "Weread",
+      "author": "hank zhao",
+      "description": "Sync Tencent Weread highlights and annotations.",
+      "repo": "zhaohongxuan/obsidian-weread-plugin",
+      "downloads": 126848,
+      "updated": 1763776948000
+    },
+    {
+      "id": "obsidian-plantuml",
+      "name": "PlantUML",
+      "author": "Johannes Theiner",
+      "description": "Generate PlantUML diagrams.",
+      "repo": "joethei/obsidian-plantuml",
+      "downloads": 126350,
+      "updated": 1714128322000
+    },
+    {
+      "id": "obsidian-read-it-later",
+      "name": "ReadItLater",
+      "author": "Dominik Pieper",
+      "description": "Save online content to your Vault, utilize embedded template engine and organize your reading list to your needs. Preserve the web with ReadItLater.",
+      "repo": "DominikPieper/obsidian-ReadItLater",
+      "downloads": 125221,
+      "updated": 1738083454000
+    },
+    {
+      "id": "obsidian-list-callouts",
+      "name": "List Callouts",
+      "author": "mgmeyers",
+      "description": "Create simple callouts in lists.",
+      "repo": "mgmeyers/obsidian-list-callouts",
+      "downloads": 124303,
+      "updated": 1725810237000
+    },
+    {
+      "id": "metaedit",
+      "name": "MetaEdit",
+      "author": "Christian B. B. Houmann",
+      "description": "Manage your metadata.",
+      "repo": "chhoumann/MetaEdit",
+      "downloads": 123401,
+      "updated": 1769110733000
+    },
+    {
+      "id": "obsidian-image-auto-upload-plugin",
+      "name": "Image auto upload",
+      "author": "renmu123",
+      "description": "Upload images from your clipboard by PicGo.",
+      "repo": "renmu123/obsidian-image-auto-upload-plugin",
+      "downloads": 122882,
+      "updated": 1732772925000
+    },
+    {
+      "id": "obsidian-to-anki-plugin",
+      "name": "Export to Anki",
+      "author": "Pseudonium",
+      "description": "Anki integration designed for efficient bulk exporting. Previously known as Obsidian_to_Anki.",
+      "repo": "ObsidianToAnki/Obsidian_to_Anki",
+      "downloads": 122452,
+      "updated": 1706065816000
+    },
+    {
+      "id": "obsidian-paste-image-rename",
+      "name": "Paste image rename",
+      "author": "Reorx",
+      "description": "Rename image after pasting, support name pattern and auto renaming.",
+      "repo": "reorx/obsidian-paste-image-rename",
+      "downloads": 119384,
+      "updated": 1675069703000
+    },
+    {
+      "id": "automatic-table-of-contents",
+      "name": "Automatic Table Of Contents",
+      "author": "Johan Satgé",
+      "description": "Create a table of contents in a note that updates itself when the note changes.",
+      "repo": "johansatge/obsidian-automatic-table-of-contents",
+      "downloads": 118886,
+      "updated": 1770488466000
+    },
+    {
+      "id": "obsidian-local-images-plus",
+      "name": "Local images plus",
+      "author": "catalysm, aleksey-rezvov, Sergei Korneev",
+      "description": "A reincarnation of Local Images to download images in Markdown notes to local storage.",
+      "repo": "Sergei-Korneev/obsidian-local-images-plus",
+      "downloads": 117582,
+      "updated": 1757022305000
+    },
+    {
+      "id": "floating-toc",
+      "name": "Floating TOC",
+      "author": "curtgrimes modified by Cuman",
+      "description": "A floating directory that hovers a widget of the current directory on the notes page.",
+      "repo": "PKM-er/obsidian-floating-toc-plugin",
+      "downloads": 117066,
+      "updated": 1769235020000
+    },
+    {
+      "id": "sheet-plus",
+      "name": "Sheet Plus",
+      "author": "ljcoder",
+      "description": "Create Excel-like spreadsheets and easily embed them in Markdown.",
+      "repo": "ljcoder2015/obsidian-sheet-plus",
+      "downloads": 115432,
+      "updated": 1770024080000
+    },
+    {
+      "id": "obsidian-markdown-formatting-assistant-plugin",
+      "name": "Markdown Formatting Assistant",
+      "author": "Reocin",
+      "description": "A formatting sidebar for Markdown and a command line interface to facilitate a faster workflow.",
+      "repo": "Reocin/obsidian-markdown-formatting-assistant-plugin",
+      "downloads": 114570,
+      "updated": 1668510962000
+    },
+    {
+      "id": "obsidian42-strange-new-worlds",
+      "name": "Strange New Worlds",
+      "author": "TfTHacker",
+      "description": "Reveal networked thought and the strange new worlds created by your vault.",
+      "repo": "TfTHacker/obsidian42-strange-new-worlds",
+      "downloads": 114497,
+      "updated": 1757887228000
+    },
+    {
+      "id": "surfing",
+      "name": "Surfing",
+      "author": "Boninall",
+      "description": "Surf the net like a web browser.",
+      "repo": "PKM-er/Obsidian-Surfing",
+      "downloads": 113072,
+      "updated": 1731166858000
+    },
+    {
+      "id": "juggl",
+      "name": "Juggl",
+      "author": "Emile van Krieken",
+      "description": "Add a completely interactive, stylable and expandable graph view.",
+      "repo": "HEmile/juggl",
+      "downloads": 112762,
+      "updated": 1699621029000
+    },
+    {
+      "id": "simple-canvasearch",
+      "name": "Simple CanvaSearch",
+      "author": "ddalexb",
+      "description": "Quickly fuzzysearch notes, cards and their content and shift focus to them within the currently opened canvas.",
+      "repo": "ddalexb/obsidian-simple-canvasearch",
+      "downloads": 111406,
+      "updated": 1747686734000
+    },
+    {
+      "id": "consistent-attachments-and-links",
+      "name": "Consistent attachments and links",
+      "author": "Dmitry Savosh",
+      "description": "Move note attachments and update links automatically.",
+      "repo": "dy-sh/obsidian-consistent-attachments-and-links",
+      "downloads": 108432,
+      "updated": 1768546329000
+    },
+    {
+      "id": "terminal",
+      "name": "Terminal",
+      "author": "polyipseity",
+      "description": "Integrate consoles, shells, and terminals.",
+      "repo": "polyipseity/obsidian-terminal",
+      "downloads": 107600,
+      "updated": 1768651202000
+    },
+    {
+      "id": "obsidian-zoom",
+      "name": "Zoom",
+      "author": "Viacheslav Slinko",
+      "description": "Zoom into heading and lists.",
+      "repo": "vslinko/obsidian-zoom",
+      "downloads": 106177,
+      "updated": 1683188716000
+    },
+    {
+      "id": "obsidian-extract-pdf-highlights",
+      "name": "PDF Highlights",
+      "author": "Alexis Rondeau",
+      "description": "Extract highlights, underlines and annotations from your PDFs.",
+      "repo": "akaalias/obsidian-extract-pdf-highlights",
+      "downloads": 105931,
+      "updated": 1613559524000
+    },
+    {
+      "id": "obsidian-contextual-typography",
+      "name": "Contextual Typography",
+      "author": "mgmeyers",
+      "description": "Add a data-tag-name attribute to all top-level divs in preview mode containing the child's tag name, allowing contextual typography styling.",
+      "repo": "mgmeyers/obsidian-contextual-typography",
+      "downloads": 105853,
+      "updated": 1683425664000
+    },
+    {
+      "id": "waypoint",
+      "name": "Waypoint",
+      "author": "Idrees Hassan",
+      "description": "Easily generate dynamic MOCs in your folder notes using waypoints. Enables folders to show up in the graph view and removes the need for messy tags!",
+      "repo": "IdreesInc/Waypoint",
+      "downloads": 104344,
+      "updated": 1766978056000
+    },
+    {
+      "id": "obsidian-icons-plugin",
+      "name": "Icons",
+      "author": "Camillo Visini",
+      "description": "Add icons to your notes.",
+      "repo": "visini/obsidian-icons-plugin",
+      "downloads": 103350,
+      "updated": 1613557429000
+    },
+    {
+      "id": "chatgpt-md",
+      "name": "ChatGPT MD",
+      "author": "Deniz Okcu (created by Bram Adams)",
+      "description": "A seamless integration of ChatGPT, OpenRouter.ai and local LLMs via Ollama into your notes.",
+      "repo": "bramses/chatgpt-md",
+      "downloads": 103164,
+      "updated": 1770836750000
+    },
+    {
+      "id": "markdown-table-editor",
+      "name": "Markdown Table Editor",
+      "author": "Ganessh Kumar R P",
+      "description": "An editor for Markdown tables. Open CSV, Microsoft Excel/Google Sheets data as Markdown tables.",
+      "repo": "ganesshkumar/obsidian-table-editor",
+      "downloads": 102915,
+      "updated": 1652522572000
+    },
+    {
+      "id": "pexels-banner",
+      "name": "Pixel Banner",
+      "author": "Justin Parker",
+      "description": "Enhance your notes with customizable banner images, including AI-generated designs and a curated store of downloadable banners. Transform your workspace with visually stunning headers that add context, improve aesthetics, and take your note-taking beyond the ordinary.",
+      "repo": "jparkerweb/pixel-banner",
+      "downloads": 102652,
+      "updated": 1763260262000
+    },
+    {
+      "id": "cm-typewriter-scroll-obsidian",
+      "name": "Typewriter Scroll",
+      "author": "death_au",
+      "description": "Typewriter-style scrolling which keeps the view centered in the editor.",
+      "repo": "deathau/cm-typewriter-scroll-obsidian",
+      "downloads": 100302,
+      "updated": 1649908247000
+    },
+    {
+      "id": "obsidian-reading-time",
+      "name": "Reading Time",
+      "author": "avr",
+      "description": "Add the current note's reading time to the status bar.",
+      "repo": "avr/obsidian-reading-time",
+      "downloads": 100022,
+      "updated": 1725068071000
+    },
+    {
+      "id": "obsidian-relative-line-numbers",
+      "name": "Relative Line Numbers",
+      "author": "Nadav Spiegelman",
+      "description": "Enable relative line numbers in editor mode.",
+      "repo": "nadavspi/obsidian-relative-line-numbers",
+      "downloads": 99058,
+      "updated": 1703651276000
+    },
+    {
+      "id": "convert-url-to-iframe",
+      "name": "Convert url to preview (iframe)",
+      "author": "FHachez",
+      "description": "Convert a URL (e.g. YouTube) into an iframe (preview).",
+      "repo": "FHachez/obsidian-convert-url-to-iframe",
+      "downloads": 98490,
+      "updated": 1651923369000
+    },
+    {
+      "id": "hotkeysplus-obsidian",
+      "name": "Hotkeys++",
+      "author": "Argentina Ortega Sainz",
+      "description": "Additional hotkeys to do common things.",
+      "repo": "argenos/hotkeysplus-obsidian",
+      "downloads": 94728,
+      "updated": 1639000981000
+    },
+    {
+      "id": "obsidian-mindmap-nextgen",
+      "name": "Mindmap Nextgen",
+      "author": "VeroCloud Pty Ltd (original by James Lynch)",
+      "description": "Preview notes as Markmap mind maps.",
+      "repo": "james-tindal/obsidian-mindmap-nextgen",
+      "downloads": 94295,
+      "updated": 1762091815000
+    },
+    {
+      "id": "auto-note-mover",
+      "name": "Auto Note Mover",
+      "author": "faru",
+      "description": "Automatically move the active notes to their respective folders according to rules you set.",
+      "repo": "farux/obsidian-auto-note-mover",
+      "downloads": 92798,
+      "updated": 1650103882000
+    },
+    {
+      "id": "journals",
+      "name": "Journals",
+      "author": "Sergii Kostyrko",
+      "description": "Manage your journals.",
+      "repo": "srg-kostyrko/obsidian-journal",
+      "downloads": 89117,
+      "updated": 1756274208000
+    },
+    {
+      "id": "google-drive-sync",
+      "name": "Google Drive Sync",
+      "author": "Richard Xiong",
+      "description": "Syncs a vault into Google Drive for cross-platform use (works for iOS).",
+      "repo": "RichardX366/Obsidian-Google-Drive",
+      "downloads": 88783,
+      "updated": 1733042855000
+    },
+    {
+      "id": "obsidian-link-embed",
+      "name": "Link Embed",
+      "author": "SErAphLi",
+      "description": "Convert URLs in your notes into embeded previews.",
+      "repo": "Seraphli/obsidian-link-embed",
+      "downloads": 88607,
+      "updated": 1766061117000
+    },
+    {
+      "id": "lazy-plugins",
+      "name": "Lazy Plugin Loader",
+      "author": "Alan Grainger",
+      "description": "Load plugins with a delay on startup, so that you can get your app startup down into the sub-second loading time.",
+      "repo": "alangrainger/obsidian-lazy-plugins",
+      "downloads": 88553,
+      "updated": 1748223690000
+    },
+    {
+      "id": "actions-uri",
+      "name": "Actions URI",
+      "author": "Carlo Zottmann",
+      "description": "Add additional `x-callback-url` endpoints to the app for common actions — it's a clean, super-charged addition to Obsidian URI.",
+      "repo": "czottmann/obsidian-actions-uri",
+      "downloads": 86139,
+      "updated": 1763467140000
+    },
+    {
+      "id": "share-note",
+      "name": "Share Note",
+      "author": "Alan Grainger",
+      "description": "Instantly share/publish a note, with the full theme and content exactly like you see in Obsidian. Data is shared encrypted by default, and only you and the person you send it to have the key.",
+      "repo": "alangrainger/share-note",
+      "downloads": 80728,
+      "updated": 1767414669000
+    },
+    {
+      "id": "obsidian-image-toolkit",
+      "name": "Image Toolkit",
+      "author": "sissilab",
+      "description": "Click images to preview with zoom, move, rotate, flip, invert, and copy.",
+      "repo": "obsidian-community/obsidian-image-toolkit",
+      "downloads": 79703,
+      "updated": 1756723158000
+    },
+    {
+      "id": "zoottelkeeper-obsidian-plugin",
+      "name": "Zoottelkeeper",
+      "author": "Akos Balasko",
+      "description": "It maintains index files in all of your folders in your vault: if you create/delete/move a note, the index files will be updated automatically. It can be used to show folders in Graph View.",
+      "repo": "akosbalasko/zoottelkeeper-obsidian-plugin",
+      "downloads": 78935,
+      "updated": 1648144601000
+    },
+    {
+      "id": "obsidian-completr",
+      "name": "Completr",
+      "author": "tth05",
+      "description": "Advanced auto-completion for LaTeX, frontmatter, and standard writing.",
+      "repo": "tth05/obsidian-completr",
+      "downloads": 78788,
+      "updated": 1685464498000
+    },
+    {
+      "id": "cycle-through-panes",
+      "name": "Tab Switcher",
+      "author": "Vinzent & phibr0",
+      "description": "Switch your tabs with Ctrl + Tab in recently used order like in a browser.",
+      "repo": "Vinzent03/tab-switcher",
+      "downloads": 78675,
+      "updated": 1692641864000
+    },
+    {
+      "id": "obsidian-chartsview-plugin",
+      "name": "Charts View",
+      "author": "caronchen",
+      "description": "Visualize data from your notes with plots and graphs.",
+      "repo": "caronchen/obsidian-chartsview-plugin",
+      "downloads": 78284,
+      "updated": 1765178532000
+    },
+    {
+      "id": "obsidian-columns",
+      "name": "Columns",
+      "author": "Trevor Nichols",
+      "description": "Create columns in Markdown.",
+      "repo": "tnichols217/obsidian-columns",
+      "downloads": 77841,
+      "updated": 1733001800000
+    },
+    {
+      "id": "number-headings-obsidian",
+      "name": "Number Headings",
+      "author": "Kevin Albrecht",
+      "description": "Automatically number or re-number headings.",
+      "repo": "onlyafly/number-headings-obsidian",
+      "downloads": 76398,
+      "updated": 1696337257000
+    },
+    {
+      "id": "obsidian-plugin-todo",
+      "name": "TODO | Text-based GTD",
+      "author": "Lars Lockefeer",
+      "description": "Collect all outstanding TODOs from your vault and presents them in lists Today, Scheduled, Inbox and Someday/Maybe.",
+      "repo": "larslockefeer/obsidian-plugin-todo",
+      "downloads": 76325,
+      "updated": 1758659012000
+    },
+    {
+      "id": "obsidian-timeline",
+      "name": "Timeline",
+      "author": "George Butco",
+      "description": "Build great timelines.",
+      "repo": "George-debug/obsidian-timeline",
+      "downloads": 76020,
+      "updated": 1658512472000
+    },
+    {
+      "id": "workspaces-plus",
+      "name": "Workspaces Plus",
+      "author": "NothingIsLost",
+      "description": "Quickly switch and manage workspaces.",
+      "repo": "jsmorabito/obsidian-workspaces-plus",
+      "downloads": 75654,
+      "updated": 1670604486000
+    },
+    {
+      "id": "markdown-prettifier",
+      "name": "Markdown prettifier",
+      "author": "pelao",
+      "description": "Fix and reformats ugly Markdown.",
+      "repo": "cristianvasquez/obsidian-prettify",
+      "downloads": 75624,
+      "updated": 1637271937000
+    },
+    {
+      "id": "smart-random-note",
+      "name": "Smart Random Note",
+      "author": "Eric Hall",
+      "description": "Open random notes with greater control.",
+      "repo": "erichalldev/obsidian-smart-random-note",
+      "downloads": 75232,
+      "updated": 1625751354000
+    },
+    {
+      "id": "typewriter-mode",
+      "name": "Typewriter Mode",
+      "author": "Davis Riedel",
+      "description": "Typewriter scrolling, highlighting of the current line, dimming of unfocused paragraphs and more.",
+      "repo": "davisriedel/obsidian-typewriter-mode",
+      "downloads": 74847,
+      "updated": 1771106815000
+    },
+    {
+      "id": "obsidian-pandoc-reference-list",
+      "name": "Pandoc Reference List",
+      "author": "mgmeyers",
+      "description": "Display a formatted reference in the sidebar for each Pandoc citekey present in the current document.",
+      "repo": "mgmeyers/obsidian-pandoc-reference-list",
+      "downloads": 73789,
+      "updated": 1704390989000
+    },
+    {
+      "id": "multi-properties",
+      "name": "Multi Properties",
+      "author": "technohiker",
+      "description": "Add properties to multiple notes at once. Either right-click a folder or select multiple notes and right-click the selection.",
+      "repo": "technohiker/obsidian-multi-properties",
+      "downloads": 72693,
+      "updated": 1769100340000
+    },
+    {
+      "id": "tldraw",
+      "name": "Tldraw",
+      "author": "Jonathan Mendez, Sam Alhaqab",
+      "description": "Integration with tldraw, allowing users to draw and edit content on a virtual whiteboard.",
+      "repo": "tldraw/obsidian-plugin",
+      "downloads": 70796,
+      "updated": 1770777200000
+    },
+    {
+      "id": "excel",
+      "name": "Excel",
+      "author": "ljcoder",
+      "description": "Create spreadsheets and easily embed them in Markdown.",
+      "repo": "ljcoder2015/obsidian-excel",
+      "downloads": 70100,
+      "updated": 1710902854000
+    },
+    {
+      "id": "harper",
+      "name": "Harper",
+      "author": "Elijah Potter",
+      "description": "The fastest grammar and spell checker that respects your privacy.",
+      "repo": "Automattic/harper-obsidian-plugin",
+      "downloads": 70078,
+      "updated": 1770912213000
+    },
+    {
+      "id": "local-gpt",
+      "name": "Local GPT",
+      "author": "Pavel Frankov",
+      "description": "Local Ollama and OpenAI-like GPT's assistance for maximum privacy and offline access.",
+      "repo": "pfrankov/obsidian-local-gpt",
+      "downloads": 69115,
+      "updated": 1769375088000
+    },
+    {
+      "id": "hotkey-helper",
+      "name": "Hotkey Helper",
+      "author": "PJ Eby",
+      "description": "Easily see and access any plugin's settings or hotkey assignments (and conflicts) from the Community Plugins tab.",
+      "repo": "pjeby/hotkey-helper",
+      "downloads": 68234,
+      "updated": 1729919210000
+    },
+    {
+      "id": "auto-card-link",
+      "name": "Auto Card Link",
+      "author": "Nekoshita Yuki",
+      "description": "Automatically fetches metadata from a URL and makes it as a card-styled link.",
+      "repo": "nekoshita/obsidian-auto-card-link",
+      "downloads": 67997,
+      "updated": 1708757240000
+    },
+    {
+      "id": "obsidian-shellcommands",
+      "name": "Shell commands",
+      "author": "Jarkko Linnanvirta",
+      "description": "Define system commands that you want to execute via command palette, hotkeys, URI links or automated events. E.g. open external applications or perform automated file modifications.",
+      "repo": "Taitava/obsidian-shellcommands",
+      "downloads": 67881,
+      "updated": 1731170132000
+    },
+    {
+      "id": "file-explorer-plus",
+      "name": "File Explorer++",
+      "author": "kelszo",
+      "description": "Hide and pin files and folders in the file explorer using custom filters, such as wildcards and regex, based on their names, paths, and tags. Additionally, achieve the same with a single click in the file menu.",
+      "repo": "kelszo/obsidian-file-explorer-plus",
+      "downloads": 67807,
+      "updated": 1745172111000
+    },
+    {
+      "id": "links",
+      "name": "Links",
+      "author": "MiiKey",
+      "description": "Manipulate links.",
+      "repo": "mii-key/obsidian-links",
+      "downloads": 67791,
+      "updated": 1768143484000
+    },
+    {
+      "id": "digitalgarden",
+      "name": "Digital Garden",
+      "author": "Ole Eskild Steensen",
+      "description": "Publish your notes to a digital garden for others to enjoy.",
+      "repo": "oleeskild/obsidian-digital-garden",
+      "downloads": 67236,
+      "updated": 1770917110000
+    },
+    {
+      "id": "obsidian-import-json",
+      "name": "JSON/CSV Importer",
+      "author": "farling42",
+      "description": "Import a JSON file containing an array of data, creating notes from a Handlebars template file.",
+      "repo": "farling42/obsidian-import-json",
+      "downloads": 66698,
+      "updated": 1753564980000
+    },
+    {
+      "id": "rss-dashboard",
+      "name": "RSS Dashboard",
+      "author": "Aditya Amatya",
+      "description": "A dashboard for organizing and consuming RSS feeds, YouTube channels, and podcasts with smart tagging, media playback, and seamless content flow.",
+      "repo": "amatya-aditya/obsidian-rss-dashboard",
+      "downloads": 66289,
+      "updated": 1769993603000
+    },
+    {
+      "id": "update-time-on-edit",
+      "name": "Update time on edit",
+      "author": "beaussan",
+      "description": "Keep frontmatter in sync with the last edit time.",
+      "repo": "beaussan/update-time-on-edit-obsidian",
+      "downloads": 66252,
+      "updated": 1704976510000
+    },
+    {
+      "id": "home-tab",
+      "name": "Home tab",
+      "author": "Renso",
+      "description": "A browser-like search tab for your local files.",
+      "repo": "olrenso/obsidian-home-tab",
+      "downloads": 65907,
+      "updated": 1729411888000
+    },
+    {
+      "id": "better-pdf-plugin",
+      "name": "Better PDF",
+      "author": "MSzturc",
+      "description": "Insert, scale, rotate and cut-out PDF pages into your notes.",
+      "repo": "MSzturc/obsidian-better-pdf-plugin",
+      "downloads": 65074,
+      "updated": 1655674173000
+    },
+    {
+      "id": "obsidian-focus-mode",
+      "name": "Focus Mode",
+      "author": "ryanpcmcquen",
+      "description": "Add a toggle to hide interface elements so you can focus on your note.",
+      "repo": "ryanpcmcquen/obsidian-focus-mode",
+      "downloads": 64678,
+      "updated": 1730952210000
+    },
+    {
+      "id": "tasks-calendar-wrapper",
+      "name": "Tasks Calendar Wrapper",
+      "author": "zhuwenq",
+      "description": "Simple wrapper for Tasks Calendar and Tasks Timeline.",
+      "repo": "Leonezz/obsidian-tasks-calendar-wrapper",
+      "downloads": 64666,
+      "updated": 1719155243000
+    },
+    {
+      "id": "obsidian-view-mode-by-frontmatter",
+      "name": "Force note view mode",
+      "author": "Benny Wydooghe",
+      "description": "Force the view mode for a note by using frontmatter: YAML block with 'obsidian_ui_mode' as key.",
+      "repo": "bwydoogh/obsidian-force-view-mode-of-note",
+      "downloads": 64402,
+      "updated": 1701978027000
+    },
+    {
+      "id": "table-extended",
+      "name": "Table Extended",
+      "author": "AidenLx",
+      "description": "Enable extended table support with MultiMarkdown 6 syntax.",
+      "repo": "aidenlx/table-extended",
+      "downloads": 64077,
+      "updated": 1642321813000
+    },
+    {
+      "id": "copy-url-in-preview",
+      "name": "Image Context Menus",
+      "author": "NomarCub",
+      "description": "Image context menus (mostly on right click): Copy to clipboard, Open in default app, Show in system explorer, Reveal file in navigation, Open in new tab.",
+      "repo": "NomarCub/obsidian-copy-url-in-preview",
+      "downloads": 63949,
+      "updated": 1755634167000
+    },
+    {
+      "id": "flashcards-obsidian",
+      "name": "Flashcards",
+      "author": "Alex Colucci",
+      "description": "Anki integration.",
+      "repo": "reuseman/flashcards-obsidian",
+      "downloads": 63848,
+      "updated": 1666356036000
+    },
+    {
+      "id": "graph-analysis",
+      "name": "Graph Analysis",
+      "author": "SkepticMystic & Emile",
+      "description": "Find hidden connections between notes in your vault using cool graph algorithms.",
+      "repo": "SkepticMystic/graph-analysis",
+      "downloads": 63842,
+      "updated": 1643607293000
+    },
+    {
+      "id": "obsidian-copy-block-link",
+      "name": "Copy Block Link",
+      "author": "mgmeyers",
+      "description": "Get links to blocks and headings from the right-click menu.",
+      "repo": "mgmeyers/obsidian-copy-block-link",
+      "downloads": 63556,
+      "updated": 1648673384000
+    },
+    {
+      "id": "obsidian-filename-heading-sync",
+      "name": "Filename Heading Sync",
+      "author": "dvcrn",
+      "description": "Keep the filename with the first heading of a file in sync.",
+      "repo": "dvcrn/obsidian-filename-heading-sync",
+      "downloads": 63233,
+      "updated": 1759821340000
+    },
+    {
+      "id": "editor-width-slider",
+      "name": "Editor Width Slider",
+      "author": "@MugishoMp",
+      "description": "Customize Obsidian's editor width with a slider for a tailored editing experience.",
+      "repo": "MugishoMp/obsidian-editor-width-slider",
+      "downloads": 63148,
+      "updated": 1697622562000
+    },
+    {
+      "id": "chronology",
+      "name": "Chronology",
+      "author": "Gabriele Cannata",
+      "description": "A calendar and a timeline of the note's creation and modification.",
+      "repo": "Canna71/obsidian-chronology",
+      "downloads": 62911,
+      "updated": 1746285953000
+    },
+    {
+      "id": "review-obsidian",
+      "name": "Review",
+      "author": "ryanjamurphy",
+      "description": "Add a link to the current note to a daily note on a future date (or a past date, you time traveller).",
+      "repo": "ryanjamurphy/review-obsidian",
+      "downloads": 62103,
+      "updated": 1733855965000
+    },
+    {
+      "id": "obsidian-collapse-all-plugin",
+      "name": "Collapse All",
+      "author": "Nathonius",
+      "description": "Extend collapse/expand all with commands that can be bound to hotkeys.",
+      "repo": "nathonius/obsidian-collapse-all",
+      "downloads": 61571,
+      "updated": 1711216532000
+    },
+    {
+      "id": "obsidian-statusbar-pomo",
+      "name": "Status Bar Pomodoro Timer",
+      "author": "kzhovn",
+      "description": "Add a pomodoro timer to your status bar.",
+      "repo": "kzhovn/statusbar-pomo-obsidian",
+      "downloads": 59881,
+      "updated": 1737444043000
+    },
+    {
+      "id": "time-ruler",
+      "name": "Time Ruler",
+      "author": "Joshua Tazman Reinier",
+      "description": "A drag-and-drop time ruler combining the best of a task list and a calendar view (integrates with Tasks, Full Calendar, and Dataview).",
+      "repo": "j-palindrome/obsidian-time-ruler",
+      "downloads": 59569,
+      "updated": 1744869678000
+    },
+    {
+      "id": "numerals",
+      "name": "Numerals",
+      "author": "RyanC",
+      "description": "Turn any code block into an advanced calculator. Evaluate math expressions on each line of a code block, including units, currency, and optional TeX rendering.",
+      "repo": "gtg922r/obsidian-numerals",
+      "downloads": 59337,
+      "updated": 1759381532000
+    },
+    {
+      "id": "obsidian-imgur-plugin",
+      "name": "Imgur",
+      "author": "Kirill Gavrilov",
+      "description": "Upload images from your clipboard to imgur.com and embeds uploaded image to your note.",
+      "repo": "gavvvr/obsidian-imgur-plugin",
+      "downloads": 58847,
+      "updated": 1730591262000
+    },
+    {
+      "id": "obsidian-regex-replace",
+      "name": "Regex Find/Replace",
+      "author": "Martin Eder",
+      "description": "A find/replace dialog which optionally supports regular expressions and scope (full document or text selection).",
+      "repo": "Gru80/obsidian-regex-replace",
+      "downloads": 58476,
+      "updated": 1643538678000
+    },
+    {
+      "id": "big-calendar",
+      "name": "Big Calendar",
+      "author": "Boninall",
+      "description": "A big calendar for Obsidian. All events from your daily notes OR tasks used TASKS/DATAVIEW/KANBAN format.",
+      "repo": "Quorafind/Obsidian-Big-Calendar",
+      "downloads": 58150,
+      "updated": 1741671901000
+    },
+    {
+      "id": "obsidian-underline",
+      "name": "Underline",
+      "author": "Benature",
+      "description": "Add underline with shortcut.",
+      "repo": "Benature/obsidian-underline",
+      "downloads": 58133,
+      "updated": 1710744866000
+    },
+    {
+      "id": "code-emitter",
+      "name": "Code Emitter",
+      "author": "YISH",
+      "description": "Allow code blocks to be executed interactively in a sandbox like Jupyter notebooks. Supported language Rust, Kotlin, Python, JavaScript, TypeScript, etc.",
+      "repo": "mokeyish/obsidian-code-emitter",
+      "downloads": 58112,
+      "updated": 1733962618000
+    },
+    {
+      "id": "vertical-tabs",
+      "name": "Vertical Tabs",
+      "author": "oxdc",
+      "description": "Offer an alternative view that displays open tabs vertically, allowing users to group and organize tabs for a better navigation experience.",
+      "repo": "oxdc/obsidian-vertical-tabs",
+      "downloads": 57822,
+      "updated": 1765714017000
+    },
+    {
+      "id": "fast-text-color",
+      "name": "Fast Text Color",
+      "author": "Leon Holtmeier",
+      "description": "Quickly apply fully integrated text coloring and formatting with a custom syntax and a keyboard-centric interface.",
+      "repo": "Superschnizel/obsidian-fast-text-color",
+      "downloads": 57515,
+      "updated": 1768050839000
+    },
+    {
+      "id": "css-editor",
+      "name": "CSS Editor",
+      "author": "Zachatoo",
+      "description": "Edit CSS snippet files.",
+      "repo": "Zachatoo/obsidian-css-editor",
+      "downloads": 56910,
+      "updated": 1770182548000
+    },
+    {
+      "id": "obsidian-table-generator",
+      "name": "Table Generator",
+      "author": "Boninall",
+      "description": "Generate Markdown tables quickly like Typora.",
+      "repo": "Quorafind/Obsidian-Table-Generator",
+      "downloads": 56892,
+      "updated": 1692972033000
+    },
+    {
+      "id": "obsidian-icon-shortcodes",
+      "name": "Icon Shortcodes",
+      "author": "AidenLx",
+      "description": "Insert emoji and custom icons with shortcodes.",
+      "repo": "aidenlx/obsidian-icon-shortcodes",
+      "downloads": 56784,
+      "updated": 1665839928000
+    },
+    {
+      "id": "podnotes",
+      "name": "PodNotes",
+      "author": "Christian B. B. Houmann",
+      "description": "Write notes on podcasts with ease.",
+      "repo": "chhoumann/PodNotes",
+      "downloads": 55874,
+      "updated": 1765491072000
+    },
+    {
+      "id": "translate",
+      "name": "Translate",
+      "author": "Fevol",
+      "description": "Translate text and notes with Google Translate, DeepL, Azure, and more.",
+      "repo": "Fevol/obsidian-translate",
+      "downloads": 55824,
+      "updated": 1719924365000
+    },
+    {
+      "id": "cm-chs-patch",
+      "name": "Word Splitting for Simplified Chinese in Edit Mode and Vim Mode",
+      "author": "AidenLx",
+      "description": "A patch for Obsidian's built-in CodeMirror editor to support Simplified Chinese word splitting.",
+      "repo": "aidenlx/cm-chs-patch",
+      "downloads": 55569,
+      "updated": 1715009853000
+    },
+    {
+      "id": "dashboard-navigator",
+      "name": "Dashboard navigator",
+      "author": "Bernardo Pires",
+      "description": "Vault dashboard and navigator. Show recent files by type, files per day, week, month, search files by name, date, tags and more.",
+      "repo": "drbap/dashboard-navigator-for-obsidian",
+      "downloads": 55521,
+      "updated": 1760725121000
+    },
+    {
+      "id": "file-cleaner-redux",
+      "name": "File Cleaner Redux",
+      "author": "husjon",
+      "description": "Help you to clean empty files and unused attachments in the vault.",
+      "repo": "husjon/obsidian-file-cleaner-redux",
+      "downloads": 55315,
+      "updated": 1770591876000
+    },
+    {
+      "id": "smart-second-brain",
+      "name": "Smart Second Brain",
+      "author": "Leo310, nicobrauchtgit",
+      "description": "Interact with your privacy focused assistant by leveraging Ollama or OpenAI and making your second brain even smarter.",
+      "repo": "your-papa/obsidian-Smart2Brain",
+      "downloads": 54985,
+      "updated": 1716032748000
+    },
+    {
+      "id": "docxer",
+      "name": "Docxer",
+      "author": "Developer-Mike",
+      "description": "Import Word files easily. Adds a preview mode for .docx files and the ability to convert them to markdown (.md) files.",
+      "repo": "Developer-Mike/obsidian-docxer",
+      "downloads": 54703,
+      "updated": 1755439305000
+    },
+    {
+      "id": "remotely-secure",
+      "name": "Remotely Sync",
+      "author": "sboesen",
+      "description": "Security fixes for the remotely-save unofficial plugin allowing users to synchronize notes between local device and the cloud service. Not backwards compatible.",
+      "repo": "sboesen/remotely-sync",
+      "downloads": 54502,
+      "updated": 1714857020000
+    },
+    {
+      "id": "aprils-automatic-timelines",
+      "name": "April's Automatic Timelines",
+      "author": "April Gras",
+      "description": "Simple timeline generator for story tellers.",
+      "repo": "April-Gras/obsidian-auto-timelines",
+      "downloads": 54325,
+      "updated": 1763630170000
+    },
+    {
+      "id": "attachment-management",
+      "name": "Attachment Management",
+      "author": "trganda",
+      "description": "Customize attachment path, auto-rename attachments, etc.",
+      "repo": "trganda/obsidian-attachment-management",
+      "downloads": 54295,
+      "updated": 1756035409000
+    },
+    {
+      "id": "completed-task-display",
+      "name": "Completed Task Display",
+      "author": "Ben Lee-Cohen",
+      "description": "Controls for displaying or hiding completed tasks.",
+      "repo": "heliostatic/completed-task-display",
+      "downloads": 54229,
+      "updated": 1765909968000
+    },
+    {
+      "id": "language-translator",
+      "name": "Language Translator",
+      "author": "Florin Bobis",
+      "description": "Translate selected text in the desired language.",
+      "repo": "twentytwokhz/language-translator",
+      "downloads": 53656,
+      "updated": 1708970868000
+    },
+    {
+      "id": "obsidian-export-image",
+      "name": "Export Image",
+      "author": "Zhou Hua",
+      "description": "Easily convert your article to image.",
+      "repo": "zhouhua/obsidian-export-image",
+      "downloads": 53320,
+      "updated": 1739795490000
+    },
+    {
+      "id": "any-block",
+      "name": "AnyBlock",
+      "author": "LincZero",
+      "description": "Take any fragment as a block and render it into multiple effects. You can select a section by list/heading/table/quote/codeBlock/markdown-it-container(`:::`), and turn into table/tabs/dir/cards/column/mindmap/mermaid/PlantUML/markmap/timeLine/jsonChart/nodeTree and more.",
+      "repo": "any-block/any-block",
+      "downloads": 53201,
+      "updated": 1770617320000
+    },
+    {
+      "id": "local-backup",
+      "name": "Local Backup",
+      "author": "GC Chen",
+      "description": "Automatically creates a local backup of the vault.",
+      "repo": "velviagris/obsidian-local-backup",
+      "downloads": 52959,
+      "updated": 1741919544000
+    },
+    {
+      "id": "image-captions",
+      "name": "Image Captions",
+      "author": "Alan Grainger",
+      "description": "Add captions to images with inline Markdown and link support. The caption format is compatible with the Commonmark spec and other Markdown applications.",
+      "repo": "alangrainger/obsidian-image-captions",
+      "downloads": 52743,
+      "updated": 1763303084000
+    },
+    {
+      "id": "customjs",
+      "name": "CustomJS",
+      "author": "Sam Lewis",
+      "description": "Reuse custom JavaScript across desktop and mobile.",
+      "repo": "saml-dev/obsidian-custom-js",
+      "downloads": 52685,
+      "updated": 1717722297000
+    },
+    {
+      "id": "beautitab",
+      "name": "Beautitab",
+      "author": "Andrew McGivery",
+      "description": "Creates a customizable new tab view with beautiful backgrounds, quotes, search, and more.",
+      "repo": "andrewmcgivery/obsidian-beautitab",
+      "downloads": 52572,
+      "updated": 1711488518000
+    },
+    {
+      "id": "zotlit",
+      "name": "ZotLit",
+      "author": "AidenLx",
+      "description": "Integrate with Zotero, create literature notes, and insert citations from a Zotero library.",
+      "repo": "PKM-er/obsidian-zotlit",
+      "downloads": 52189,
+      "updated": 1755593483000
+    },
+    {
+      "id": "manual-sorting",
+      "name": "Manual Sorting",
+      "author": "Kh4f",
+      "description": "Drag'n'Drop sorting within file explorer.",
+      "repo": "kh4f/manual-sorting",
+      "downloads": 52070,
+      "updated": 1768988534000
+    },
+    {
+      "id": "obsidian-trash-explorer",
+      "name": "Trash Explorer",
+      "author": "Per Mortensen",
+      "description": "Restore and delete files from the Obsidian .trash folder.",
+      "repo": "proog/obsidian-trash-explorer",
+      "downloads": 52039,
+      "updated": 1768076218000
+    },
+    {
+      "id": "global-search-and-replace",
+      "name": "Global Search and Replace",
+      "author": "Mahmoud Fawzy Khalil",
+      "description": "Search and replace in all vault files.",
+      "repo": "MahmoudFawzyKhalil/obsidian-global-search-and-replace",
+      "downloads": 52033,
+      "updated": 1717438996000
+    },
+    {
+      "id": "obsidian-latex",
+      "name": "Extended MathJax",
+      "author": "Xavier Denis & Ng Wei En",
+      "description": "Enable additional MathJax packages and adds a global preamble for MathJax.",
+      "repo": "wei2912/obsidian-latex",
+      "downloads": 51883,
+      "updated": 1673589222000
+    },
+    {
+      "id": "khoj",
+      "name": "Khoj",
+      "author": "Khoj AI",
+      "description": "An AI personal assistant for your digital brain.",
+      "repo": "khoj-ai/khoj",
+      "downloads": 51514,
+      "updated": 1767326476000
+    },
+    {
+      "id": "link-favicon",
+      "name": "Link Favicons",
+      "author": "Johannes Theiner",
+      "description": "See the favicon for a linked website.",
+      "repo": "joethei/obsidian-link-favicon",
+      "downloads": 51347,
+      "updated": 1701365159000
+    },
+    {
+      "id": "obsidian-sort-and-permute-lines",
+      "name": "Sort & Permute lines",
+      "author": "Vinzent",
+      "description": "Sort and Permute lines in whole file or selection.",
+      "repo": "Vinzent03/obsidian-sort-and-permute-lines",
+      "downloads": 51014,
+      "updated": 1675799958000
+    },
+    {
+      "id": "obsidian-bible-reference",
+      "name": "Bible Reference",
+      "author": "tim-hub",
+      "description": "Take Bible study notes easily. Automatically suggests Bible verses as references.",
+      "repo": "tim-hub/obsidian-bible-reference",
+      "downloads": 50570,
+      "updated": 1769918342000
+    },
+    {
+      "id": "janitor",
+      "name": "Janitor",
+      "author": "Gabriele Cannata",
+      "description": "Perform cleanup tasks on your vault.",
+      "repo": "Canna71/obsidian-janitor",
+      "downloads": 50501,
+      "updated": 1746285691000
+    },
+    {
+      "id": "3d-graph",
+      "name": "3D Graph",
+      "author": "Alexander Weichart",
+      "description": "Add a 3D graph view.",
+      "repo": "AlexW00/obsidian-3d-graph",
+      "downloads": 50299,
+      "updated": 1698170724000
+    },
+    {
+      "id": "obsidian-media-db-plugin",
+      "name": "Media DB",
+      "author": "Moritz Jung",
+      "description": "Query multiple APIs for movies, series, anime, games, music releases and wiki articles, and import them into your vault.",
+      "repo": "mProjectsCode/obsidian-media-db-plugin",
+      "downloads": 50193,
+      "updated": 1769685652000
+    },
+    {
+      "id": "custom-font-loader",
+      "name": "Custom Font Loader",
+      "author": "Amir Pourmand",
+      "description": "Customize your vault with any font you want (+ Support for Android and iOS).",
+      "repo": "pourmand1376/obsidian-custom-font",
+      "downloads": 49795,
+      "updated": 1756314894000
+    },
+    {
+      "id": "password-protection",
+      "name": "Password Protection",
+      "author": "Qing Li",
+      "description": "Lock and protect your private notes and diary with a password, no encrypt, no decrypt.",
+      "repo": "qing3962/password-protection",
+      "downloads": 49514,
+      "updated": 1767020393000
+    },
+    {
+      "id": "obsidian-mkdocs-publisher",
+      "name": "Enveloppe",
+      "author": "Mara-Li",
+      "description": "Publish your notes to a preconfigured GitHub repository.",
+      "repo": "Enveloppe/obsidian-enveloppe",
+      "downloads": 49164,
+      "updated": 1770544313000
+    },
+    {
+      "id": "obsidian-rtl",
+      "name": "RTL Support",
+      "author": "esm",
+      "description": "Right-to-left (RTL) text direction support for languages like Arabic, Hebrew, and Farsi.",
+      "repo": "esm7/obsidian-rtl",
+      "downloads": 48281,
+      "updated": 1743337921000
+    },
+    {
+      "id": "pomodoro-timer",
+      "name": "Pomodoro Timer",
+      "author": "eatgrass",
+      "description": "Manage your daily focus using the Pomodoro Technique.",
+      "repo": "eatgrass/obsidian-pomodoro-timer",
+      "downloads": 48145,
+      "updated": 1717052479000
+    },
+    {
+      "id": "obsidian-tikzjax",
+      "name": "TikZJax",
+      "author": "artisticat1",
+      "description": "Render LaTeX and TikZ diagrams in your notes.",
+      "repo": "artisticat1/obsidian-tikzjax",
+      "downloads": 47621,
+      "updated": 1711895971000
+    },
+    {
+      "id": "copy-as-html",
+      "name": "Copy as HTML",
+      "author": "Bailey Jennings",
+      "description": "Convert the selected Markdown to HTML and copy it to the clipboard.",
+      "repo": "jenningsb2/copy-as-html",
+      "downloads": 47440,
+      "updated": 1685103258000
+    },
+    {
+      "id": "obsidian-editor-shortcuts",
+      "name": "Code Editor Shortcuts",
+      "author": "Tim Hor",
+      "description": "Add keyboard shortcuts (hotkeys) commonly found in code editors such as Visual Studio Code (VS Code) or Sublime Text.",
+      "repo": "timhor/obsidian-editor-shortcuts",
+      "downloads": 47307,
+      "updated": 1684936222000
+    },
+    {
+      "id": "obsidian-epub-plugin",
+      "name": "ePub Reader",
+      "author": "caronchen",
+      "description": "Open documents with \".epub\" file extension.",
+      "repo": "caronchen/obsidian-epub-plugin",
+      "downloads": 46902,
+      "updated": 1745723116000
+    },
+    {
+      "id": "open-gate",
+      "name": "Open Gate",
+      "author": "DuocNV",
+      "description": "Embed any website to Obsidian, from now all, you have anything you need in one place.",
+      "repo": "nguyenvanduocit/obsidian-open-gate",
+      "downloads": 46762,
+      "updated": 1765934077000
+    },
+    {
+      "id": "fit",
+      "name": "Fit",
+      "author": "joshuakto",
+      "description": "Minimalist File gIT (FIT) to sync your files across mobile and desktop devices using GitHub.",
+      "repo": "joshuakto/fit",
+      "downloads": 45698,
+      "updated": 1767557226000
+    },
+    {
+      "id": "obsidian-html-plugin",
+      "name": "HTML Reader",
+      "author": "Nuthrash",
+      "description": "Open .html and .htm files.",
+      "repo": "nuthrash/obsidian-html-plugin",
+      "downloads": 45686,
+      "updated": 1761750683000
+    },
+    {
+      "id": "obsidian-front-matter-title-plugin",
+      "name": "Front Matter Title",
+      "author": "Snezhig",
+      "description": "Define a title in frontmatter to be displayed as the filename.",
+      "repo": "snezhig/obsidian-front-matter-title",
+      "downloads": 45646,
+      "updated": 1733555137000
+    },
+    {
+      "id": "handwritten-notes",
+      "name": "Handwritten Notes",
+      "author": "FBarrCa",
+      "description": "Annotate PDFs and create handwritten notes inside your vault.",
+      "repo": "FBarrca/obsidian-handwritten-notes",
+      "downloads": 44937,
+      "updated": 1744555960000
+    },
+    {
+      "id": "recipe-view",
+      "name": "Recipe view",
+      "author": "lachholden",
+      "description": "View your notes as interactive recipe cards while you cook.",
+      "repo": "lachsh/obsidian-recipe-view",
+      "downloads": 44935,
+      "updated": 1714881332000
+    },
+    {
+      "id": "fantasy-content-generator",
+      "name": "Fantasy Content Generator",
+      "author": "Gregory-Jagermeister",
+      "description": "A fantasy content generator for all your TTRPG and world-building needs.",
+      "repo": "Gregory-Jagermeister/Fantasy-Content-Generator",
+      "downloads": 44901,
+      "updated": 1736659903000
+    },
+    {
+      "id": "sheets",
+      "name": "Sheets Extended",
+      "author": "NicoNekoru",
+      "description": "Vertical headers, merged cells, and custom CSS tables with Advanced Tables compatability.",
+      "repo": "NicoNekoru/obsidan-advanced-table-xt",
+      "downloads": 44863,
+      "updated": 1710833510000
+    },
+    {
+      "id": "obsidian-vault-statistics-plugin",
+      "name": "Vault Statistics",
+      "author": "Bryan Kyle",
+      "description": "Status bar item with vault statistics such as number of notes, files, attachments, and links.",
+      "repo": "bkyle/obsidian-vault-statistics-plugin",
+      "downloads": 44830,
+      "updated": 1666760473000
+    },
+    {
+      "id": "contribution-graph",
+      "name": "Contribution Graph",
+      "author": "vran",
+      "description": "Generate an interactive heatmap to visualize and track your productivity.",
+      "repo": "vran-dev/obsidian-contribution-graph",
+      "downloads": 44795,
+      "updated": 1726152564000
+    },
+    {
+      "id": "modalforms",
+      "name": "Modal forms",
+      "author": "Danielo Rodriguez",
+      "description": "Define forms for capturing data that you will be able to open from anywhere you can run JavaScript.",
+      "repo": "danielo515/obsidian-modal-form",
+      "downloads": 44443,
+      "updated": 1770466556000
+    },
+    {
+      "id": "text-snippets-obsidian",
+      "name": "Text Snippets",
+      "author": "Ariana Khitrova",
+      "description": "Snippets for faster typing. Replace text templates, create your own, and expand text shortcuts.",
+      "repo": "ArianaKhit/text-snippets-obsidian",
+      "downloads": 44303,
+      "updated": 1652364040000
+    },
+    {
+      "id": "obsidian-clipper",
+      "name": "Clipper",
+      "author": "John Christopher",
+      "description": "Capture highlights from the web.",
+      "repo": "jgchristopher/obsidian-clipper",
+      "downloads": 44243,
+      "updated": 1752420069000
+    },
+    {
+      "id": "obsidian-math-plus",
+      "name": "Math+",
+      "author": "Oscar Capraro",
+      "description": "Take math notes using Excalidraw.",
+      "repo": "ocapraro/obsidian-math-plus",
+      "downloads": 44160,
+      "updated": 1706372602000
+    },
+    {
+      "id": "obisidian-note-linker",
+      "name": "Note Linker",
+      "author": "Alexander Weichart",
+      "description": "Automatically find and create new links between notes.",
+      "repo": "AlexW00/obsidian-note-linker",
+      "downloads": 43944,
+      "updated": 1765132196000
+    },
+    {
+      "id": "vscode-editor",
+      "name": "VSCode Editor",
+      "author": "Sun Xvming",
+      "description": "Edit Code Files like VSCode.",
+      "repo": "sunxvming/obsidian-vscode-editor",
+      "downloads": 43807,
+      "updated": 1764059899000
+    },
+    {
+      "id": "codeblock-customizer",
+      "name": "Codeblock Customizer",
+      "author": "mugiwara",
+      "description": "Customize your code blocks in editing, and reading mode as well.",
+      "repo": "mugiwara85/CodeblockCustomizer",
+      "downloads": 43579,
+      "updated": 1755772801000
+    },
+    {
+      "id": "obsidian-plugin-tagged-documents-viewer",
+      "name": "Tagged Documents Viewer",
+      "author": "Marcus Geduld",
+      "description": "Open a modal with scrollable content of all documents that contain a specific tag or tags.",
+      "repo": "mgeduld/obsidian-tagged-documents-viewer",
+      "downloads": 43095,
+      "updated": 1658078582000
+    },
+    {
+      "id": "periodic-para",
+      "name": "LifeOS",
+      "author": "YiBing Lin",
+      "description": "Life management system.",
+      "repo": "quanru/obsidian-lifeos",
+      "downloads": 42958,
+      "updated": 1768231540000
+    },
+    {
+      "id": "mcp-tools",
+      "name": "MCP Tools",
+      "author": "Jack Steam",
+      "description": "Securely connect Claude Desktop to your vault with semantic search, templates, and file management capabilities.",
+      "repo": "jacksteamdev/obsidian-mcp-tools",
+      "downloads": 42605,
+      "updated": 1752369514000
+    },
+    {
+      "id": "frontmatter-modified-date",
+      "name": "Update frontmatter modified date",
+      "author": "Alan Grainger",
+      "description": "Automatically update a frontmatter modified date field when the file is modified.",
+      "repo": "alangrainger/obsidian-frontmatter-modified-date",
+      "downloads": 42471,
+      "updated": 1764558488000
+    }
+  ]
+}

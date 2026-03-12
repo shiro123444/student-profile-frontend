@@ -1,0 +1,10 @@
+name: career
+version: "1.0.0"
+description: 职业搜索与学习路径推荐
+author: PathMind Team
+category: career
+tools:
+  - search_careers
+  - get_learning_path
+permissions:
+  roles: [student, teacher, admin]

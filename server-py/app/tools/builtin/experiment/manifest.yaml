@@ -1,0 +1,12 @@
+name: experiment
+version: "1.0.0"
+description: 实验详情与代码语法验证
+author: PathMind Team
+category: coding
+tools:
+  - get_experiment_details
+  - validate_code_syntax
+  - search_similar_code
+  - index_student_code
+permissions:
+  roles: [student, teacher, admin]

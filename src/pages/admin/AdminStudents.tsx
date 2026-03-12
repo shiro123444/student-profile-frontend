@@ -308,7 +308,7 @@ export default function AdminStudents() {
             <p className="text-sm text-text-muted">
               {index === 0 ? '最多' : `第${index + 1}名`}
             </p>
-            <p className="text-lg font-bold font-mono" style={{ color: primary[700] }}>
+            <p className="text-lg font-bold font-mono" style={{ color: 'var(--accent-text)' }}>
               {type}
               <span className="text-sm font-normal ml-2 text-text-muted">
                 {count}人

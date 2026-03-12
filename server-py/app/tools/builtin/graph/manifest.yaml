@@ -1,0 +1,11 @@
+name: graph
+version: "1.0.0"
+description: Neo4j 知识图谱查询
+author: PathMind Team
+category: knowledge
+tools:
+  - query_knowledge_graph
+  - emit_graph_command
+  - emit_graph_batch
+permissions:
+  roles: [student, teacher, admin]

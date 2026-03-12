@@ -1,0 +1,9 @@
+name: search
+version: "1.0.0"
+description: 统一搜索 — 同时搜索文档和笔记
+author: PathMind Team
+category: knowledge
+tools:
+  - unified_search
+permissions:
+  roles: [student, teacher, admin]

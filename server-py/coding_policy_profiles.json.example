@@ -1,0 +1,45 @@
+{
+  "version": "1.0",
+  "default_profile": "strict_v1",
+  "profiles": {
+    "strict_v1": {
+      "approvals_enabled": true,
+      "approval_timeout_sec": 60,
+      "medium_risk_requires_approval": true,
+      "low_risk_retry_count": 1,
+      "low_risk_retry_backoff_ms": 300,
+      "high_risk_max_concurrency": 1,
+      "external_default_risk": "high",
+      "external_readonly_risk": "medium",
+      "external_openworld_risk": "high",
+      "external_mcp_builtin_priority": true,
+      "external_mcp_fallback_to_internal": true
+    },
+    "balanced_v1": {
+      "approvals_enabled": true,
+      "approval_timeout_sec": 45,
+      "medium_risk_requires_approval": true,
+      "low_risk_retry_count": 2,
+      "low_risk_retry_backoff_ms": 400,
+      "high_risk_max_concurrency": 1,
+      "external_default_risk": "medium",
+      "external_readonly_risk": "low",
+      "external_openworld_risk": "medium",
+      "external_mcp_builtin_priority": true,
+      "external_mcp_fallback_to_internal": true
+    },
+    "fast_iter_v1": {
+      "approvals_enabled": true,
+      "approval_timeout_sec": 30,
+      "medium_risk_requires_approval": false,
+      "low_risk_retry_count": 2,
+      "low_risk_retry_backoff_ms": 250,
+      "high_risk_max_concurrency": 1,
+      "external_default_risk": "medium",
+      "external_readonly_risk": "low",
+      "external_openworld_risk": "high",
+      "external_mcp_builtin_priority": true,
+      "external_mcp_fallback_to_internal": true
+    }
+  }
+}

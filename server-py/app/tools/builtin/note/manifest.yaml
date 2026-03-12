@@ -1,0 +1,14 @@
+name: note
+version: "1.0.0"
+description: Obsidian 风格笔记管理 — 搜索、读取、创建、更新、图谱
+author: PathMind Team
+category: notes
+tools:
+  - search_notes
+  - semantic_search_notes
+  - get_note_content
+  - create_note
+  - update_note
+  - get_note_graph
+permissions:
+  roles: [student, teacher, admin]

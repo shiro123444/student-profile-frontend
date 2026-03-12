@@ -15,7 +15,6 @@ import { motion, useScroll, useTransform, useInView } from 'framer-motion'
 import { Button } from '@heroui/react'
 import { DotLottieReact } from '@lottiefiles/dotlottie-react'
 import {
-  ParallaxMarquee,
   CircularText,
   FlipText,
   BreathingOrb,
@@ -43,8 +42,9 @@ function HeroSection() {
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
 
   return (
-    <section 
-      ref={heroRef} 
+    <section
+      ref={heroRef}
+      data-section-id="hero"
       className="relative min-h-screen flex items-center overflow-hidden"
       style={{ background: `linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, ${primary[50]}30 100%)` }}
     >
@@ -352,8 +352,9 @@ function QuickEntrySection() {
   ]
 
   return (
-    <section 
-      ref={ref} 
+    <section
+      ref={ref}
+      data-section-id="quick-entry"
       className="py-20 px-6 md:px-12 lg:px-20"
       style={{ background: `linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%)` }}
     >
@@ -422,27 +423,6 @@ function QuickEntrySection() {
 }
 
 // ============================================
-// Marquee Section - 文字跑马灯
-// ============================================
-function MarqueeSection() {
-  return (
-    <section className="py-12 bg-bg-secondary overflow-hidden">
-      <ParallaxMarquee 
-        text="MBTI • AI LEARNING • CAREER PATH • PERSONALITY •" 
-        baseVelocity={2}
-        textClassName="text-stone-200 dark:text-stone-800"
-      />
-      <div className="h-2" />
-      <ParallaxMarquee 
-        text="DISCOVER • GROW • ACHIEVE • TRANSFORM •" 
-        baseVelocity={-2}
-        textClassName="text-stone-300 dark:text-stone-700"
-      />
-    </section>
-  )
-}
-
-// ============================================
 // Features Section - 系统特色介绍
 // ============================================
 function FeaturesSection() {
@@ -468,8 +448,9 @@ function FeaturesSection() {
   ]
 
   return (
-    <section 
-      ref={ref} 
+    <section
+      ref={ref}
+      data-section-id="features"
       className="py-24 px-6 md:px-12 lg:px-20"
       style={{ background: `linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%)` }}
     >
@@ -533,7 +514,7 @@ function StatsSection() {
   const isInView = useInView(ref, { once: true })
 
   return (
-    <section ref={ref} className="py-24 px-6 md:px-12 lg:px-20 bg-bg-secondary">
+    <section ref={ref} data-section-id="stats" className="py-24 px-6 md:px-12 lg:px-20 bg-bg-secondary">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
           {stats.map((stat, index) => (
@@ -575,8 +556,9 @@ function CTASection() {
   const y = useTransform(scrollYProgress, [0, 1], [100, -100])
 
   return (
-    <section 
-      ref={ref} 
+    <section
+      ref={ref}
+      data-section-id="cta"
       className="relative py-32 px-6 md:px-12 lg:px-20 text-white overflow-hidden"
       style={{ background: `linear-gradient(135deg, ${primary[800]} 0%, ${primary[900]} 50%, #0F172A 100%)` }}
     >
@@ -622,7 +604,7 @@ function CTASection() {
             size="lg"
             radius="full"
             className="bg-bg-secondary font-bold px-12 py-6 text-lg transition-all hover:scale-105"
-            style={{ color: primary[800] }}
+            style={{ color: 'var(--accent-text)' }}
           >
             立即开始 →
           </Button>
@@ -704,7 +686,6 @@ export default function HomePageBPCO() {
       <ScrollProgressIndicator />
       <HeroSection />
       <QuickEntrySection />
-      <MarqueeSection />
       <FeaturesSection />
       <StatsSection />
       <CTASection />

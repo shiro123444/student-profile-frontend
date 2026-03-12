@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { breathingConfig } from '../../theme/motion'
+import { useReducedMotion } from '../../hooks/useReducedMotion'
 
 interface BreathingOrbProps {
   /** 渐变颜色，如 'rgba(147,51,234,0.15)' */
@@ -36,6 +37,24 @@ export function BreathingOrb({
   phaseOffset = 0,
   className = '',
 }: BreathingOrbProps) {
+  const prefersReduced = useReducedMotion()
+
+  // Respect prefers-reduced-motion: render static orb
+  if (prefersReduced) {
+    return (
+      <div
+        className={`absolute rounded-full pointer-events-none ${className}`}
+        style={{
+          width: size,
+          height: size,
+          background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
+          opacity: 0.5,
+          ...position,
+        }}
+      />
+    )
+  }
+
   return (
     <motion.div
       className={`absolute rounded-full pointer-events-none ${className}`}

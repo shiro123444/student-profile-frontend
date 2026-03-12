@@ -1,0 +1,14 @@
+name: student
+version: "1.0.0"
+description: 学生数据访问 — 画像、学习记录、班级概览
+author: PathMind Team
+category: data
+tools:
+  - get_student_profile
+  - get_learning_history
+  - get_class_overview
+permissions:
+  roles: [student, teacher, admin]
+  tool_overrides:
+    get_class_overview:
+      roles: [teacher, admin]

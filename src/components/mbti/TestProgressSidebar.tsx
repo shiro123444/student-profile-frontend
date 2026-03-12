@@ -77,7 +77,7 @@ export default function TestProgressSidebar({
     <div 
       className="p-6 rounded-2xl h-fit sticky top-6 border border-border-primary"
       style={{
-        background: 'rgba(255,255,255,0.8)',
+        background: 'var(--bg-card)',
         backdropFilter: 'blur(12px)',
       }}
     >
@@ -92,7 +92,7 @@ export default function TestProgressSidebar({
       <div className="mb-6">
         <div className="flex justify-between text-sm mb-2">
           <span className="text-text-secondary">完成进度</span>
-          <span className="font-medium" style={{ color: primary[600] }}>
+          <span className="font-medium" style={{ color: 'var(--accent-text)' }}>
             {Math.round(progress)}%
           </span>
         </div>

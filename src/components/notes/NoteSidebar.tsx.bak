@@ -1,0 +1,813 @@
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent as ReactMouseEvent } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { FileText, Folder, FolderOpen, Plus, Search, Trash2 } from 'lucide-react'
+import type { Note, NoteFolder, NoteReorderPayload } from '../../services/api'
+import {
+  buildTreeReorderPayload,
+  normalizeTreeNodeID,
+  resolveDropPreview,
+  type DraggingTreeNode,
+  type TreeDropPreview,
+} from './treeDnd'
+
+interface NoteSidebarProps {
+  folders: NoteFolder[]
+  notes: Note[]
+  activeNoteId: string | null
+  backlinks?: Note[]
+  onSelectNote: (id: string) => void
+  onRequestRenameNote?: (id: string) => void
+  onRenameNote?: (id: string, title: string) => Promise<void> | void
+  onNewNote: (folderID?: string | null) => void
+  onSearch: (query: string) => void
+  onCreateFolder: (parentID?: string | null) => void
+  onDeleteNote?: (id: string) => Promise<void> | void
+  onDeleteFolder?: (id: string) => Promise<void> | void
+  onRenameFolder?: (id: string, name: string) => Promise<void> | void
+  onReorder?: (payload: NoteReorderPayload) => Promise<void> | void
+  onNodeContextMenu?: (event: ReactMouseEvent, node: { kind: 'folder' | 'note'; id: string }) => void
+  onBlankContextMenu?: (event: ReactMouseEvent) => void
+}
+
+const ROOT_KEY = '__root__'
+
+function keyFor(parentID?: string | null): string {
+  return parentID || ROOT_KEY
+}
+
+function cloneChildrenMap<T>(source: Map<string, T[]>): Map<string, T[]> {
+  const next = new Map<string, T[]>()
+  for (const [key, items] of source) {
+    next.set(key, [...items])
+  }
+  return next
+}
+
+function sortByOrder<T extends { sort_order?: number; updated_at?: string; name?: string; title?: string }>(left: T, right: T) {
+  const leftSort = Number.isFinite(Number(left.sort_order)) ? Number(left.sort_order) : 0
+  const rightSort = Number.isFinite(Number(right.sort_order)) ? Number(right.sort_order) : 0
+  if (leftSort !== rightSort) return leftSort - rightSort
+
+  if (left.updated_at && right.updated_at && left.updated_at !== right.updated_at) {
+    return right.updated_at.localeCompare(left.updated_at)
+  }
+
+  const leftName = (left.name || left.title || '').toLowerCase()
+  const rightName = (right.name || right.title || '').toLowerCase()
+  return leftName.localeCompare(rightName)
+}
+
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+  if (diff < 60_000) return '刚刚'
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)} 分钟前`
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)} 小时前`
+  return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })
+}
+
+function NoteSidebar({
+  folders,
+  notes,
+  activeNoteId,
+  backlinks,
+  onSelectNote,
+  onRenameNote,
+  onNewNote,
+  onSearch,
+  onCreateFolder,
+  onDeleteNote,
+  onDeleteFolder,
+  onRenameFolder,
+  onReorder,
+  onNodeContextMenu,
+  onBlankContextMenu,
+}: NoteSidebarProps) {
+  const [searchQuery, setSearchQuery] = useState('')
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
+  const [dragging, setDragging] = useState<DraggingTreeNode | null>(null)
+  const [dropPreview, setDropPreview] = useState<TreeDropPreview | null>(null)
+  // Inline rename state — works for both folders and notes
+  const [renamingNodeId, setRenamingNodeId] = useState<string | null>(null)
+  const [renamingNodeKind, setRenamingNodeKind] = useState<'folder' | 'note' | null>(null)
+  const [renamingValue, setRenamingValue] = useState('')
+  const folderAutoExpandTimerRef = useRef<number | null>(null)
+  const folderAutoExpandTargetRef = useRef<string | null>(null)
+  const doubleClickTimerRef = useRef<number | null>(null)
+
+  const searchTimerRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem('notes_tree_expanded')
+      if (!raw) return
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed)) {
+        setExpandedFolders(new Set(parsed.filter((item) => typeof item === 'string')))
+      }
+    } catch {
+      // noop
+    }
+  }, [])
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('notes_tree_expanded', JSON.stringify([...expandedFolders]))
+    } catch {
+      // noop
+    }
+  }, [expandedFolders])
+
+  useEffect(() => () => {
+    if (searchTimerRef.current != null) {
+      window.clearTimeout(searchTimerRef.current)
+      searchTimerRef.current = null
+    }
+    if (folderAutoExpandTimerRef.current != null) {
+      window.clearTimeout(folderAutoExpandTimerRef.current)
+      folderAutoExpandTimerRef.current = null
+      folderAutoExpandTargetRef.current = null
+    }
+    if (doubleClickTimerRef.current != null) {
+      window.clearTimeout(doubleClickTimerRef.current)
+      doubleClickTimerRef.current = null
+    }
+  }, [])
+
+  const clearFolderAutoExpand = useCallback(() => {
+    if (folderAutoExpandTimerRef.current != null) {
+      window.clearTimeout(folderAutoExpandTimerRef.current)
+      folderAutoExpandTimerRef.current = null
+    }
+    folderAutoExpandTargetRef.current = null
+  }, [])
+
+  const scheduleFolderAutoExpand = useCallback((folderID: string) => {
+    if (expandedFolders.has(folderID)) return
+    if (folderAutoExpandTargetRef.current === folderID && folderAutoExpandTimerRef.current != null) return
+
+    clearFolderAutoExpand()
+    folderAutoExpandTargetRef.current = folderID
+    folderAutoExpandTimerRef.current = window.setTimeout(() => {
+      setExpandedFolders((prev) => {
+        if (prev.has(folderID)) return prev
+        const next = new Set(prev)
+        next.add(folderID)
+        return next
+      })
+      folderAutoExpandTimerRef.current = null
+      folderAutoExpandTargetRef.current = null
+    }, 500)
+  }, [clearFolderAutoExpand, expandedFolders])
+
+  const folderChildrenMap = useMemo(() => {
+    const map = new Map<string, NoteFolder[]>()
+    for (const folder of folders) {
+      const key = keyFor(normalizeTreeNodeID(folder.parent_id))
+      const group = map.get(key) || []
+      group.push(folder)
+      map.set(key, group)
+    }
+    for (const [key, group] of map) {
+      map.set(key, [...group].sort(sortByOrder))
+    }
+    return map
+  }, [folders])
+
+  const noteChildrenMap = useMemo(() => {
+    const map = new Map<string, Note[]>()
+    for (const note of notes) {
+      const key = keyFor(normalizeTreeNodeID(note.folder_id))
+      const group = map.get(key) || []
+      group.push(note)
+      map.set(key, group)
+    }
+    for (const [key, group] of map) {
+      map.set(key, [...group].sort(sortByOrder))
+    }
+    return map
+  }, [notes])
+
+  const folderByID = useMemo(() => {
+    const map = new Map<string, NoteFolder>()
+    folders.forEach((folder) => map.set(folder.id, folder))
+    return map
+  }, [folders])
+
+  const noteByID = useMemo(() => {
+    const map = new Map<string, Note>()
+    notes.forEach((note) => map.set(note.id, note))
+    return map
+  }, [notes])
+
+  const toggleFolder = useCallback((folderID: string) => {
+    setExpandedFolders((prev) => {
+      const next = new Set(prev)
+      if (next.has(folderID)) next.delete(folderID)
+      else next.add(folderID)
+      return next
+    })
+  }, [])
+
+  const handleSearch = useCallback((value: string) => {
+    setSearchQuery(value)
+    if (searchTimerRef.current != null) {
+      window.clearTimeout(searchTimerRef.current)
+    }
+    searchTimerRef.current = window.setTimeout(() => {
+      onSearch(value)
+    }, 300)
+  }, [onSearch])
+
+  // --- Unified inline rename for folders and notes ---
+  const startRename = useCallback((kind: 'folder' | 'note', id: string, currentName: string) => {
+    setRenamingNodeId(id)
+    setRenamingNodeKind(kind)
+    setRenamingValue(currentName)
+  }, [])
+
+  const cancelRename = useCallback(() => {
+    setRenamingNodeId(null)
+    setRenamingNodeKind(null)
+    setRenamingValue('')
+  }, [])
+
+  const commitRename = useCallback(async () => {
+    if (!renamingNodeId || !renamingNodeKind) {
+      cancelRename()
+      return
+    }
+    const nextName = renamingValue.trim()
+    if (!nextName) {
+      cancelRename()
+      return
+    }
+    try {
+      if (renamingNodeKind === 'folder' && onRenameFolder) {
+        await onRenameFolder(renamingNodeId, nextName)
+      } else if (renamingNodeKind === 'note' && onRenameNote) {
+        await onRenameNote(renamingNodeId, nextName)
+      }
+    } finally {
+      cancelRename()
+    }
+  }, [cancelRename, onRenameFolder, onRenameNote, renamingNodeId, renamingNodeKind, renamingValue])
+
+  const handleDrop = useCallback(async (event: DragEvent<HTMLElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    clearFolderAutoExpand()
+    if (!dragging || !dropPreview || !onReorder) {
+      setDragging(null)
+      setDropPreview(null)
+      return
+    }
+
+    const payload = buildTreeReorderPayload({
+      dragging,
+      preview: dropPreview,
+      folderByID,
+      noteByID,
+      folderChildrenMap,
+      noteChildrenMap,
+    })
+    setDragging(null)
+    setDropPreview(null)
+    if (!payload) return
+
+    try {
+      await onReorder(payload)
+    } catch {
+      // noop: page layer should toast
+    }
+  }, [clearFolderAutoExpand, dragging, dropPreview, folderByID, folderChildrenMap, noteByID, noteChildrenMap, onReorder])
+
+  const previewMaps = useMemo(() => {
+    const nextFolderChildrenMap = cloneChildrenMap(folderChildrenMap)
+    const nextNoteChildrenMap = cloneChildrenMap(noteChildrenMap)
+
+    if (!dragging || !dropPreview) {
+      return {
+        folderChildrenMap: nextFolderChildrenMap,
+        noteChildrenMap: nextNoteChildrenMap,
+      }
+    }
+
+    const payload = buildTreeReorderPayload({
+      dragging,
+      preview: dropPreview,
+      folderByID,
+      noteByID,
+      folderChildrenMap,
+      noteChildrenMap,
+    })
+    if (!payload) {
+      return {
+        folderChildrenMap: nextFolderChildrenMap,
+        noteChildrenMap: nextNoteChildrenMap,
+      }
+    }
+
+    if (payload.kind === 'note') {
+      const moving = noteByID.get(payload.item_id)
+      if (!moving) {
+        return {
+          folderChildrenMap: nextFolderChildrenMap,
+          noteChildrenMap: nextNoteChildrenMap,
+        }
+      }
+
+      // Remove from old position
+      for (const [key, items] of nextNoteChildrenMap) {
+        const filtered = items.filter((item) => item.id !== moving.id)
+        if (filtered.length !== items.length) {
+          nextNoteChildrenMap.set(key, filtered)
+        }
+      }
+
+      // Insert at new position
+      const targetKey = keyFor(normalizeTreeNodeID(payload.parent_id))
+      const targetItems = nextNoteChildrenMap.get(targetKey) || []
+      const insertAt = Math.max(0, Math.min(payload.index, targetItems.length))
+      const reordered = [...targetItems]
+      reordered.splice(insertAt, 0, moving)
+      nextNoteChildrenMap.set(targetKey, reordered)
+
+      return {
+        folderChildrenMap: nextFolderChildrenMap,
+        noteChildrenMap: nextNoteChildrenMap,
+      }
+    }
+
+    const movingFolder = folderByID.get(payload.item_id)
+    if (!movingFolder) {
+      return {
+        folderChildrenMap: nextFolderChildrenMap,
+        noteChildrenMap: nextNoteChildrenMap,
+      }
+    }
+
+    // Remove from old position
+    for (const [key, items] of nextFolderChildrenMap) {
+      const filtered = items.filter((item) => item.id !== movingFolder.id)
+      if (filtered.length !== items.length) {
+        nextFolderChildrenMap.set(key, filtered)
+      }
+    }
+
+    // Insert at new position
+    const targetKey = keyFor(normalizeTreeNodeID(payload.parent_id))
+    const targetItems = nextFolderChildrenMap.get(targetKey) || []
+    const insertAt = Math.max(0, Math.min(payload.index, targetItems.length))
+    const reordered = [...targetItems]
+    reordered.splice(insertAt, 0, movingFolder)
+    nextFolderChildrenMap.set(targetKey, reordered)
+
+    return {
+      folderChildrenMap: nextFolderChildrenMap,
+      noteChildrenMap: nextNoteChildrenMap,
+    }
+  }, [dragging, dropPreview, folderByID, folderChildrenMap, noteByID, noteChildrenMap])
+
+  // Compute drop indicator position (absolute blue line)
+  const dropIndicator = useMemo<{ targetId: string; position: 'before' | 'after' } | null>(() => {
+    if (!dropPreview || !dragging) return null
+    if (dropPreview.position === 'inside') return null
+    if (!dropPreview.targetId) return null
+    return { targetId: dropPreview.targetId, position: dropPreview.position }
+  }, [dragging, dropPreview])
+
+  // Is a folder being highlighted as drop target?
+  const highlightedFolderId = useMemo<string | null>(() => {
+    if (!dropPreview || !dragging) return null
+    if (dropPreview.position === 'inside' && dropPreview.targetType === 'folder' && dropPreview.targetId) {
+      return dropPreview.targetId
+    }
+    return null
+  }, [dragging, dropPreview])
+
+  const renderBranch = useCallback((parentID: string | null, depth: number) => {
+    const folderItems = previewMaps.folderChildrenMap.get(keyFor(parentID)) || []
+    const noteItems = previewMaps.noteChildrenMap.get(keyFor(parentID)) || []
+
+    return (
+      <>
+        {folderItems.map((folder) => {
+          const expanded = expandedFolders.has(folder.id)
+          const isHighlighted = highlightedFolderId === folder.id
+          const indicator = dropIndicator?.targetId === folder.id ? dropIndicator : null
+          const isDragging = dragging?.kind === 'folder' && dragging.id === folder.id
+          const isRenaming = renamingNodeId === folder.id && renamingNodeKind === 'folder'
+
+          return (
+            <div key={folder.id} className="relative">
+              {/* Drop indicator line — before */}
+              <AnimatePresence>
+                {indicator?.position === 'before' && (
+                  <motion.div
+                    initial={{ scaleX: 0, opacity: 0 }}
+                    animate={{ scaleX: 1, opacity: 1 }}
+                    exit={{ scaleX: 0, opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-2 right-2 top-0 z-10 h-[2px] rounded-full bg-blue-500 origin-left"
+                    style={{ marginLeft: `${depth * 14}px` }}
+                  >
+                    <div className="absolute -left-1 -top-[3px] h-2 w-2 rounded-full bg-blue-500" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div
+                data-testid={`notes-tree-folder-${folder.id}`}
+                draggable={!isRenaming}
+                onDragStart={(event) => {
+                  if (isRenaming) { event.preventDefault(); return }
+                  setDragging({ kind: 'folder', id: folder.id })
+                  event.dataTransfer.effectAllowed = 'move'
+                  // Set drag image
+                  const ghost = event.currentTarget.cloneNode(true) as HTMLElement
+                  ghost.style.position = 'absolute'
+                  ghost.style.top = '-9999px'
+                  ghost.style.opacity = '0.85'
+                  ghost.style.width = `${event.currentTarget.offsetWidth}px`
+                  document.body.appendChild(ghost)
+                  event.dataTransfer.setDragImage(ghost, 12, 12)
+                  requestAnimationFrame(() => document.body.removeChild(ghost))
+                }}
+                onDragEnd={() => {
+                  clearFolderAutoExpand()
+                  setDragging(null)
+                  setDropPreview(null)
+                }}
+                onDragEnter={(event) => {
+                  if (!dragging) return
+                  event.preventDefault()
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  const preview = resolveDropPreview(event.clientY, rect.top, rect.height, 'folder', folder.id, dragging.kind)
+                  setDropPreview(preview)
+                  if (preview.position === 'inside') {
+                    scheduleFolderAutoExpand(folder.id)
+                  } else {
+                    clearFolderAutoExpand()
+                  }
+                }}
+                onDragOver={(event) => {
+                  if (!dragging) return
+                  event.preventDefault()
+                  event.dataTransfer.dropEffect = 'move'
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  const preview = resolveDropPreview(event.clientY, rect.top, rect.height, 'folder', folder.id, dragging.kind)
+                  setDropPreview(preview)
+                  if (preview.position === 'inside') {
+                    scheduleFolderAutoExpand(folder.id)
+                  } else {
+                    clearFolderAutoExpand()
+                  }
+                }}
+                onDrop={handleDrop}
+                className={`group flex items-center gap-1 rounded-md px-2 py-1 text-xs text-text-secondary hover:bg-bg-tertiary/70 cursor-pointer transition-all duration-150 ${
+                  isHighlighted ? 'bg-blue-500/12 ring-1 ring-blue-400/50' : ''
+                }`}
+                style={{
+                  paddingLeft: `${8 + depth * 14}px`,
+                  opacity: isDragging ? 0.35 : 1,
+                  transform: isDragging ? 'scale(0.97)' : undefined,
+                }}
+                onContextMenu={(event) => {
+                  if (!onNodeContextMenu) return
+                  event.preventDefault()
+                  onNodeContextMenu(event, { kind: 'folder', id: folder.id })
+                }}
+                onDoubleClick={() => startRename('folder', folder.id, folder.name)}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); toggleFolder(folder.id) }}
+                  className="h-4 w-4 rounded-sm text-text-muted hover:text-text-primary"
+                  title={expanded ? '收起' : '展开'}
+                >
+                  <span className={`inline-block transition-transform duration-150 ${expanded ? 'rotate-90' : 'rotate-0'}`}>▸</span>
+                </button>
+                {expanded ? <FolderOpen size={13} className="text-yellow-500" /> : <Folder size={13} className="text-yellow-500" />}
+                {isRenaming ? (
+                  <input
+                    value={renamingValue}
+                    onChange={(event) => setRenamingValue(event.target.value)}
+                    onBlur={() => { void commitRename() }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.preventDefault()
+                        void commitRename()
+                      }
+                      if (event.key === 'Escape') {
+                        event.preventDefault()
+                        cancelRename()
+                      }
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    autoFocus
+                    className="flex-1 min-w-0 rounded border border-primary-400/50 bg-bg-primary px-1.5 py-0.5 text-xs text-text-primary outline-none"
+                  />
+                ) : (
+                  <span className="truncate text-text-primary flex-1">{folder.name}</span>
+                )}
+                {!isRenaming && onDeleteFolder && (
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.preventDefault()
+                      event.stopPropagation()
+                      void onDeleteFolder(folder.id)
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded text-text-muted hover:text-red-500"
+                    title="删除文件夹"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                )}
+              </div>
+
+              {/* Drop indicator line — after */}
+              <AnimatePresence>
+                {indicator?.position === 'after' && !expanded && (
+                  <motion.div
+                    initial={{ scaleX: 0, opacity: 0 }}
+                    animate={{ scaleX: 1, opacity: 1 }}
+                    exit={{ scaleX: 0, opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-2 right-2 bottom-0 z-10 h-[2px] rounded-full bg-blue-500 origin-left"
+                    style={{ marginLeft: `${depth * 14}px` }}
+                  >
+                    <div className="absolute -left-1 -top-[3px] h-2 w-2 rounded-full bg-blue-500" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {expanded && renderBranch(folder.id, depth + 1)}
+            </div>
+          )
+        })}
+
+        {noteItems.map((note) => {
+          const active = activeNoteId === note.id
+          const indicator = dropIndicator?.targetId === note.id ? dropIndicator : null
+          const isDragging = dragging?.kind === 'note' && dragging.id === note.id
+          const isRenaming = renamingNodeId === note.id && renamingNodeKind === 'note'
+          // Highlight note row when dropping "inside" (move to same parent)
+          const isInsideTarget = dropPreview?.targetType === 'note' && dropPreview?.targetId === note.id && dropPreview?.position === 'inside'
+
+          return (
+            <div key={note.id} className="relative">
+              {/* Drop indicator line — before */}
+              <AnimatePresence>
+                {indicator?.position === 'before' && (
+                  <motion.div
+                    initial={{ scaleX: 0, opacity: 0 }}
+                    animate={{ scaleX: 1, opacity: 1 }}
+                    exit={{ scaleX: 0, opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-2 right-2 top-0 z-10 h-[2px] rounded-full bg-blue-500 origin-left"
+                    style={{ marginLeft: `${depth * 14}px` }}
+                  >
+                    <div className="absolute -left-1 -top-[3px] h-2 w-2 rounded-full bg-blue-500" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div
+                data-testid={`notes-tree-note-${note.id}`}
+                draggable={!isRenaming}
+                onDragStart={(event) => {
+                  if (isRenaming) { event.preventDefault(); return }
+                  setDragging({ kind: 'note', id: note.id })
+                  event.dataTransfer.effectAllowed = 'move'
+                  const ghost = event.currentTarget.cloneNode(true) as HTMLElement
+                  ghost.style.position = 'absolute'
+                  ghost.style.top = '-9999px'
+                  ghost.style.opacity = '0.85'
+                  ghost.style.width = `${event.currentTarget.offsetWidth}px`
+                  document.body.appendChild(ghost)
+                  event.dataTransfer.setDragImage(ghost, 12, 12)
+                  requestAnimationFrame(() => document.body.removeChild(ghost))
+                }}
+                onDragEnd={() => {
+                  clearFolderAutoExpand()
+                  setDragging(null)
+                  setDropPreview(null)
+                }}
+                onDragEnter={(event) => {
+                  if (!dragging) return
+                  event.preventDefault()
+                  clearFolderAutoExpand()
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  setDropPreview(resolveDropPreview(event.clientY, rect.top, rect.height, 'note', note.id, dragging.kind))
+                }}
+                onDragOver={(event) => {
+                  if (!dragging) return
+                  event.preventDefault()
+                  event.dataTransfer.dropEffect = 'move'
+                  clearFolderAutoExpand()
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  setDropPreview(resolveDropPreview(event.clientY, rect.top, rect.height, 'note', note.id, dragging.kind))
+                }}
+                onDrop={handleDrop}
+                className={`group flex items-center gap-2 rounded-md px-2 py-1 cursor-pointer border-l-2 transition-all duration-150 ${
+                  active
+                    ? 'bg-primary-500/10 border-l-primary-400 text-text-primary'
+                    : 'border-l-transparent text-text-secondary hover:bg-bg-tertiary/70'
+                } ${isInsideTarget ? 'bg-blue-500/8 ring-1 ring-blue-400/40' : ''}`}
+                style={{
+                  paddingLeft: `${16 + depth * 14}px`,
+                  opacity: isDragging ? 0.35 : 1,
+                  transform: isDragging ? 'scale(0.97)' : undefined,
+                }}
+                onClick={() => {
+                  if (!isRenaming) onSelectNote(note.id)
+                }}
+                onContextMenu={(event) => {
+                  if (!onNodeContextMenu) return
+                  event.preventDefault()
+                  onNodeContextMenu(event, { kind: 'note', id: note.id })
+                }}
+                onDoubleClick={(e) => {
+                  e.stopPropagation()
+                  startRename('note', note.id, note.title || '无标题笔记')
+                }}
+                title={note.title || '无标题笔记'}
+              >
+                <FileText size={13} className="shrink-0 text-sky-500" />
+                <div className="min-w-0 flex-1">
+                  {isRenaming ? (
+                    <input
+                      value={renamingValue}
+                      onChange={(event) => setRenamingValue(event.target.value)}
+                      onBlur={() => { void commitRename() }}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                          event.preventDefault()
+                          void commitRename()
+                        }
+                        if (event.key === 'Escape') {
+                          event.preventDefault()
+                          cancelRename()
+                        }
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      autoFocus
+                      className="w-full min-w-0 rounded border border-primary-400/50 bg-bg-primary px-1.5 py-0.5 text-xs text-text-primary outline-none"
+                    />
+                  ) : (
+                    <>
+                      <div className="truncate text-xs text-current">{note.title || '无标题笔记'}</div>
+                      <div className="text-[10px] text-text-muted">{formatDate(note.updated_at)}</div>
+                    </>
+                  )}
+                </div>
+                {!isRenaming && onDeleteNote && (
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.preventDefault()
+                      event.stopPropagation()
+                      void onDeleteNote(note.id)
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 rounded text-text-muted hover:text-red-500"
+                    title="删除笔记"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                )}
+              </div>
+
+              {/* Drop indicator line — after */}
+              <AnimatePresence>
+                {indicator?.position === 'after' && (
+                  <motion.div
+                    initial={{ scaleX: 0, opacity: 0 }}
+                    animate={{ scaleX: 1, opacity: 1 }}
+                    exit={{ scaleX: 0, opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute left-2 right-2 bottom-0 z-10 h-[2px] rounded-full bg-blue-500 origin-left"
+                    style={{ marginLeft: `${depth * 14}px` }}
+                  >
+                    <div className="absolute -left-1 -top-[3px] h-2 w-2 rounded-full bg-blue-500" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )
+        })}
+      </>
+    )
+  }, [
+    activeNoteId,
+    cancelRename,
+    commitRename,
+    dragging,
+    dropIndicator,
+    dropPreview,
+    expandedFolders,
+    handleDrop,
+    highlightedFolderId,
+    previewMaps,
+    clearFolderAutoExpand,
+    onDeleteFolder,
+    onDeleteNote,
+    onNodeContextMenu,
+    onSelectNote,
+    renamingNodeId,
+    renamingNodeKind,
+    renamingValue,
+    scheduleFolderAutoExpand,
+    startRename,
+    toggleFolder,
+  ])
+
+  const showEmpty = folders.length === 0 && notes.length === 0
+
+  return (
+    <div
+      data-testid="notes-tree-sidebar"
+      className="flex h-full min-h-0 flex-col border-r border-border-primary bg-bg-secondary/40"
+      onContextMenu={(event) => {
+        if (!onBlankContextMenu) return
+        event.preventDefault()
+        onBlankContextMenu(event)
+      }}
+    >
+      <div className="border-b border-border-primary p-2.5">
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-xs font-semibold text-text-primary">Notes</p>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => onCreateFolder(null)}
+              data-testid="notes-tree-create-folder-root"
+              className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+              title="新建文件夹"
+            >
+              <Folder size={14} />
+            </button>
+            <button
+              type="button"
+              onClick={() => onNewNote(null)}
+              data-testid="notes-tree-create-note-root"
+              className="rounded p-1 text-text-muted transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+              title="新建笔记"
+            >
+              <Plus size={14} />
+            </button>
+          </div>
+        </div>
+
+        <div className="relative">
+          <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-text-muted" />
+          <input
+            data-testid="notes-tree-search-input"
+            value={searchQuery}
+            onChange={(event) => handleSearch(event.target.value)}
+            placeholder="搜索或 #tag"
+            className="h-8 w-full rounded-lg border border-border-primary bg-bg-tertiary pl-7 pr-2 text-xs text-text-primary outline-none transition-colors focus:border-primary-400/60"
+          />
+        </div>
+      </div>
+
+      <div
+        className="flex-1 overflow-auto px-1.5 py-2"
+        onDragOver={(event) => {
+          if (!dragging) return
+          event.preventDefault()
+          event.dataTransfer.dropEffect = 'move'
+          clearFolderAutoExpand()
+          setDropPreview({ targetType: 'root', targetId: null, position: 'inside' })
+        }}
+        onDrop={handleDrop}
+      >
+        {showEmpty ? (
+          <div className="px-2 py-6 text-center text-xs text-text-muted">还没有笔记，点击 + 创建</div>
+        ) : renderBranch(null, 0)}
+      </div>
+
+      {backlinks && backlinks.length > 0 && (
+        <div className="border-t border-border-primary p-2">
+          <p className="mb-1.5 text-[10px] uppercase tracking-wide text-text-muted">Backlinks</p>
+          <div className="space-y-1">
+            {backlinks.map((note) => (
+              <button
+                key={note.id}
+                type="button"
+                onClick={() => onSelectNote(note.id)}
+                className="w-full truncate rounded px-1.5 py-1 text-left text-[11px] text-text-secondary transition-colors hover:bg-bg-tertiary hover:text-text-primary"
+              >
+                ← {note.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default memo(NoteSidebar)

@@ -1,0 +1,150 @@
+{
+  "meta": {
+    "generated_at": "2026-02-21T05:17:12.178379Z",
+    "cases": [
+      "rag_query",
+      "note_search",
+      "unified_builtin",
+      "unified_mcp"
+    ],
+    "queries": [
+      "反向传播算法核心思想",
+      "如何制定 Python 学习路径",
+      "二叉树遍历的常见写法",
+      "我的 MBTI 结果如何影响职业选择",
+      "线性代数在机器学习里的应用"
+    ],
+    "iterations": 1,
+    "limit": 5,
+    "student_id": "00000000-0000-0000-0000-000000000001",
+    "course_id": null
+  },
+  "phases": {
+    "cold_cache": {
+      "reset": {
+        "deleted": 0,
+        "matched": 0
+      },
+      "cases": {
+        "rag_query": {
+          "requests": 5,
+          "success": 5,
+          "errors": 0,
+          "avg_ms": 0.152,
+          "p50_ms": 0.003,
+          "p95_ms": 0.596,
+          "p99_ms": 0.713,
+          "max_ms": 0.742,
+          "min_ms": 0.002,
+          "qps": 6514.921,
+          "duration_s": 0.001
+        },
+        "note_search": {
+          "requests": 5,
+          "success": 5,
+          "errors": 0,
+          "avg_ms": 0.003,
+          "p50_ms": 0.002,
+          "p95_ms": 0.007,
+          "p99_ms": 0.007,
+          "max_ms": 0.008,
+          "min_ms": 0.002,
+          "qps": 246475.456,
+          "duration_s": 0.0
+        },
+        "unified_builtin": {
+          "requests": 5,
+          "success": 0,
+          "errors": 5,
+          "avg_ms": 0.004,
+          "p50_ms": 0.002,
+          "p95_ms": 0.009,
+          "p99_ms": 0.011,
+          "max_ms": 0.011,
+          "min_ms": 0.001,
+          "qps": 243190.738,
+          "duration_s": 0.0
+        },
+        "unified_mcp": {
+          "requests": 5,
+          "success": 0,
+          "errors": 5,
+          "avg_ms": 0.002,
+          "p50_ms": 0.001,
+          "p95_ms": 0.002,
+          "p99_ms": 0.002,
+          "max_ms": 0.002,
+          "min_ms": 0.001,
+          "qps": 540189.702,
+          "duration_s": 0.0
+        }
+      },
+      "cache_stats": {
+        "enabled": true,
+        "backend": "redis",
+        "available": false
+      }
+    },
+    "warm_cache": {
+      "cases": {
+        "rag_query": {
+          "requests": 5,
+          "success": 5,
+          "errors": 0,
+          "avg_ms": 0.003,
+          "p50_ms": 0.003,
+          "p95_ms": 0.004,
+          "p99_ms": 0.004,
+          "max_ms": 0.004,
+          "min_ms": 0.003,
+          "qps": 284042.481,
+          "duration_s": 0.0
+        },
+        "note_search": {
+          "requests": 5,
+          "success": 5,
+          "errors": 0,
+          "avg_ms": 0.003,
+          "p50_ms": 0.003,
+          "p95_ms": 0.003,
+          "p99_ms": 0.003,
+          "max_ms": 0.003,
+          "min_ms": 0.002,
+          "qps": 323164.348,
+          "duration_s": 0.0
+        },
+        "unified_builtin": {
+          "requests": 5,
+          "success": 0,
+          "errors": 5,
+          "avg_ms": 0.002,
+          "p50_ms": 0.003,
+          "p95_ms": 0.003,
+          "p99_ms": 0.003,
+          "max_ms": 0.003,
+          "min_ms": 0.002,
+          "qps": 358320.037,
+          "duration_s": 0.0
+        },
+        "unified_mcp": {
+          "requests": 5,
+          "success": 0,
+          "errors": 5,
+          "avg_ms": 0.002,
+          "p50_ms": 0.002,
+          "p95_ms": 0.003,
+          "p99_ms": 0.003,
+          "max_ms": 0.003,
+          "min_ms": 0.002,
+          "qps": 400064.02,
+          "duration_s": 0.0
+        }
+      },
+      "cache_stats": {
+        "enabled": true,
+        "backend": "redis",
+        "available": false
+      }
+    }
+  }
+}

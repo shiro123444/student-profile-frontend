@@ -1,0 +1,42 @@
+name: career-exploration
+description: 根据学生画像探索职业方向并生成个性化建议
+category: career
+input_schema:
+  type: object
+  properties:
+    student_id:
+      type: string
+      description: 学生ID
+  required: [student_id]
+
+steps:
+  - id: profile
+    action: tool
+    tool: get_student_profile
+    input:
+      student_id: "{{student_id}}"
+
+  - id: mbti
+    action: tool
+    tool: get_mbti_type_info
+    input:
+      mbti_code: "{{profile.mbti_type}}"
+
+  - id: careers
+    action: tool
+    tool: search_careers
+    input:
+      mbti_code: "{{profile.mbti_type}}"
+      limit: "5"
+
+  - id: summary
+    action: agent
+    agent: quick-qa
+    prompt: |
+      你是一位职业规划顾问。根据以下学生信息，给出3个最适合的职业方向和简要理由。
+
+      学生画像: {{profile}}
+      MBTI类型信息: {{mbti}}
+      推荐职业列表: {{careers}}
+
+      请用简洁的中文回答，每个职业方向包含：职业名称、匹配理由、建议学习路径。

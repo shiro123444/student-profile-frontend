@@ -1,101 +1,109 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
 import { useRef } from 'react'
-import type { MBTICode, AICareer } from '../types/student'
 import { GlassCard } from '../components/ui'
 import { easings, durations } from '../theme/motion'
-import { primary, secondary } from '../theme/colors'
-import { Brain, BarChart3, Target, Bot, TrendingUp, Flame, Sparkles, MessageSquare } from 'lucide-react'
+import { primary } from '../theme/colors'
+import { mbtiApi } from '../services/api'
+import type { Career } from '../services/api'
+import { Brain, BarChart3, Target, Bot, TrendingUp, Flame, Sparkles, MessageSquare, Loader2, AlertCircle } from 'lucide-react'
+import AIInsightButton from '../components/ui/AIInsightButton'
 
-const aiCareers: AICareer[] = [
-  {
-    id: 'ai-researcher', name: 'AI 研究员', description: '探索前沿算法和深度学习模型，推动人工智能理论发展',
-    icon: Brain, category: 'research',
-    requiredSkills: [
-      { id: 'math-1', name: '高等数学', category: 'math', level: 'advanced', prerequisites: [] },
-      { id: 'ml-1', name: '机器学习', category: 'ml', level: 'advanced', prerequisites: ['math-1'] },
-      { id: 'dl-1', name: '深度学习', category: 'ml', level: 'advanced', prerequisites: ['ml-1'] },
-    ],
-    suitableMBTI: ['INTJ', 'INTP'], salaryRange: '¥30k-80k/月', demandLevel: 'high', growthPotential: 9,
-  },
-  {
-    id: 'ml-engineer', name: 'AI 算法工程师', description: '设计和优化机器学习模型，解决实际业务问题',
-    icon: Target, category: 'engineering',
-    requiredSkills: [
-      { id: 'python-1', name: 'Python', category: 'programming', level: 'advanced', prerequisites: [] },
-      { id: 'ml-1', name: '机器学习', category: 'ml', level: 'advanced', prerequisites: ['python-1'] },
-    ],
-    suitableMBTI: ['INTJ', 'INTP', 'ENTJ'], salaryRange: '¥25k-60k/月', demandLevel: 'high', growthPotential: 8,
-  },
-  {
-    id: 'nlp-engineer', name: 'NLP 工程师', description: '开发自然语言处理系统，实现语音识别、机器翻译等功能',
-    icon: MessageSquare, category: 'engineering',
-    requiredSkills: [
-      { id: 'python-1', name: 'Python', category: 'programming', level: 'advanced', prerequisites: [] },
-      { id: 'nlp-1', name: 'NLP', category: 'ml', level: 'advanced', prerequisites: ['python-1'] },
-    ],
-    suitableMBTI: ['INTJ', 'INTP', 'ENTP'], salaryRange: '¥28k-65k/月', demandLevel: 'high', growthPotential: 9,
-  },
-  {
-    id: 'cv-engineer', name: '计算机视觉工程师', description: '开发图像识别、物体检测等视觉系统',
-    icon: Bot, category: 'engineering',
-    requiredSkills: [
-      { id: 'cv-1', name: '计算机视觉', category: 'ml', level: 'advanced', prerequisites: [] },
-    ],
-    suitableMBTI: ['INTJ', 'INTP'], salaryRange: '¥27k-62k/月', demandLevel: 'high', growthPotential: 8,
-  },
-  {
-    id: 'ai-pm', name: 'AI 产品经理', description: '定义 AI 产品方向，连接技术和用户需求',
-    icon: BarChart3, category: 'product',
-    requiredSkills: [
-      { id: 'soft-1', name: '产品思维', category: 'soft', level: 'advanced', prerequisites: [] },
-    ],
-    suitableMBTI: ['ENTJ', 'ENTP', 'ENFJ'], salaryRange: '¥20k-50k/月', demandLevel: 'medium', growthPotential: 7,
-  },
-  {
-    id: 'data-scientist', name: '数据科学家', description: '分析大数据，挖掘数据价值，构建预测模型',
-    icon: TrendingUp, category: 'engineering',
-    requiredSkills: [
-      { id: 'stat-1', name: '统计学', category: 'math', level: 'advanced', prerequisites: [] },
-    ],
-    suitableMBTI: ['INTP', 'INTJ', 'ENTJ'], salaryRange: '¥22k-55k/月', demandLevel: 'high', growthPotential: 8,
-  },
-]
-
-const mbtiCareerMap: Record<MBTICode, string[]> = {
-  INTJ: ['ai-researcher', 'ml-engineer', 'cv-engineer', 'data-scientist'],
-  INTP: ['ai-researcher', 'ml-engineer', 'nlp-engineer', 'data-scientist'],
-  ENTJ: ['ai-pm', 'ml-engineer', 'data-scientist'],
-  ENTP: ['ai-pm', 'nlp-engineer'],
-  INFJ: ['ai-pm'], INFP: ['ai-pm'], ENFJ: ['ai-pm'], ENFP: ['ai-pm'],
-  ISTJ: ['data-scientist'], ISFJ: ['ai-pm'], ESTJ: ['ai-pm'], ESFJ: ['ai-pm'],
-  ISTP: ['ml-engineer', 'cv-engineer'], ISFP: ['ai-pm'], ESTP: ['ml-engineer'], ESFP: ['ai-pm'],
+// Map career names to icons based on keywords
+function getCareerIcon(name: string) {
+  const lower = name.toLowerCase()
+  if (lower.includes('研究') || lower.includes('research')) return Brain
+  if (lower.includes('数据') || lower.includes('data')) return TrendingUp
+  if (lower.includes('产品') || lower.includes('product') || lower.includes('经理')) return BarChart3
+  if (lower.includes('nlp') || lower.includes('语言')) return MessageSquare
+  if (lower.includes('视觉') || lower.includes('vision')) return Bot
+  return Target
 }
 
 export default function CareerPage() {
   const [searchParams] = useSearchParams()
-  const mbtiType = (searchParams.get('type') || 'INTJ') as MBTICode
+  const mbtiType = searchParams.get('type') || 'INTJ'
   const [selectedCareer, setSelectedCareer] = useState<string | null>(null)
+  const [careers, setCareers] = useState<Career[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true })
 
-  const suitableCareers = useMemo(() => {
-    const careerIds = mbtiCareerMap[mbtiType] || []
-    return aiCareers.filter((c) => careerIds.includes(c.id))
+  useEffect(() => {
+    setLoading(true)
+    setError(null)
+    mbtiApi
+      .getRecommendedCareers(mbtiType)
+      .then((data) => {
+        const list = data || []
+        setCareers(list)
+        if (list.length > 0) setSelectedCareer(list[0].id)
+      })
+      .catch((err) => setError(err.message || '获取职业推荐失败'))
+      .finally(() => setLoading(false))
   }, [mbtiType])
 
   const selectedCareerData = useMemo(
-    () => aiCareers.find((c) => c.id === selectedCareer) || suitableCareers[0],
-    [selectedCareer, suitableCareers]
+    () => careers.find((c) => c.id === selectedCareer) || careers[0],
+    [selectedCareer, careers]
   )
 
-  // 统一的动画配置
   const smoothTransition = { duration: durations.slow, ease: easings.smooth }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-primary">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 animate-spin text-text-muted" strokeWidth={1.5} />
+          <p className="text-text-secondary">加载职业推荐中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-primary px-4">
+        <GlassCard variant="standard" color="white" className="max-w-md w-full p-8 text-center">
+          <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-400" strokeWidth={1.5} />
+          <h2 className="text-lg font-bold text-text-primary mb-2">加载失败</h2>
+          <p className="text-text-muted mb-4">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 rounded-full text-white font-medium"
+            style={{ background: primary[700] }}
+          >
+            重试
+          </button>
+        </GlassCard>
+      </div>
+    )
+  }
+
+  if (careers.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-primary px-4">
+        <GlassCard variant="standard" color="white" className="max-w-md w-full p-8 text-center">
+          <Target className="w-12 h-12 mx-auto mb-4 text-text-muted" strokeWidth={1.5} />
+          <h2 className="text-lg font-bold text-text-primary mb-2">暂无推荐</h2>
+          <p className="text-text-muted mb-4">当前 MBTI 类型 ({mbtiType}) 暂无匹配的职业推荐</p>
+          <Link
+            to="/mbti-test"
+            className="inline-block px-6 py-2 rounded-full text-white font-medium"
+            style={{ background: primary[700] }}
+          >
+            重新测试
+          </Link>
+        </GlassCard>
+      </div>
+    )
+  }
+
   return (
-    <div 
-      ref={ref} 
+    <div
+      ref={ref}
       className="min-h-screen py-8 px-4 md:px-8 overflow-y-auto bg-bg-primary"
     >
       <div className="max-w-7xl mx-auto">
@@ -107,12 +115,12 @@ export default function CareerPage() {
           className="mb-12"
         >
           <div className="flex items-center gap-3 mb-4">
-            <motion.span 
+            <motion.span
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2, ...smoothTransition }}
               className="px-3 py-1 text-sm font-bold rounded-full"
-              style={{ background: primary[100], color: primary[700] }}
+              style={{ background: 'var(--tag-bg)', color: 'var(--tag-text)' }}
             >
               {mbtiType}
             </motion.span>
@@ -137,14 +145,15 @@ export default function CareerPage() {
             <GlassCard variant="standard" color="white" className="p-6 sticky top-8">
               <h2 className="text-lg font-bold mb-4 text-text-primary">适合你的职业</h2>
               <div className="space-y-3">
-                {suitableCareers.map((career) => {
-                  const isSelected = selectedCareer === career.id || (!selectedCareer && career === suitableCareers[0])
+                {careers.map((career) => {
+                  const isSelected = selectedCareer === career.id
+                  const Icon = getCareerIcon(career.name)
                   return (
                     <motion.button
                       key={career.id}
                       onClick={() => setSelectedCareer(career.id)}
                       whileHover={{ x: 5 }}
-                      className="w-full text-left p-4 rounded-2xl transition-all duration-200"
+                      className="w-full text-left p-4 rounded-2xl transition-all duration-200 cursor-pointer"
                       style={isSelected ? {
                         background: `linear-gradient(135deg, ${primary[600]} 0%, ${primary[800]} 100%)`,
                         color: 'white',
@@ -156,7 +165,7 @@ export default function CareerPage() {
                       }}
                     >
                       <div className="flex items-center gap-3">
-                        <career.icon className="w-6 h-6" strokeWidth={1.5} />
+                        <Icon className="w-6 h-6" strokeWidth={1.5} />
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-sm truncate">{career.name}</p>
                           <p className="text-xs" style={{ opacity: 0.7 }}>{career.salaryRange}</p>
@@ -176,137 +185,136 @@ export default function CareerPage() {
             transition={{ delay: 0.3, duration: durations.slow, ease: easings.smooth }}
             className="lg:col-span-2 space-y-6"
           >
-            {selectedCareerData && (
-              <>
-                {/* Main Card */}
-                <motion.div
-                  key={selectedCareerData.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  <GlassCard variant="standard" color="white" className="p-8">
-                    <div className="flex items-start gap-6 mb-8">
-                      <div 
-                        className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl"
-                        style={{ background: `linear-gradient(135deg, ${primary[500]} 0%, ${primary[700]} 100%)` }}
-                      >
-                        <selectedCareerData.icon className="w-10 h-10 text-white" strokeWidth={1.5} />
-                      </div>
-                      <div className="flex-1">
-                        <h2 className="text-2xl md:text-3xl font-bold mb-2 text-text-primary">
-                          {selectedCareerData.name}
-                        </h2>
-                        <p className="mb-4 text-text-secondary">{selectedCareerData.description}</p>
-                        <div className="flex flex-wrap gap-2">
-                          <span 
-                            className="px-3 py-1 text-sm font-medium rounded-full"
-                            style={{ background: secondary[100], color: secondary[700] }}
-                          >
-                            selectedCareerData.demandLevel === 'high' ? <><Flame className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} />需求旺盛</> : '需求中等'
-                          </span>
-                          <span 
-                            className="px-3 py-1 text-sm font-medium rounded-full"
-                            style={{ background: primary[100], color: primary[700] }}
-                          >
-                            增长潜力 {selectedCareerData.growthPotential}/10
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Stats */}
-                    <div className="grid grid-cols-3 gap-6 pt-6 border-t border-border-primary">
-                      <div>
-                        <p className="text-sm mb-1 text-text-muted">薪资范围</p>
-                        <p className="text-xl font-bold text-text-primary">{selectedCareerData.salaryRange}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm mb-1 text-text-muted">市场需求</p>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 h-2 rounded-full overflow-hidden bg-border-primary">
-                            <div
-                              className="h-full"
-                              style={{ 
-                                width: selectedCareerData.demandLevel === 'high' ? '100%' : '65%',
-                                background: `linear-gradient(90deg, ${primary[500]} 0%, ${primary[700]} 100%)`
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-sm mb-1 text-text-muted">增长潜力</p>
-                        <div className="flex items-center gap-1">
-                          {[...Array(10)].map((_, i) => (
-                            <div
-                              key={i}
-                              className="w-2 h-2 rounded-full"
-                              style={{ background: i < selectedCareerData.growthPotential ? primary[500] : 'var(--border-primary)' }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </GlassCard>
-                </motion.div>
-
-                {/* Skills */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <GlassCard variant="standard" color="white" className="p-8">
-                    <h3 className="text-xl font-bold mb-6 text-text-primary">核心技能要求</h3>
-                    <div className="space-y-4">
-                      {selectedCareerData.requiredSkills.map((skill) => (
+            {selectedCareerData && (() => {
+              const DetailIcon = getCareerIcon(selectedCareerData.name)
+              return (
+                <>
+                  {/* Main Card */}
+                  <motion.div
+                    key={selectedCareerData.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <GlassCard variant="standard" color="white" className="p-8">
+                      <div className="flex items-start gap-6 mb-8">
                         <div
-                          key={skill.id}
-                          className="flex items-center justify-between p-4 rounded-xl transition-colors bg-bg-primary hover:bg-bg-tertiary"
+                          className="w-20 h-20 rounded-2xl flex items-center justify-center"
+                          style={{ background: `linear-gradient(135deg, ${primary[500]} 0%, ${primary[700]} 100%)` }}
                         >
-                          <div>
-                            <p className="font-semibold text-text-primary">{skill.name}</p>
-                            <p className="text-sm text-text-muted">
-                              {skill.level === 'advanced' ? '高级' : skill.level === 'intermediate' ? '中级' : '初级'}
-                            </p>
+                          <DetailIcon className="w-10 h-10 text-white" strokeWidth={1.5} />
+                        </div>
+                        <div className="flex-1">
+                          <h2 className="text-2xl md:text-3xl font-bold mb-2 text-text-primary">
+                            {selectedCareerData.name}
+                          </h2>
+                          <p className="mb-4 text-text-secondary">{selectedCareerData.description}</p>
+                          <div className="flex flex-wrap gap-2">
+                            <span
+                              className="px-3 py-1 text-sm font-medium rounded-full"
+                              style={{ background: 'var(--tag-info-bg)', color: 'var(--tag-info-text)' }}
+                            >
+                              {selectedCareerData.demandLevel === 'high' ? (
+                                <><Flame className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} />需求旺盛</>
+                              ) : selectedCareerData.demandLevel === 'medium' ? '需求中等' : '需求一般'}
+                            </span>
+                            {selectedCareerData.suitableMBTI.length > 0 && (
+                              <span
+                                className="px-3 py-1 text-sm font-medium rounded-full"
+                                style={{ background: 'var(--tag-bg)', color: 'var(--tag-text)' }}
+                              >
+                                <Sparkles className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} />
+                                适合 {selectedCareerData.suitableMBTI.join(', ')}
+                              </span>
+                            )}
                           </div>
-                          <div className="flex items-center gap-1">
-                            {[...Array(3)].map((_, i) => (
+                        </div>
+                      </div>
+
+                      {/* Stats */}
+                      <div className="grid grid-cols-2 gap-6 pt-6 border-t border-border-primary">
+                        <div>
+                          <p className="text-sm mb-1 text-text-muted">薪资范围</p>
+                          <p className="text-xl font-bold text-text-primary">{selectedCareerData.salaryRange}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm mb-1 text-text-muted">市场需求</p>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-2 rounded-full overflow-hidden bg-border-primary">
                               <div
-                                key={i}
-                                className="w-2 h-2 rounded-full"
-                                style={{ 
-                                  background: i < (skill.level === 'advanced' ? 3 : skill.level === 'intermediate' ? 2 : 1)
-                                    ? primary[500] : 'var(--border-primary)'
+                                className="h-full"
+                                style={{
+                                  width: selectedCareerData.demandLevel === 'high' ? '100%' : selectedCareerData.demandLevel === 'medium' ? '65%' : '35%',
+                                  background: `linear-gradient(90deg, ${primary[500]} 0%, ${primary[700]} 100%)`
                                 }}
                               />
-                            ))}
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </GlassCard>
-                </motion.div>
+                      </div>
+                    </GlassCard>
+                  </motion.div>
 
-                {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Link
-                    to="/learning-path"
-                    className="flex-1 px-6 py-4 text-white rounded-2xl font-semibold transition-colors text-center"
-                    style={{ background: primary[800] }}
-                  >
-                    <Sparkles className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} /> 查看学习路径
-                  </Link>
-                  <Link
-                    to="/ai-advisor"
-                    className="flex-1 px-6 py-4 bg-bg-secondary rounded-2xl font-semibold transition-colors text-center text-text-primary border border-border-primary"
-                    
-                  >
-                    <MessageSquare className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} /> 咨询 AI 助手
-                  </Link>
-                </div>
-              </>
-            )}
+                  {/* Skills */}
+                  {selectedCareerData.requiredSkills.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <GlassCard variant="standard" color="white" className="p-8">
+                        <h3 className="text-xl font-bold mb-6 text-text-primary">核心技能要求</h3>
+                        <div className="space-y-4">
+                          {selectedCareerData.requiredSkills.map((skill) => (
+                            <div
+                              key={skill.id}
+                              className="flex items-center justify-between p-4 rounded-xl transition-colors bg-bg-primary hover:bg-bg-tertiary"
+                            >
+                              <div>
+                                <p className="font-semibold text-text-primary">{skill.name}</p>
+                                {skill.description && (
+                                  <p className="text-sm text-text-muted">{skill.description}</p>
+                                )}
+                              </div>
+                              <span className="text-xs px-2 py-1 rounded-full bg-bg-tertiary text-text-muted">
+                                {skill.category}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </GlassCard>
+                    </motion.div>
+                  )}
+
+                  {/* AI Insight */}
+                  {selectedCareerData && (
+                    <AIInsightButton
+                      agentName="career-advisor"
+                      prompt={`分析「${selectedCareerData.name}」这个职业对 MBTI 类型 ${mbtiType} 的匹配度，包括优势、挑战和发展建议`}
+                      studentId={localStorage.getItem('studentId') || undefined}
+                      label="AI 职业分析"
+                      className="mb-4"
+                    />
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Link
+                      to="/learning-path"
+                      className="flex-1 px-6 py-4 text-white rounded-2xl font-semibold transition-colors text-center"
+                      style={{ background: primary[800] }}
+                    >
+                      <Sparkles className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} /> 查看学习路径
+                    </Link>
+                    <Link
+                      to="/ai-advisor"
+                      className="flex-1 px-6 py-4 bg-bg-secondary rounded-2xl font-semibold transition-colors text-center text-text-primary border border-border-primary"
+                    >
+                      <MessageSquare className="w-4 h-4 inline-block mr-1 align-text-bottom" strokeWidth={1.5} /> 咨询 AI 助手
+                    </Link>
+                  </div>
+                </>
+              )
+            })()}
           </motion.div>
         </div>
       </div>

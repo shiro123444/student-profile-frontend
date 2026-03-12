@@ -1,0 +1,11 @@
+name: mbti
+version: "1.0.0"
+description: MBTI 人格类型信息与 PsyCOT 评估
+author: PathMind Team
+category: assessment
+tools:
+  - get_mbti_type_info
+  - get_psycot_questions
+  - score_mbti_dimension
+permissions:
+  roles: [student, teacher, admin]
