@@ -24,6 +24,8 @@ def _messages_url(base_url: str) -> str:
     Avoid double-prefixing when caller already provides a `/v1` suffixed base URL.
     """
     normalized = base_url.rstrip("/")
+    if normalized.endswith("/v1/messages"):
+        return normalized
     if normalized.endswith("/v1"):
         return normalized + "/messages"
     return normalized + "/v1/messages"
@@ -33,9 +35,15 @@ class StreamResult:
     """Accumulated result of a streaming first turn."""
 
     __slots__ = (
-        "text", "tool_uses", "input_tokens", "output_tokens",
-        "stop_reason", "model", "request_id",
-        "_pending_tool", "_tool_input_parts",
+        "text",
+        "tool_uses",
+        "input_tokens",
+        "output_tokens",
+        "stop_reason",
+        "model",
+        "request_id",
+        "_pending_tool",
+        "_tool_input_parts",
     )
 
     def __init__(self) -> None:
@@ -54,12 +62,14 @@ class StreamResult:
         if self.text:
             blocks.append({"type": "text", "text": self.text})
         for tu in self.tool_uses:
-            blocks.append({
-                "type": "tool_use",
-                "id": tu["id"],
-                "name": tu["name"],
-                "input": tu["input"],
-            })
+            blocks.append(
+                {
+                    "type": "tool_use",
+                    "id": tu["id"],
+                    "name": tu["name"],
+                    "input": tu["input"],
+                }
+            )
         return blocks
 
 
@@ -74,29 +84,39 @@ def _try_parse_ui_event(text: str) -> dict | None:
         if parsed.get("action") == "navigate":
             return {"type": "navigate", "to": parsed.get("to", "/")}
         if parsed.get("toast"):
-            return {"type": "toast", "message": parsed.get("message", ""),
-                    "level": parsed.get("level", "info")}
+            return {
+                "type": "toast",
+                "message": parsed.get("message", ""),
+                "level": parsed.get("level", "info"),
+            }
         if parsed.get("scroll_to"):
             return {"type": "scroll_to", "target": parsed.get("target", "")}
         if parsed.get("set_theme"):
             return {"type": "set_theme", "theme": parsed.get("theme", "dark")}
         if parsed.get("graph_command"):
-            return {"type": "graph_command", "graph_command": True,
-                    "command": parsed.get("command", ""),
-                    "target": parsed.get("target", ""),
-                    "params": parsed.get("params", {})}
+            return {
+                "type": "graph_command",
+                "graph_command": True,
+                "command": parsed.get("command", ""),
+                "target": parsed.get("target", ""),
+                "params": parsed.get("params", {}),
+            }
         if parsed.get("graph_batch"):
-            return {"type": "graph_batch", "graph_batch": True,
-                    "batch_id": parsed.get("batch_id", ""),
-                    "mode": parsed.get("mode", "best_effort"),
-                    "steps": parsed.get("steps", [])}
+            return {
+                "type": "graph_batch",
+                "graph_batch": True,
+                "batch_id": parsed.get("batch_id", ""),
+                "mode": parsed.get("mode", "best_effort"),
+                "steps": parsed.get("steps", []),
+            }
     except (json.JSONDecodeError, TypeError):
         pass
     return None
 
 
 def _process_sse_event(
-    evt: dict, result: StreamResult,
+    evt: dict,
+    result: StreamResult,
 ) -> list[tuple[str, object]]:
     """Process a single SSE event dict against a StreamResult.
 
@@ -144,17 +164,13 @@ def _process_sse_event(
                 if ui_evt:
                     events.append(("ui_event", ui_evt))
         elif dtype == "input_json_delta":
-            result._tool_input_parts.append(
-                delta.get("partial_json", "")
-            )
+            result._tool_input_parts.append(delta.get("partial_json", ""))
 
     elif etype == "content_block_stop":
         if result._pending_tool is not None:
             raw_input = "".join(result._tool_input_parts)
             try:
-                result._pending_tool["input"] = (
-                    json.loads(raw_input) if raw_input else {}
-                )
+                result._pending_tool["input"] = json.loads(raw_input) if raw_input else {}
             except json.JSONDecodeError:
                 result._pending_tool["input"] = {"_raw": raw_input}
             result.tool_uses.append(result._pending_tool)
@@ -164,14 +180,9 @@ def _process_sse_event(
 
     elif etype == "message_delta":
         delta = evt.get("delta", {})
-        result.stop_reason = (
-            delta.get("stop_reason", result.stop_reason)
-            or result.stop_reason
-        )
+        result.stop_reason = delta.get("stop_reason", result.stop_reason) or result.stop_reason
         usage = evt.get("usage", {})
-        result.output_tokens = usage.get(
-            "output_tokens", result.output_tokens
-        )
+        result.output_tokens = usage.get("output_tokens", result.output_tokens)
 
     elif etype == "message_stop":
         events.append(("_stop", None))
@@ -210,7 +221,9 @@ async def httpx_stream_first_turn(
 
     print(f"[httpx_sse] opening stream to {url} model={payload.get('model')}", flush=True)
     async with httpx.AsyncClient(
-        timeout=httpx.Timeout(connect=5.0, read=max(5.0, float(read_timeout_s)), write=30.0, pool=5.0),
+        timeout=httpx.Timeout(
+            connect=5.0, read=max(5.0, float(read_timeout_s)), write=30.0, pool=5.0
+        ),
     ) as client:
         async with client.stream("POST", url, headers=headers, json=payload) as resp:
             print(f"[httpx_sse] resp status={resp.status_code}", flush=True)
@@ -219,7 +232,9 @@ async def httpx_stream_first_turn(
                 error_text = body.decode(errors="replace")[:300]
                 logger.error(
                     "httpx_stream HTTP %s model=%s body=%s",
-                    resp.status_code, payload.get("model"), error_text,
+                    resp.status_code,
+                    payload.get("model"),
+                    error_text,
                 )
                 yield ("error", f"API错误 ({resp.status_code})，请稍后重试。")
                 return
@@ -232,7 +247,10 @@ async def httpx_stream_first_turn(
             async for chunk in resp.aiter_bytes():
                 chunk_count += 1
                 if chunk_count <= 3:
-                    print(f"[httpx_sse] chunk#{chunk_count} len={len(chunk)} content={chunk[:200]}", flush=True)
+                    print(
+                        f"[httpx_sse] chunk#{chunk_count} len={len(chunk)} content={chunk[:200]}",
+                        flush=True,
+                    )
                 buf += chunk
                 while b"\n" in buf:
                     raw_line, buf = buf.split(b"\n", 1)

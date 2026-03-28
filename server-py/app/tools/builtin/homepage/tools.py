@@ -183,6 +183,7 @@ async def emit_ui_command(args: dict[str, Any]) -> dict[str, Any]:
                     "/careers",
                     "/learning-path",
                     "/experiments",
+                    "/documents",
                     "/ai-advisor",
                     "/notes",
                     "/graph",

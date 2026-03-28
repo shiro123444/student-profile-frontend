@@ -14,6 +14,7 @@ import {
 import ReactMarkdown from 'react-markdown'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAgentStream, type AgentStreamCallbacks } from '../hooks/useAgentStream'
+import { useAgentSession } from '../contexts/AgentSessionContext'
 import { useUICommands } from '../hooks/useUICommands'
 import type { UICommand } from '../hooks/useUICommands'
 import UIEffectLayer from './ui/UIEffectLayer'
@@ -119,7 +120,7 @@ function glass(isDark: boolean, level: 'light' | 'medium' | 'strong' = 'medium')
 }
 
 function getAgentForRoute(pathname: string): string {
-  void pathname
+  if (pathname === '/') return 'homepage-guide'
   return 'command-center'
 }
 
@@ -182,13 +183,52 @@ function shouldUseLiteRuntime(message: string): boolean {
   const normalized = message.trim().toLowerCase()
   if (!normalized) return false
   const greetingOnly = /^(hi|hello|hey|你好|您好|在吗|在不在|早上好|中午好|下午好|晚上好|嗨)$/i
-  return normalized.length <= 8 && greetingOnly.test(normalized)
+  const shortSmallTalk = /^(介绍下|介绍一下|你是谁|你能做什么|help|帮助|怎么用|使用说明)$/i
+  return (
+    (normalized.length <= 12 && greetingOnly.test(normalized))
+    || (normalized.length <= 20 && shortSmallTalk.test(normalized))
+  )
 }
 
 function looksLikeNoteEditIntent(message: string): boolean {
   const text = (message || '').trim().toLowerCase()
   if (!text) return false
-  return /(笔记|note).*(补充|修改|改写|重写|替换|更新|润色|扩写|续写|完善)|\b(edit|revise|rewrite|update|append|replace)\b.*\b(note|notes)\b/i.test(text)
+  return /(笔记|note|notes?|biji).*(新建|创建|新增|写一篇|写个|补充|修改|改写|重写|替换|更新|润色|扩写|续写|完善)|\b(create|new|add|edit|revise|rewrite|update|append|replace)\b.*\b(note|notes|biji)\b/i.test(text)
+}
+
+// Page label patterns that are distinctive enough to imply navigation without a verb
+const PAGE_LABELS: [RegExp, string][] = [
+  [/(pdf工作台|文档实验区|文档实验)/i, '/documents'],
+  [/(学习路径|learning\s*-?\s*path)/i, '/learning-path'],
+  [/(知识图谱)/i, '/graph'],
+  [/(ai顾问|ai advisor)/i, '/ai-advisor'],
+]
+
+function resolveNavigationIntentRoute(message: string): string | null {
+  const text = (message || '').trim()
+  if (!text) return null
+
+  // Distinctive page-label match works without any navigation verb
+  for (const [pattern, route] of PAGE_LABELS) {
+    if (pattern.test(text)) return route
+  }
+
+  // Broader verb list: includes common Chinese navigation + query verbs
+  const hasNavigateVerb = /(跳转|带我去|带我到|带我看|去看|去到|想去|要去|进去|进入|打开|前往|查看|去|进|到|帮我看|帮我去|show me|go to|open|navigate|take me)/i.test(text)
+  if (!hasNavigateVerb) return null
+
+  if (/(pdf|文档|documents?)/i.test(text)) return '/documents'
+  if (/(实验管理|实验页|experiments?)/i.test(text)) return '/experiments'
+  if (/(职业推荐|职业页|careers?)/i.test(text)) return '/careers'
+  if (/(学习路径|learning\s*-?\s*path)/i.test(text)) return '/learning-path'
+  if (/(知识图谱|graph)/i.test(text)) return '/graph'
+  if (/(笔记|notes\s*页?)/i.test(text)) return '/notes'
+  if (/(学生画像|个人画像|profile)/i.test(text)) return '/profile'
+  if (/(mbti|性格测试)/i.test(text)) return '/mbti-test'
+  if (/(ai顾问|advisor)/i.test(text)) return '/ai-advisor'
+  if (/(首页|仪表盘|home|dashboard)/i.test(text)) return '/dashboard'
+
+  return null
 }
 
 // ── Component ──
@@ -203,7 +243,7 @@ export default function FloatingAgent() {
   const [toasts, setToasts] = useState<ToastItem[]>([])
   const [currentTool, setCurrentTool] = useState<string | null>(null)
   const [toolMetaMap, setToolMetaMap] = useState<ToolMetaMap>({})
-  const [runtimeMode, setRuntimeMode] = useState<RuntimeMode>('deep')
+  const [runtimeMode, setRuntimeMode] = useState<RuntimeMode>('balanced')
   const [runtimeMeta, setRuntimeMeta] = useState<{ engine: string; model: string; mode: string } | null>(null)
   const [liveTrace, setLiveTrace] = useState<LiveTraceItem[]>([])
   const [traceByMessage, setTraceByMessage] = useState<Record<string, LiveTraceItem[]>>({})
@@ -368,8 +408,10 @@ export default function FloatingAgent() {
   }), [addEffect, navigate, pushTrace, theme, toggleTheme])
 
   const { messages, isStreaming, sendMessage, stop, clearMessages } = useAgentStream(streamCallbacks)
+  const { removeSession } = useAgentSession()
 
   const agentName = getAgentForRoute(location.pathname)
+  const agentSessionKey = `${agentName}:nav-v2`
   const isPublic = location.pathname === '/'
   const studentId = localStorage.getItem('studentId') || undefined
 
@@ -378,8 +420,11 @@ export default function FloatingAgent() {
     handoffContext: Record<string, unknown> | undefined,
     useLiteRuntime = false,
   ) => {
+    const shouldUseFastRuntime = useLiteRuntime || isPublic
+    const shouldEnableOrchestrator = !shouldUseFastRuntime && runtimeMode === 'deep'
     sendMessage(msg, {
       agentName,
+      sessionKey: agentSessionKey,
       public: isPublic,
       studentId,
       tenant: studentId
@@ -388,7 +433,7 @@ export default function FloatingAgent() {
             studentId,
           }
         : undefined,
-      runtime: useLiteRuntime
+      runtime: shouldUseFastRuntime
         ? {
             mode: 'fast',
             engine: 'claude',
@@ -402,17 +447,17 @@ export default function FloatingAgent() {
             modelTier: 'sonnet',
             toolAllowlist: COMMAND_CENTER_CORE_TOOLS,
             orchestrator: {
-              enabled: true,
+              enabled: shouldEnableOrchestrator,
               profile: 'webagent_v1',
-              plannerMode: 'deep',
+              plannerMode: shouldEnableOrchestrator ? 'deep' : 'balanced',
               executorMode: runtimeMode,
-              maxSteps: 8,
-              maxWorkers: 4,
+              maxSteps: shouldEnableOrchestrator ? 8 : 3,
+              maxWorkers: shouldEnableOrchestrator ? 4 : 1,
             },
           },
       context: handoffContext,
     })
-  }, [agentName, isPublic, runtimeMode, sendMessage, studentId])
+  }, [agentName, agentSessionKey, isPublic, runtimeMode, sendMessage, studentId])
 
 
   useEffect(() => {
@@ -528,14 +573,34 @@ export default function FloatingAgent() {
     setInput('')
     setShowTools(false)
 
-    if (location.pathname.startsWith('/notes') && looksLikeNoteEditIntent(msg)) {
-      window.dispatchEvent(new CustomEvent('pathmind:notes-agent-request', {
-        detail: {
-          prompt: msg,
-          source: 'floating-agent',
-          ts: Date.now(),
-        },
-      }))
+    const directRoute = resolveNavigationIntentRoute(msg)
+    if (directRoute && location.pathname !== directRoute) {
+      navigate(directRoute)
+      const navId = Date.now()
+      setToasts(prev => [...prev, { id: navId, message: `已跳转 → ${directRoute}`, level: 'success' }])
+      setTimeout(() => setToasts(prev => prev.filter(t => t.id !== navId)), 3000)
+    }
+
+    const isNoteIntent = looksLikeNoteEditIntent(msg)
+    const willBeOnNotes = location.pathname.startsWith('/notes') || directRoute?.startsWith('/notes')
+    if (isNoteIntent && willBeOnNotes) {
+      const dispatchNoteRequest = () => {
+        window.dispatchEvent(new CustomEvent('pathmind:notes-agent-request', {
+          detail: {
+            prompt: msg,
+            source: 'floating-agent',
+            ts: Date.now(),
+          },
+        }))
+      }
+
+      if (directRoute?.startsWith('/notes') && !location.pathname.startsWith('/notes')) {
+        // Allow Notes page listener to mount after route change.
+        window.setTimeout(dispatchNoteRequest, 180)
+      } else {
+        dispatchNoteRequest()
+      }
+
       pushTrace({ title: '已转交笔记侧栏 Agent', detail: '将在右侧面板生成可确认的差异预览', level: 'success' })
       const id = Date.now()
       setToasts(prev => [...prev, {
@@ -572,13 +637,14 @@ export default function FloatingAgent() {
       handoffContext as Record<string, unknown> | undefined,
       lite,
     )
-  }, [dispatchAgentMessage, input, location.pathname])
+  }, [dispatchAgentMessage, input, location.pathname, navigate])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend() }
   }, [handleSend])
 
   const handleClear = useCallback(() => {
+    removeSession(agentSessionKey)
     clearMessages()
     clearAll()
     setShowOutput(false)
@@ -587,7 +653,7 @@ export default function FloatingAgent() {
     setTraceByMessage({})
     setTraceExpandedByMessage({})
     activeTraceMessageIdRef.current = null
-  }, [clearMessages, clearAll])
+  }, [agentSessionKey, clearMessages, clearAll, removeSession])
 
   // Hide on certain routes
   if (shouldHide) return null

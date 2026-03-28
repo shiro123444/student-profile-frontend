@@ -41,7 +41,9 @@ _GREETING_ONLY = re.compile(
 )
 
 
-def _prefer_direct_answer(prompt: str, tools: list[ToolDef], inline_mode: bool, agent_name: str | None) -> bool:
+def _prefer_direct_answer(
+    prompt: str, tools: list[ToolDef], inline_mode: bool, agent_name: str | None
+) -> bool:
     if inline_mode or not tools:
         return False
     if (agent_name or "").strip() == "command-center":
@@ -60,7 +62,7 @@ def _make_client() -> anthropic.AsyncAnthropic:
     read_timeout = max(5.0, float(getattr(settings, "anthropic_stream_read_timeout_sec", 20)))
     return anthropic.AsyncAnthropic(
         api_key=settings.anthropic_api_key,
-        base_url=settings.anthropic_base_url,
+        base_url=_normalize_sdk_base_url(settings.anthropic_base_url),
         max_retries=1,
         timeout=anthropic.Timeout(connect=5.0, read=read_timeout, write=30.0, pool=5.0),
     )
@@ -77,6 +79,13 @@ def _tools_for_api(tools: list[ToolDef]) -> list[dict[str, Any]]:
         }
         for t in tools
     ]
+
+
+def _normalize_sdk_base_url(base_url: str) -> str:
+    normalized = base_url.rstrip("/")
+    if normalized.endswith("/v1/messages"):
+        return normalized[: -len("/messages")]
+    return normalized
 
 
 _PY_TYPE_TO_JSON: dict[type, str] = {
@@ -190,7 +199,9 @@ class AnthropicDirectEngine(BaseEngine):
         for _turn in range(_MAX_TOOL_TURNS):
             kwargs: dict[str, Any] = dict(
                 model=self._fallback_models[0],
-                max_tokens=settings.agent_max_tokens if hasattr(settings, "agent_max_tokens") else 8096,
+                max_tokens=settings.agent_max_tokens
+                if hasattr(settings, "agent_max_tokens")
+                else 8096,
                 system=system,
                 messages=messages,
             )
@@ -262,13 +273,18 @@ class AnthropicDirectEngine(BaseEngine):
 
         effective_tools = tools
         if _prefer_direct_answer(prompt, tools, inline_mode, agent_name):
-            logger.info("AnthropicDirectEngine: use direct-answer path (tools disabled) agent=%s", agent_name)
+            logger.info(
+                "AnthropicDirectEngine: use direct-answer path (tools disabled) agent=%s",
+                agent_name,
+            )
             effective_tools = []
-            yield _json({
-                "type": "orchestrator",
-                "stage": "lite_direct",
-                "reason": "short_prompt_skip_tools",
-            })
+            yield _json(
+                {
+                    "type": "orchestrator",
+                    "stage": "lite_direct",
+                    "reason": "short_prompt_skip_tools",
+                }
+            )
 
         api_tools = _tools_for_api(effective_tools)
         handlers = _handler_map(effective_tools)
@@ -277,10 +293,15 @@ class AnthropicDirectEngine(BaseEngine):
         base_url = settings.anthropic_base_url
         api_key = settings.anthropic_api_key
         first_byte_timeout = max(1, int(getattr(settings, "anthropic_first_byte_timeout_sec", 12)))
-        stream_read_timeout = max(5.0, float(getattr(settings, "anthropic_stream_read_timeout_sec", 20)))
+        stream_read_timeout = max(
+            5.0, float(getattr(settings, "anthropic_stream_read_timeout_sec", 20))
+        )
 
         for attempt_idx, attempt_model in enumerate(fallback_models):
-            print(f"[engine.stream] attempt#{attempt_idx} model={attempt_model} base_url={base_url[:50]}", flush=True)
+            print(
+                f"[engine.stream] attempt#{attempt_idx} model={attempt_model} base_url={base_url[:50]}",
+                flush=True,
+            )
             # Build first-turn payload
             first_payload: dict[str, Any] = {
                 "model": attempt_model,
@@ -298,7 +319,9 @@ class AnthropicDirectEngine(BaseEngine):
             should_cascade = False
             got_error = False
 
-            async def _handle_stream_event(event_type: str, event_data: object) -> AsyncIterator[str]:
+            async def _handle_stream_event(
+                event_type: str, event_data: object
+            ) -> AsyncIterator[str]:
                 """Handle one streamed event and yield frontend payload events."""
                 nonlocal got_first_byte, got_error, stream_result
                 got_first_byte = True
@@ -318,10 +341,14 @@ class AnthropicDirectEngine(BaseEngine):
 
                 if event_type == "tool_call_start":
                     block = event_data
-                    short = block["name"].split("__")[-1] if "__" in block["name"] else block["name"]
+                    short = (
+                        block["name"].split("__")[-1] if "__" in block["name"] else block["name"]
+                    )
                     yield _json({"type": "tool_call", "tool": short, "status": "calling"})
                     block_input = block.get("input") if isinstance(block, dict) else {}
-                    for fe in build_frontend_events(block["name"], block_input if isinstance(block_input, dict) else {}):
+                    for fe in build_frontend_events(
+                        block["name"], block_input if isinstance(block_input, dict) else {}
+                    ):
                         yield fe
                     return
 
@@ -367,36 +394,74 @@ class AnthropicDirectEngine(BaseEngine):
                     next_model = fallback_models[attempt_idx + 1]
                     logger.warning(
                         "Anthropic first-byte timeout model=%s → %s agent=%s",
-                        attempt_model, next_model, agent_name,
+                        attempt_model,
+                        next_model,
+                        agent_name,
                     )
-                    yield _json({"type": "model_fallback", "from_model": attempt_model,
-                                 "to_model": next_model, "reason": "first_byte_timeout",
-                                 "attempt_index": attempt_idx})
+                    yield _json(
+                        {
+                            "type": "model_fallback",
+                            "from_model": attempt_model,
+                            "to_model": next_model,
+                            "reason": "first_byte_timeout",
+                            "attempt_index": attempt_idx,
+                        }
+                    )
                     should_cascade = True
                 else:
                     label = "idle" if got_first_byte else "first_byte"
                     logger.warning(
                         "Anthropic stream %s timeout model=%s agent=%s",
-                        label, attempt_model, agent_name,
+                        label,
+                        attempt_model,
+                        agent_name,
                     )
                     yield _json({"type": "text", "content": "AI 流式响应超时，已结束本次会话。"})
-                    yield _json({"type": "done", "session_id": session_id, "cost": 0.0,
-                                 "input_tokens": 0, "output_tokens": 0, "stop_reason": "idle_timeout"})
+                    yield _json(
+                        {
+                            "type": "done",
+                            "session_id": session_id,
+                            "cost": 0.0,
+                            "input_tokens": 0,
+                            "output_tokens": 0,
+                            "stop_reason": "idle_timeout",
+                        }
+                    )
                 break
 
             except Exception:
-                logger.exception("AnthropicDirectEngine.stream error model=%s agent=%s", attempt_model, agent_name)
+                logger.exception(
+                    "AnthropicDirectEngine.stream error model=%s agent=%s",
+                    attempt_model,
+                    agent_name,
+                )
                 yield _json({"type": "text", "content": "AI 响应出错，请稍后重试。"})
-                yield _json({"type": "done", "session_id": session_id, "cost": 0.0,
-                             "input_tokens": 0, "output_tokens": 0, "stop_reason": "error"})
+                yield _json(
+                    {
+                        "type": "done",
+                        "session_id": session_id,
+                        "cost": 0.0,
+                        "input_tokens": 0,
+                        "output_tokens": 0,
+                        "stop_reason": "error",
+                    }
+                )
                 break
 
             if should_cascade:
                 continue
 
             if got_error or stream_result is None:
-                yield _json({"type": "done", "session_id": session_id, "cost": 0.0,
-                             "input_tokens": 0, "output_tokens": 0, "stop_reason": "error"})
+                yield _json(
+                    {
+                        "type": "done",
+                        "session_id": session_id,
+                        "cost": 0.0,
+                        "input_tokens": 0,
+                        "output_tokens": 0,
+                        "stop_reason": "error",
+                    }
+                )
                 break
 
             # ── Tool continuation loops (non-streaming SDK) ──────────────
@@ -410,18 +475,21 @@ class AnthropicDirectEngine(BaseEngine):
             if stop_reason == "tool_use" and not tool_uses_raw:
                 logger.warning(
                     "Anthropic stop=tool_use but no parsable tool blocks model=%s agent=%s",
-                    attempt_model, agent_name,
+                    attempt_model,
+                    agent_name,
                 )
-                yield _json({
-                    "type": "done",
-                    "session_id": session_id,
-                    "cost": 0.0,
-                    "input_tokens": input_tokens_total,
-                    "output_tokens": output_tokens_total,
-                    "stop_reason": "tool_use_pending",
-                    "request_id": sr.request_id,
-                    "tool_call_count": 0,
-                })
+                yield _json(
+                    {
+                        "type": "done",
+                        "session_id": session_id,
+                        "cost": 0.0,
+                        "input_tokens": input_tokens_total,
+                        "output_tokens": output_tokens_total,
+                        "stop_reason": "tool_use_pending",
+                        "request_id": sr.request_id,
+                        "tool_call_count": 0,
+                    }
+                )
                 break
 
             if sr.text:
@@ -435,16 +503,18 @@ class AnthropicDirectEngine(BaseEngine):
                         agent_name,
                         [tu["name"] for tu in tool_uses_raw],
                     )
-                    yield _json({
-                        "type": "done",
-                        "session_id": session_id,
-                        "cost": 0.0,
-                        "input_tokens": input_tokens_total,
-                        "output_tokens": output_tokens_total,
-                        "stop_reason": "tool_use_pending",
-                        "request_id": sr.request_id,
-                        "tool_call_count": tool_call_count,
-                    })
+                    yield _json(
+                        {
+                            "type": "done",
+                            "session_id": session_id,
+                            "cost": 0.0,
+                            "input_tokens": input_tokens_total,
+                            "output_tokens": output_tokens_total,
+                            "stop_reason": "tool_use_pending",
+                            "request_id": sr.request_id,
+                            "tool_call_count": tool_call_count,
+                        }
+                    )
                     break
 
                 client = _make_client()
@@ -455,12 +525,14 @@ class AnthropicDirectEngine(BaseEngine):
                 if sr.text:
                     asst_content.append({"type": "text", "text": sr.text})
                 for tu in tool_uses_raw:
-                    asst_content.append({
-                        "type": "tool_use",
-                        "id": tu["id"],
-                        "name": tu["name"],
-                        "input": tu["input"],
-                    })
+                    asst_content.append(
+                        {
+                            "type": "tool_use",
+                            "id": tu["id"],
+                            "name": tu["name"],
+                            "input": tu["input"],
+                        }
+                    )
                 messages.append({"role": "assistant", "content": asst_content})
 
                 for _turn in range(_MAX_TOOL_TURNS):
@@ -488,7 +560,9 @@ class AnthropicDirectEngine(BaseEngine):
                         if is_error:
                             payload["reason"] = str(result)[:220]
                         yield _json(payload)
-                        for fe in build_frontend_events_from_result(tu["name"], tu["input"], result):
+                        for fe in build_frontend_events_from_result(
+                            tu["name"], tu["input"], result
+                        ):
                             yield fe
                         tool_results.append(_build_tool_result_block(tu["id"], result))
                     messages.append({"role": "user", "content": tool_results})
@@ -505,8 +579,12 @@ class AnthropicDirectEngine(BaseEngine):
                     try:
                         follow_msg = await client.messages.create(**kwargs)
                     except Exception as exc:
-                        logger.exception("Tool continuation failed model=%s: %s", attempt_model, exc)
-                        yield _json({"type": "text", "content": "工具调用后续处理出错，已结束本次会话。"})
+                        logger.exception(
+                            "Tool continuation failed model=%s: %s", attempt_model, exc
+                        )
+                        yield _json(
+                            {"type": "text", "content": "工具调用后续处理出错，已结束本次会话。"}
+                        )
                         stop_reason = "error"
                         break
 
@@ -524,11 +602,13 @@ class AnthropicDirectEngine(BaseEngine):
                             yield _json({"type": "tool_call", "tool": short, "status": "calling"})
                             for fe in build_frontend_events(block.name, block.input):
                                 yield fe
-                            tool_uses_raw.append({
-                                "id": block.id,
-                                "name": block.name,
-                                "input": block.input,
-                            })
+                            tool_uses_raw.append(
+                                {
+                                    "id": block.id,
+                                    "name": block.name,
+                                    "input": block.input,
+                                }
+                            )
                             tool_call_count += 1
 
                     if follow_text:
@@ -543,22 +623,26 @@ class AnthropicDirectEngine(BaseEngine):
                     if follow_text:
                         asst_content.append({"type": "text", "text": follow_text})
                     for tu in tool_uses_raw:
-                        asst_content.append({
-                            "type": "tool_use",
-                            "id": tu["id"],
-                            "name": tu["name"],
-                            "input": tu["input"],
-                        })
+                        asst_content.append(
+                            {
+                                "type": "tool_use",
+                                "id": tu["id"],
+                                "name": tu["name"],
+                                "input": tu["input"],
+                            }
+                        )
                     messages.append({"role": "assistant", "content": asst_content})
 
-            yield _json({
-                "type": "done",
-                "session_id": session_id,
-                "cost": 0.0,
-                "input_tokens": input_tokens_total,
-                "output_tokens": output_tokens_total,
-                "stop_reason": stop_reason,
-                "request_id": sr.request_id,
-                "tool_call_count": tool_call_count,
-            })
+            yield _json(
+                {
+                    "type": "done",
+                    "session_id": session_id,
+                    "cost": 0.0,
+                    "input_tokens": input_tokens_total,
+                    "output_tokens": output_tokens_total,
+                    "stop_reason": stop_reason,
+                    "request_id": sr.request_id,
+                    "tool_call_count": tool_call_count,
+                }
+            )
             break

@@ -479,6 +479,13 @@ COMMAND_CENTER = AgentDef(
 3. 收到结果后，必要时调用 UI 工具通知用户
 4. 汇总多个 agent 的结果时，保持简洁清晰
 
+页面导航硬规则（必须遵守）：
+- 当用户明确表达“进入/跳转/打开/带我去某页面”时，必须先调用 navigate_page。
+- 只有在 navigate_page 调用后，才可以说“已为你跳转”。
+- 如果未调用 navigate_page，禁止输出“已跳转/已打开页面”等完成态表述。
+- 导航后建议调用 show_toast 给出确认提示。
+- 可用路由：/dashboard, /mbti-test, /careers, /learning-path, /experiments, /documents, /ai-advisor, /notes, /graph, /profile
+
 禁止行为：
 - 不要尝试直接处理笔记/文档/代码/图谱业务（你没有这些工具）
 - 不要重复执行已委托的任务

@@ -16,7 +16,12 @@ logger = logging.getLogger("pathmind")
 async def detect_models():
     """Query API /v1/models and update model config."""
     base = settings.anthropic_base_url.rstrip("/")
-    url = f"{base}/v1/models"
+    if base.endswith("/v1/messages"):
+        base = base[: -len("/messages")]
+    if base.endswith("/v1"):
+        url = f"{base}/models"
+    else:
+        url = f"{base}/v1/models"
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             resp = await client.get(
@@ -34,8 +39,7 @@ async def detect_models():
 
         def pick_latest(keyword: str) -> str | None:
             candidates = [
-                m for m in available
-                if keyword in m and "thinking" not in m and "agentic" not in m
+                m for m in available if keyword in m and "thinking" not in m and "agentic" not in m
             ]
             return sorted(candidates)[-1] if candidates else None
 
@@ -88,6 +92,7 @@ async def lifespan(app: FastAPI):
 
     # Pre-warm TLS connection to NVIDIA API (avoids 5.7s cold TLS on first request)
     from app.engines.openai_engine import _get_shared_client
+
     try:
         client = _get_shared_client()
         warmup = await client.get(
@@ -105,6 +110,7 @@ async def lifespan(app: FastAPI):
 
     # Close shared httpx client
     from app.engines.openai_engine import _shared_client
+
     if _shared_client and not _shared_client.is_closed:
         await _shared_client.aclose()
 
